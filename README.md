@@ -2,18 +2,20 @@
 
 **物理为骨 · 因果为肌 · 感知为眼**
 
-四层架构的物理因果智能体 — 从元物理原理到反事实推理的完整链路。
-
-## 架构
+四层架构的物理因果智能体 — 从元物理第一性原理到反事实推理的完整链路。
 
 ```
-元物理层 (Meta-Physics)  ← 对称性 · 熵增 · 测量坍缩
-        ↓ 约束
-物理层 (Physics)         ← 11条物理定律 + 约束传播
-        ↓ 约束
-因果层 (Causal)          ← DAG + SCM + do-calculus
-        ↓
-感知层 (Perception)      ← 传感器→语义变量 (stub)
+元物理层 (5/5 原则)    ← 最小作用量 / 对称性 / 熵增 / 局域因果 / 信息边界
+  │ 约束
+物理层 (11条定律)      ← Newton / Hooke / Maxwell / ...
+  │ 约束
+因果层 (12模块)        ← DAG / SCM / do-calculus / PC / FCI / GES
+  │
+感知层 (4后端)         ← simple / image / timeseries / object_detect
+
+横切基础设施:
+  spectral/            ← PCA / SVD / 谱图论 / Koopman (本征值=重要性)
+  information/         ← Shannon / 互信息 / KL / 信息瓶颈 / Jaynes 最大熵
 ```
 
 ## 快速开始
@@ -24,46 +26,72 @@ python agent.py
 ```
 
 ```
-> status          # 查看各层状态
-> symmetry mass,velocity,height  # 对称性检测
-> worlds x=1,v=2 x=0.5;v=2 v   # 多世界反事实
+> status                          # 各层状态
+> symmetry mass,velocity,height   # 对称性检测
+> pipeline data.csv T Y           # 端到端管线
 ```
 
-## 模块
+## 文档
 
-| 层 | 模块 | 功能 |
-|----|------|------|
-| 元物理 | `meta_physics/symmetry.py` | 对称性检测 + Noether 定理 + 守恒律验证 |
-| 元物理 | `meta_physics/entropy.py` | 熵箭头 + 因果方向判定 + 不可逆过程识别 |
-| 元物理 | `meta_physics/measurement.py` | 测量坍缩 = do() 干预 + 多世界反事实 |
-| 物理 | `physics/laws.py` | PhysicsLaw + PhysicsLibrary (11条定律) |
-| 物理 | `physics/constraints.py` | 物理约束因果图 |
-| 感知 | `perception/encoder.py` | PerceptualEncoder 接口 + SimpleFeatureExtractor |
+| 文档 | 内容 |
+|------|------|
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | 完整架构设计 + 元物理五原则 + 压缩即理解 |
+| [COMPRESSION_TAXONOMY.md](docs/COMPRESSION_TAXONOMY.md) | 七条压缩路径分类学 |
+| [GAP_ANALYSIS.md](docs/GAP_ANALYSIS.md) | 缺口分析与路线图 (P0/P1/P2) |
+
+## 架构
+
+```
+physcausal/
+├── meta_physics/      元物理层 — 五条第一性原理 (5/5)
+│   ├── least_action.py   ① 最小作用量 δS=0
+│   ├── symmetry.py       ② 对称性 → 守恒 (Noether)
+│   ├── entropy.py        ③ 熵增 → 因果箭头
+│   ├── locality.py       ④ 局域因果 — 光锥验证
+│   └── measurement.py    ⑤ 信息边界 — 获取信息=投影
+│
+├── spectral/          横切层 — 特征分解
+│   └── spectral.py       PCA / SVD / 谱图论 / Koopman
+│
+├── information/       横切层 — 信息度量
+│   ├── shannon.py        Shannon / 互信息 / KL / JS / 传递熵
+│   ├── bottleneck.py     信息瓶颈 (感知压缩理论基础)
+│   └── jaynes.py         最大熵原理 (连接概率与物理)
+│
+├── physics/           物理层 — 11条定律 + 约束
+├── causal/            因果层 — 12模块 (DAG/SCM/discovery/estimation/...)
+├── perception/        感知层 — 4后端
+├── integration/       桥接层 — perception/physics/pipeline
+│
+└── tests/             143 tests
+```
 
 ## 测试
 
 ```bash
-python -m pytest tests/ -v
+cd physcausal
+python -c "
+import sys, os, importlib
+sys.path.insert(0,'.'); os.chdir('/home/duyw/physcausal')
+# ... run all test modules
+"
+# 143/143 passing
 ```
-
-## 与 causal_agent 的关系
-
-PhysCausal 是 causal_agent 的进化版。causal_agent 提供了完整的因果推断引擎（PC/FCI/GES + SCM + do-calculus），PhysCausal 在此基础上增加了：
-- 元物理层（对称性、熵增、测量坍缩）
-- 物理层增强
-- 感知层架构
 
 ## 路线图
 
 | 阶段 | 内容 | 状态 |
 |------|------|:--:|
-| Phase 0 | 架构设计 + 项目骨架 | ✅ |
-| Phase 1 | 元物理层 (symmetry + entropy + measurement) | ✅ |
-| Phase 2 | 物理层迁移 + 增强 | 待开始 |
-| Phase 3 | 因果层适配 (对接 causal_agent) | 待开始 |
-| Phase 4 | 层间桥接 (四层联通) | 待开始 |
-| Phase 5 | 推理引擎 (反事实+归因+规划) | 待开始 |
-| Phase 6 | 感知层 MVP | 待开始 |
+| v0.1 | 元物理五原则 + 因果层 + 感知层 + 桥接 | ✅ |
+| v0.4 | 主动实验设计 (Causal Bandit) | P0 |
+| v0.5 | 层次化抽象 / 涌现 | P0 |
+| v0.6 | 组合泛化 (Modular SCM) | P0 |
+| v0.7 | 自由能原理 (Active Inference) | P0 |
+| v0.8 | Bayesian SCM + 不确定性量化 | P1 |
+| v0.9 | 因果规划 + 元学习 | P1 |
+| v1.0 | 可演示的通用物理因果智能体 | |
+
+详见 [GAP_ANALYSIS.md](docs/GAP_ANALYSIS.md)
 
 ## 许可证
 
