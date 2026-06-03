@@ -59,6 +59,9 @@ except ImportError:
 # Agent Shell
 # ═══════════════════════════════════════════════════════════════
 
+from llm.bridge import LLMBridge
+
+
 class PhysCausalAgent:
     """PhysCausal Agent — 四层架构的物理因果智能体"""
 
@@ -66,7 +69,8 @@ class PhysCausalAgent:
         self.meta_physics_enabled = True
         self.physics_enabled = True
         self.causal_enabled = True
-        self.perception_enabled = False  # Phase 6
+        self.perception_enabled = False
+        self.llm = LLMBridge()  # Phase 6
 
     def status(self) -> str:
         layers = [
@@ -175,6 +179,86 @@ class PhysCausalAgent:
         pl = PhysCausalPipeline()
         return pl.quick_analyze(data, header, treatment, outcome)
 
+    def ask(self, question: str, verbose: bool = True) -> str:
+        """LLM 自然语言提问"""
+        if not self.llm.is_available():
+            return yellow("LLM not available. Set DEEPSEEK_API_KEY or configure ~/.hermes/causal_config.json")
+
+        result = self.llm.ask(question, verbose=verbose)
+
+        analysis = result.get("analysis", {})
+        explanation = result.get("explanation", "")
+
+        lines = []
+        if verbose:
+            lines.append(bold("=== PhysCausal Analysis ==="))
+        graph = result.get("graph", {})
+        lines.append(f"{bold('Variables:')} {', '.join(graph.get('variables', []))}")
+        edges = graph.get("edges", [])
+        if edges:
+            lines.append(f"{bold('Causal graph:')} {', '.join(f'{s}→{d}' for s,d in edges)}")
+
+        if analysis.get("ate") is not None:
+            lines.append(f"\n{bold('Effect:')}")
+            lines.append(f"  ATE = {analysis['ate']:.4f} ± {analysis['std_error']:.4f}")
+            if analysis.get("ci"):
+                lines.append(f"  95% CI: [{analysis['ci'][0]:.4f}, {analysis['ci'][1]:.4f}]")
+            lines.append(f"  Method: {analysis.get('method', '?')}")
+            if analysis.get("adjustment_set"):
+                lines.append(f"  Adjusted for: {', '.join(analysis['adjustment_set'])}")
+        elif analysis.get("identifiable") is False:
+            lines.append(f"\n{yellow('Effect not identifiable from data')}")
+
+        if explanation:
+            lines.append(f"\n{bold('Explanation:')}")
+            lines.append(explanation)
+        return "\n".join(lines)
+
+    def creative_transfer(self, source: str, target_vars: str,
+                          target_types: str, data_file: str) -> str:
+        """跨域骨架迁移"""
+        import numpy as np
+        from creative.evolution import CreativeEvolution
+
+        target_list = [v.strip() for v in target_vars.split(",")]
+        type_dict = {}
+        for pair in target_types.split(","):
+            k, v = pair.strip().split(":")
+            type_dict[k.strip()] = v.strip()
+
+        try:
+            data = np.loadtxt(data_file, delimiter=",", skiprows=1)
+        except Exception:
+            data = np.loadtxt(data_file, delimiter=",")
+
+        evo = CreativeEvolution()
+        result = evo.cross_domain_discover(source, target_list, type_dict, data)
+
+        if result["success"]:
+            lines = [bold("=== Cross-Domain Discovery ===")]
+            lines.append(f"Source module: {cyan(source)}")
+            lines.append(f"Discovered edges: {green(str(result['discovered_edges']))}")
+            lines.append(f"Skeleton: {result.get('skeleton', 'N/A')}")
+            lines.append(f"Score: {result['score']:.1f}")
+            return "\n".join(lines)
+        return yellow(f"Transfer failed: {result.get('reason', 'unknown')}")
+
+    def creative_evolve(self, data_file: str, variables: str, generations: int = 30) -> str:
+        """进化搜索因果结构"""
+        import numpy as np
+        from creative.evolution import CreativeEvolution
+
+        var_list = [v.strip() for v in variables.split(",")]
+        try:
+            data = np.loadtxt(data_file, delimiter=",", skiprows=1)
+        except Exception:
+            data = np.loadtxt(data_file, delimiter=",")
+
+        evo = CreativeEvolution()
+        result = evo.evolve(data, var_list, n_generations=generations,
+                            population_size=15, verbose=False)
+        return evo.report(result)
+
 
 # ═══════════════════════════════════════════════════════════════
 # CLI
@@ -204,7 +288,12 @@ def run_interactive():
 
             if cmd in ("help", "h"):
                 print(f"""{bold('Commands:')}
+  ask <natural language question> — LLM-powered causal analysis
   pipeline <file.csv> <T> <Y> — run full pipeline (perception→causal)
+  creative transfer <src> <vars> <types> <file> — cross-domain skeleton
+  creative evolve <file> <vars> [gens] — evolution search
+  modules                       — list known causal modules
+  skeletons                     — list cross-domain skeletons
   status                        — show layer status
   symmetry <var1,var2,...>      — detect symmetries
   entropy <file.csv> <A> <B>    — infer causal direction via entropy
@@ -241,6 +330,41 @@ def run_interactive():
                     print(red("Usage: pipeline <file.csv> <treatment> <outcome>"))
                 else:
                     print(agent.pipeline(parts[0], parts[1], parts[2]))
+
+            elif cmd == "ask":
+                if not rest:
+                    print(red("Usage: ask <your causal question in natural language>"))
+                else:
+                    print(agent.ask(rest))
+
+            elif cmd == "modules":
+                from creative.module_library import ModuleLibrary
+                lib = ModuleLibrary()
+                for m in lib.list_all():
+                    edges_str = ", ".join(f"{a}→{b}" for a, b in m.edges)
+                    print(f"  {cyan(m.name)} [{m.domain}]: {edges_str}")
+
+            elif cmd == "skeletons":
+                from creative.skeleton_library import SkeletonLibrary
+                sk_lib = SkeletonLibrary()
+                for s in sk_lib.list_all():
+                    print(f"  {magenta(s.name)}: {s.description}")
+
+            elif cmd == "creative":
+                sub = rest.split()
+                if not sub:
+                    print(red("Usage: creative transfer|evolve ..."))
+                elif sub[0] == "transfer":
+                    if len(sub) < 5:
+                        print(red("Usage: creative transfer <source_module> <var1,var2> <type1:val,type2:val> <file.csv>"))
+                    else:
+                        print(agent.creative_transfer(sub[1], sub[2], sub[3], sub[4]))
+                elif sub[0] == "evolve":
+                    if len(sub) < 3:
+                        print(red("Usage: creative evolve <file.csv> <var1,var2> [generations]"))
+                    else:
+                        gens = int(sub[3]) if len(sub) > 3 else 30
+                        print(agent.creative_evolve(sub[1], sub[2], gens))
 
             else:
                 print(yellow(f"Unknown command: {cmd}. Type 'help'."))

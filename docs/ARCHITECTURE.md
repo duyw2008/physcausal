@@ -415,9 +415,75 @@ causal/
 └── sensitivity.py    # Rosenbaum + E-value
 ```
 
+### 4.1 贝叶斯推断与因果推断的关系
+
+贝叶斯推断和因果推断不在同一个维度上——不是替代关系，是正交互补。
+
+```
+                无因果                      有因果
+─────────────────────────────────────────────────────
+频率学派    P(Y|X) = 回归系数          do-calculus + OLS
+            「X和Y相关」              「do(X)对Y的效应」
+
+贝叶斯      P(θ|D) ∝ P(D|θ)P(θ)      P(θ, G|D) ∝ P(D|G,θ)P(θ|G)P(G)
+            「我对θ的信念」            「我对因果结构和参数的信念」
+```
+
+PhysCausal 站在右下角——**贝叶斯因果推断**。
+
+**分工：**
+
+```
+causal 回答:     「X 对 Y 的因果效应是多少？」
+bayesian 回答:   「你对这个答案有多大把握？」
+                 「如果数据增加 10 倍，答案会变多少？」
+                 「要不要做实验？做哪个？」
+```
+
+**包裹关系（不替代）：**
+
+```
+bayesian/          ← 不确定性壳
+  │ 包裹
+causal/            ← 因果引擎 (不变)
+  │
+  PC → DAG          原来: 一个 DAG
+  PC → P(G|D)       现在: DAG 的分布
+
+  OLS → ATE          原来: 一个 ATE
+  OLS + prior       现在: ATE 的后验
+     → P(ATE|G,D)
+```
+
+bayesian/ 不做因果推断——它不替代 do-calculus、不替代 SCM。它**包裹**因果引擎，输出概率而非点估计。
+
+**对应 P1 缺口：**
+
+```
+GAP_ANALYSIS.md P1:
+  ✅ 不确定性量化 — Bayesian SCM (structural.py + parameter.py)
+  ✅ 主动实验设计 — VOI 驱动 (active_learning.py)
+```
+
 ---
 
-## 五、感知层 (Perception) — 「眼睛」
+## 五、贝叶斯层 (Bayesian) — 「不确定性壳」
+
+```
+bayesian/
+├── structural.py     # P(G|D): 图的结构后验 (Bootstrap / MCMC)
+├── parameter.py      # P(θ|G,D): 参数后验 (共轭先验 + 物理先验注入)
+└── active_learning.py # VOI: 信息价值驱动的主动实验选择
+
+三个核心问题:
+  1. 不确定的图 — P(G|D) 而非单点 DAG
+  2. 不确定的效应 — P(ATE|G,D) 而非点估计
+  3. 最优下一步 — argmax_a I(G; do(a)) 信息增益最大的实验
+```
+
+---
+
+## 六、感知层 (Perception) — 「眼睛」
 
 ```
 perception/
@@ -428,7 +494,7 @@ perception/
 
 ---
 
-## 六、层间桥接 (Integration)
+## 七、层间桥接 (Integration)
 
 ```
 integration/
@@ -440,7 +506,7 @@ integration/
 
 ---
 
-## 七、推理引擎 (Inference)
+## 八、推理引擎 (Inference)
 
 ```
 inference/
@@ -451,7 +517,7 @@ inference/
 
 ---
 
-## 八、模块清单
+## 九、模块清单
 
 ```
 physcausal/
@@ -488,6 +554,11 @@ physcausal/
 │   ├── discovery.py
 │   ├── mediation.py
 │   └── sensitivity.py
+├── bayesian/                   # ★ 贝叶斯层 — 不确定性壳
+│   ├── __init__.py
+│   ├── structural.py           # P(G|D) 结构后验 (Bootstrap/MCMC)
+│   ├── parameter.py            # P(θ|G,D) 参数后验 (共轭+物理先验)
+│   └── active_learning.py      # VOI 主动实验设计
 ├── perception/
 │   ├── __init__.py
 │   ├── encoder.py             # PerceptualEncoder + SimpleFeatureExtractor
@@ -503,6 +574,14 @@ physcausal/
 │   ├── counterfactual.py
 │   ├── attribution.py
 │   └── planner.py
+├── creative/                   # ★ 创造性联想层 — 进化式结构发现
+│   ├── module_library.py       # 14 个预置因果模块 (4 领域)
+│   ├── skeleton_library.py     # 9 个跨领域因果骨架
+│   ├── mutation.py             # 5 种加权变异算子
+│   ├── filter.py               # 三层过滤 (物理→BIC→新颖性)
+│   └── evolution.py            # 进化主循环
+├── llm/                        # ★ LLM 层 — DeepSeek 自然语言接口
+│   ├── bridge.py               # 五步管道 (语言→因果→解释)
 ├── tests/
 ├── demos/
 └── docs/
@@ -511,7 +590,7 @@ physcausal/
 
 ---
 
-## 九、从元物理到反事实的完整数据流
+## 十、从元物理到反事实的完整数据流
 
 ```
 输入: 摄像机拍到球碰撞
@@ -567,7 +646,7 @@ physcausal/
 
 ---
 
-## 十、与其他路线的对比
+## 十一、与其他路线的对比
 
 ```
                 GPT/Sora    PhysCausal
@@ -581,7 +660,7 @@ physcausal/
 
 ---
 
-## 十一、开发阶段
+## 十二、开发阶段
 
 | 阶段 | 内容 | 状态 |
 |------|------|:--:|
