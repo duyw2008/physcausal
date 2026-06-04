@@ -56,7 +56,7 @@ class CreativeEvolution:
                novelty_threshold: float = 0.3,
                verbose: bool = True) -> Dict:
         """
-        运行进化循环。
+        运行进化循环 — 模拟退火 + 精英保留 + 种群多样性。
 
         Args:
             data: 观测数据
@@ -69,41 +69,78 @@ class CreativeEvolution:
             novelty_threshold: 新颖性阈值
 
         Returns:
-            {
-                "generations": n,
-                "total_candidates": int,
-                "survivors": int,
-                "discoveries": [...],
-                "best_graph": (edges, score),
-            }
+            {generations, total_candidates, survivors, discoveries, best_graph}
         """
-        # 初始化: 随机图
-        population = self._init_population(
-            variable_names, population_size
-        )
+        # 初始化
+        population = self._init_population(variable_names, population_size)
+        known_modules = list(self.module_lib.list_all())
 
         best_graph = None
         best_score = -float("inf")
-        known_modules = list(self.module_lib.list_all())
-
         total_candidates = 0
         survivors = 0
+        elite_size = max(2, population_size // 5)
+
+        # 模拟退火温度
+        T_start = 1.0
+        T_end = 0.01
 
         for gen in range(n_generations):
             self.generation = gen
-            new_population = []
 
-            for i in range(population_size):
-                # 选父代: 精英选择
-                parent = population[i % len(population)]
+            # 温度衰减
+            T = T_start * (T_end / T_start) ** (gen / max(n_generations - 1, 1))
 
-                # 变异
+            # 评估当前种群
+            scored = []
+            for edges in population:
+                result = self.filter.full_filter(
+                    list(edges), variable_names, data,
+                    known_modules=known_modules,
+                    forbidden_edges=forbidden_edges,
+                    required_edges=required_edges,
+                    novelty_threshold=novelty_threshold,
+                )
+                scored.append((edges, result["tier1_score"], result.get("tier2_novel", False)))
+
+            # 精英保留 — 得分最高的前 20%
+            scored.sort(key=lambda x: -x[1])
+            elites = [s[0] for s in scored[:elite_size]]
+            best_current_score = scored[0][1]
+            if best_current_score > best_score:
+                best_score = best_current_score
+                best_graph = list(scored[0][0])
+
+            # 多样性维护 — 对不同结构的个体也保留
+            diverse = []
+            seen_structures = set()
+            for edges_set, score, novel in scored:
+                key = frozenset(tuple(e) for e in edges_set)
+                if key not in seen_structures:
+                    seen_structures.add(key)
+                    diverse.append(edges_set)
+                if len(diverse) >= population_size // 2:
+                    break
+
+            # 新一代
+            new_population = list(elites)
+
+            while len(new_population) < population_size:
+                # 选父代: 锦标赛选择 (从精英+diverse中)
+                pool = elites + diverse[:population_size]
+                if len(pool) < 2:
+                    pool = list(population)
+                i1, i2 = np.random.choice(len(pool), 2, replace=False)
+                parent = pool[i1] if scored[min(i1, len(scored)-1)][1] > scored[min(i2, len(scored)-1)][1] else pool[i2]
+
+                # 变异 (模拟退火: 高温→大变异, 低温→小变异)
+                n_mutations = max(1, int(3 * T))
                 mutated = self.mutator.mutate(
-                    list(parent), variable_names, type_signatures, n_mutations=2
+                    list(parent), variable_names, type_signatures, n_mutations=n_mutations
                 )
                 total_candidates += 1
 
-                # 过滤
+                # 过滤 (退火: 高温时接受较差的解)
                 result = self.filter.full_filter(
                     mutated, variable_names, data,
                     known_modules=known_modules,
@@ -116,41 +153,32 @@ class CreativeEvolution:
                     new_population.append(set(mutated))
                     survivors += 1
 
-                    score = result["tier1_score"]
-                    if score > best_score:
-                        best_score = score
-                        best_graph = list(mutated)
-
-                    # 足够新颖 → 记录为发现
                     if result.get("tier2_novel", False):
-                        skeleton = self.skeleton_lib.suggest_skeleton(
-                            mutated, len(variable_names)
-                        )
-                        discovery = {
-                            "generation": gen,
-                            "edges": list(mutated),
-                            "score": score,
+                        skeleton = self.skeleton_lib.suggest_skeleton(mutated, len(variable_names))
+                        self.discoveries.append({
+                            "generation": gen, "edges": list(mutated),
+                            "score": result["tier1_score"],
                             "novelty": result["tier2_score"],
                             "skeleton": skeleton,
-                        }
-                        self.discoveries.append(discovery)
+                        })
+                elif T > 0.3:
+                    # 高温时偶尔接受次优解 (保持多样性)
+                    if np.random.random() < 0.1:
+                        new_population.append(set(mutated))
 
-                        if verbose and len(self.discoveries) % 5 == 0:
-                            print(f"  Gen {gen}: Discovery! "
-                                  f"edges={len(mutated)}, score={score:.1f}, "
-                                  f"novelty={result['tier2_score']:.2f}")
-
-            # 保持种群大小
-            population = new_population[:population_size] if new_population else population
+            population = new_population[:population_size]
 
             # 收敛检查
-            if len(self.discoveries) > 10 and gen > 50:
-                recent = self.discoveries[-5:]
-                scores = [d["score"] for d in recent]
-                if max(scores) - min(scores) < 0.01:
+            if gen > 20 and len(self.discoveries) > 5:
+                recent = [d["score"] for d in self.discoveries[-5:]]
+                if max(recent) - min(recent) < 0.001:
                     if verbose:
-                        print(f"  Converged at gen {gen}")
+                        print(f"  Converged at gen {gen} (T={T:.3f})")
                     break
+
+            if verbose and gen % 20 == 0:
+                print(f"  Gen {gen}: pop={len(population)}, T={T:.3f}, "
+                      f"best_score={best_score:.1f}, discoveries={len(self.discoveries)}")
 
         return {
             "generations": self.generation + 1,
@@ -162,25 +190,45 @@ class CreativeEvolution:
         }
 
     def _init_population(self, variables, size):
-        """初始化种群 — 随机稀疏图"""
+        """初始化种群 — PC引导 + 随机扰动"""
         pop = []
         n = len(variables)
-        for _ in range(size):
-            edges = set()
-            for i in range(n):
-                for j in range(i + 1, n):
-                    if np.random.random() < 0.3:  # 30% 密度
-                        if np.random.random() < 0.5:
-                            edges.add((variables[i], variables[j]))
-                        else:
-                            edges.add((variables[j], variables[i]))
-            # 只保留有效的 DAG
+
+        # 尝试用 PC 算法做初始种子
+        try:
+            from causal.discovery import pc_algorithm
+            # 生成一些引导数据 (纯随机，只为了获取 PC 的结构)
+            seed_data = np.random.randn(200, n)
+            dag = pc_algorithm(seed_data, variables, alpha=0.2)
+            pc_edges = set()
+            for v in variables:
+                for c in dag.children(v):
+                    pc_edges.add((v, c))
+            if pc_edges:
+                pop.append(pc_edges)
+        except Exception:
+            pc_edges = set()
+
+        # 填充剩余个体: 从 PC 骨架变异
+        for _ in range(size - len(pop)):
+            edges = set(pc_edges) if pc_edges else set()
+            # 随机扰动: 加/删/反转 1-2 条边
+            for __ in range(3):
+                if edges and np.random.random() < 0.5:
+                    e = list(edges)[np.random.randint(len(edges))]
+                    edges.discard(e)
+                i, j = np.random.choice(n, 2, replace=False)
+                a, b = variables[i], variables[j]
+                if np.random.random() < 0.3:
+                    if not self.mutator._would_create_cycle(edges, (a, b), variables):
+                        edges.add((a, b))
             try:
                 from causal.graph import CausalDAG
                 CausalDAG(variables, list(edges))
                 pop.append(edges)
             except Exception:
                 pop.append(set())
+
         return pop
 
     def cross_domain_discover(self,
