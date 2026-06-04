@@ -212,3 +212,49 @@ class ModuleLibrary:
             "domains": domains,
             "compatible_pairs": len(self.compatible_pairs()),
         }
+
+    def deduplicate(self) -> int:
+        """
+        去重: 移除拓扑完全相同或子图等价的模块。
+
+        Returns:
+          移除的模块数量
+        """
+        removed = 0
+        keys = list(self.modules.keys())
+
+        # 按边集的规范化形式去重
+        seen = {}
+        for name in keys:
+            mod = self.modules[name]
+            # 规范化: 排序后的边集
+            key = frozenset(tuple(sorted(e)) for e in mod.edges)
+            if key in seen:
+                # 保留名字更短/更原始的
+                existing = seen[key]
+                if len(name) < len(existing):
+                    del self.modules[existing]
+                    seen[key] = name
+                else:
+                    del self.modules[name]
+                removed += 1
+            else:
+                seen[key] = name
+
+        return removed
+
+    def prune_invalid_compositions(self) -> int:
+        """
+        擦除无意义的组合:
+          - 跨域组合且无共享物理定律 → 大概率假
+          - 内部无物理定律且纯抽象模板 → 不是真发现
+        """
+        removed = 0
+        for name in list(self.modules.keys()):
+            mod = self.modules[name]
+            # 跨域组合 (如 mechanics+electromagnetism) — 可疑
+            if "+" in mod.domain:
+                if not mod.physics_law or len(mod.physics_law) < 3:
+                    del self.modules[name]
+                    removed += 1
+        return removed

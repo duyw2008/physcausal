@@ -327,18 +327,23 @@ def run_interactive():
 
             if cmd in ("help", "h"):
                 print(f"""{bold('Commands:')}
-  ask <natural language question> — LLM-powered causal analysis
-  learn <env|all> [episodes] [samples] — active causal discovery
-  pipeline <file.csv> <T> <Y> — run full pipeline (perception→causal)
-  creative transfer <src> <vars> <types> <file> — cross-domain skeleton
-  creative evolve <file> <vars> [gens] — evolution search
-  modules                       — list known causal modules
-  skeletons                     — list cross-domain skeletons
-  status                        — show layer status
-  symmetry <var1,var2,...>      — detect symmetries
-  entropy <file.csv> <A> <B>    — infer causal direction via entropy
-  worlds <obs> <intv> <outcome> — multi-world counterfactual
-  quit                          — exit
+  {cyan('=== 因果分析 ===')}
+  ask <question>              — LLM causal analysis (+ physics validation)
+  pipeline <csv> <T> <Y>      — full 4-layer pipeline
+  learn <env|all> [eps] [n]   — active causal discovery ({green('7 envs')})
+
+  {cyan('=== 创造性联想 ===')}
+  creative transfer <src> <vars> <types> <csv> — cross-domain skeleton
+  creative evolve <csv> <vars> [gens] — evolution search
+  modules                      — module library ({green('auto-grows')})
+  skeletons                    — skeleton library
+  compose                      — auto-compose modules
+
+  {cyan('=== 元物理分析 ===')}
+  symmetry <v1,v2,...>         — detect symmetries
+  entropy <csv> <A> <B>        — entropy arrow
+  status                       — layer status
+  quit                         — exit
 """)
 
             elif cmd == "status":
@@ -415,6 +420,13 @@ def run_interactive():
                     else:
                         gens = int(sub[3]) if len(sub) > 3 else 30
                         print(agent.creative_evolve(sub[1], sub[2], gens))
+
+            elif cmd == "compose":
+                from composition.composer import CompositionDiscovery
+                disc = CompositionDiscovery()
+                result = disc.auto_compose()
+                print(green(f"Discovered {result['n_discovered']} compositions, "
+                             f"added {result['n_added']} to library"))
 
             else:
                 print(yellow(f"Unknown command: {cmd}. Type 'help'."))
