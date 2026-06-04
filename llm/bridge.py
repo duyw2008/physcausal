@@ -86,9 +86,10 @@ class LLMBridge:
             if json_match:
                 graph = json.loads(json_match.group())
                 # Validate required fields
-                if graph.get("variables") and graph.get("edges"):
+                if graph.get("variables"):
                     self._last_graph = graph
                     return graph
+                # variables 非空就够了 — edges 可以为空 (表示无因果关系)
         except Exception:
             pass
 
@@ -145,6 +146,22 @@ class LLMBridge:
 
     def analyze(self, graph: Dict) -> Dict:
         """运行完整因果分析管道"""
+        variables = graph.get("variables", [])
+        edges = graph.get("edges", [])
+
+        # 如果 LLM 判断无因果关系
+        if not edges:
+            return {
+                "treatment": graph.get("treatment", ""),
+                "outcome": graph.get("outcome", ""),
+                "ate": None,
+                "std_error": None,
+                "ci": None,
+                "method": "LLM判断: 无边 = 无因果关系",
+                "adjustment_set": [],
+                "identifiable": False,
+            }
+
         data_info = self.generate_data(graph, n_samples=300)
         if data_info.get("error"):
             return {"error": data_info["error"]}
@@ -237,11 +254,90 @@ class LLMBridge:
 
     # ═══ 完整管道 ═══
 
+    def _validate_graph(self, graph: Dict) -> Dict:
+        """
+        Step 1.5: 物理验证 — LLM 的因果图是否正确？
+
+        用元物理五原则验证每一条边:
+          - 因果方向 (Acceleration → Mass? 违反 F=ma)
+          - 局域因果 (类空间隔?)
+          - 守恒律 (反事实后守恒量是否保持?)
+
+        Returns:
+          修正后的 graph，修正的边会被标记
+        """
+        variables = graph.get("variables", [])
+        edges = graph.get("edges", [])
+        if not edges:
+            return graph
+
+        # 查物理定律库 — 是否有禁止边
+        from physics.laws import library as phys_lib
+
+        # 中英文变量名映射
+        ZH_MAP = {
+            "力": "force", "质量": "mass", "加速度": "acceleration",
+            "速度": "velocity", "位移": "displacement", "时间": "time",
+            "能量": "energy", "动量": "momentum", "功": "work",
+            "电压": "voltage", "电流": "current", "电阻": "resistance",
+            "功率": "power", "温度": "temperature", "压力": "pressure",
+            "体积": "volume", "密度": "density", "长度": "length",
+            "频率": "frequency", "周期": "period",
+            "分子运动": "kinetic_energy", "动能": "kinetic_energy",
+            "分子动能": "kinetic_energy", "分子运动加剧": "kinetic_energy",
+            "波长": "wavelength", "频率": "frequency", "声速": "wave_speed",
+            "入射角": "incident_angle", "折射角": "refraction_angle",
+            "反射角": "reflection_angle", "焦距": "focal_length",
+            "物距": "object_distance", "像距": "image_distance",
+            "截面积": "cross_section", "流速": "flow_rate",
+            "磁通量": "magnetic_flux_change", "感应电流": "induced_current",
+            "热量": "heat_power", "声源速度": "source_velocity",
+            "观测频率": "observed_frequency",
+        }
+
+        # 变量 → 英文 (用于匹配物理定律库)
+        vars_en = [ZH_MAP.get(v, v.lower()) for v in variables]
+        forbidden_en = phys_lib.forbidden_edges(vars_en)
+
+        # forbidden_en 是英文 → 找对应中文
+        forbidden_zh = set()
+        en_to_zh = {ZH_MAP.get(v, v.lower()): v for v in variables}
+        for src_en, dst_en in forbidden_en:
+            src_zh = en_to_zh.get(src_en, src_en)
+            dst_zh = en_to_zh.get(dst_en, dst_en)
+            forbidden_zh.add((src_zh, dst_zh))
+        corrected = []
+        corrections = []
+
+        for src, dst in edges:
+            if (src, dst) in forbidden_zh:
+                # 找到禁止的反向边 → 反转它
+                law_name = "unknown"
+                for law in phys_lib.find_relevant(vars_en):
+                    src_en = ZH_MAP.get(src, src.lower())
+                    dst_en = ZH_MAP.get(dst, dst.lower())
+                    if (src_en, dst_en) in law.forbidden_directions:
+                        law_name = law.name
+                        break
+                corrected.append((dst, src))
+                corrections.append(
+                    f"REVERSED {src}→{dst} → {dst}→{src} ({law_name})"
+                )
+            else:
+                corrected.append((src, dst))
+
+        if corrections:
+            graph = dict(graph)
+            graph["edges"] = corrected
+            graph["_corrections"] = corrections
+
+        return graph
+
     def ask(self, question: str, verbose: bool = True) -> Dict:
         """
         完整 LLM+PhysCausal 管道。
 
-        用户用自然语言提问 → 因果图 → 分析 → 中文解释。
+        用户用自然语言提问 → 因果图 → 物理验证 → 分析 → 中文解释。
         """
         if verbose:
             print(f"  Query: {question}")
@@ -254,6 +350,24 @@ class LLMBridge:
             print(f"    Variables: {graph.get('variables', [])}")
             print(f"    Edges: {graph.get('edges', [])}")
             print(f"    Treatment: {graph.get('treatment')}, Outcome: {graph.get('outcome')}")
+
+        # Step 1.5: Physics validation
+        if verbose: print("  Step 1.5: Physics validation...")
+        graph = self._validate_graph(graph)
+        corrections = graph.get("_corrections", [])
+        if corrections and verbose:
+            for c in corrections:
+                print(f"    ⚠ {c}")
+            # 更新 treatment/outcome 如果被反转的边涉及它们
+            edges = graph.get("edges", [])
+            if edges and graph.get("treatment") and graph.get("outcome"):
+                edge_set = set(tuple(e) for e in edges)
+                t, o = graph["treatment"], graph["outcome"]
+                if (o, t) in edge_set and (t, o) not in edge_set:
+                    # LLM 的因果方向被物理定律反转了
+                    graph["treatment"], graph["outcome"] = o, t
+                    if verbose:
+                        print(f"    ⚠ Treatment/Outcome swapped: {o}→{t}")
 
         # Step 2+3+4
         if verbose: print("  Step 2-4: PhysCausal analysis...")

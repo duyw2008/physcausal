@@ -179,6 +179,45 @@ class PhysCausalAgent:
         pl = PhysCausalPipeline()
         return pl.quick_analyze(data, header, treatment, outcome)
 
+    def learn(self, env_name: str, episodes: int = 5, samples: int = 30) -> str:
+        """主动学习 — 通过干预实验发现因果结构"""
+        from env.physics_sim import make_env, ENV_REGISTRY
+        from rl.active_learner import ActiveLearner
+
+        if env_name == "all":
+            learner = ActiveLearner(None)
+            results = learner.run_all_envs(
+                n_episodes=episodes, verbose=False
+            )
+            return learner._summary(results) or "Learning complete. Check module library."
+
+        if env_name not in ENV_REGISTRY:
+            available = ", ".join(ENV_REGISTRY.keys())
+            return yellow(f"Unknown env: {env_name}. Available: {available}")
+
+        env = make_env(env_name)
+        learner = ActiveLearner(env)
+        result = learner.run(
+            n_episodes=episodes,
+            samples_per_experiment=samples,
+            verbose=False,
+        )
+
+        lines = [bold(f"=== Active Learning: {env_name} ===")]
+        lines.append(f"Episodes: {result['episodes']}")
+        lines.append(f"Samples: {result['total_samples']}")
+        lines.append(f"Discovered: {result['correct']}/{len(result['true_edges'])} edges "
+                     f"({result['accuracy']:.0%})")
+        if result['false_positives']:
+            lines.append(yellow(f"False positives: {result['false_positives']}"))
+        if result['missed']:
+            lines.append(yellow(f"Missed: {result['missed']}"))
+        lines.append(f"Experiments: {', '.join(f'do({e})' for e in result['experiments'])}")
+        if result['module_added']:
+            lines.append(green(f"📦 Module added to library"))
+        lines.append(f"Converged: {result['converged']}")
+        return "\n".join(lines)
+
     def ask(self, question: str, verbose: bool = True) -> str:
         """LLM 自然语言提问"""
         if not self.llm.is_available():
@@ -289,6 +328,7 @@ def run_interactive():
             if cmd in ("help", "h"):
                 print(f"""{bold('Commands:')}
   ask <natural language question> — LLM-powered causal analysis
+  learn <env|all> [episodes] [samples] — active causal discovery
   pipeline <file.csv> <T> <Y> — run full pipeline (perception→causal)
   creative transfer <src> <vars> <types> <file> — cross-domain skeleton
   creative evolve <file> <vars> [gens] — evolution search
@@ -336,6 +376,16 @@ def run_interactive():
                     print(red("Usage: ask <your causal question in natural language>"))
                 else:
                     print(agent.ask(rest))
+
+            elif cmd == "learn":
+                parts = rest.split()
+                if not parts:
+                    print(red("Usage: learn <circuit|pendulum|spring|collision|all> [episodes] [samples]"))
+                else:
+                    env = parts[0]
+                    eps = int(parts[1]) if len(parts) > 1 else 5
+                    sam = int(parts[2]) if len(parts) > 2 else 30
+                    print(agent.learn(env, eps, sam))
 
             elif cmd == "modules":
                 from creative.module_library import ModuleLibrary

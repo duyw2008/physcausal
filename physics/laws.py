@@ -172,7 +172,54 @@ class PhysicsLibrary:
             formula=lambda q1, q2, r: 8.99e9 * q1 * q2 / (r * r) if r != 0 else 0.0,
             causal_direction=[("q1", "force_electric"), ("q2", "force_electric"), ("r", "force_electric")],
         ))
+        self.register(PhysicsLaw(
+            name="Faraday", domain="electromagnetism",
+            latex=r"\mathcal{E} = -\frac{d\Phi_B}{dt}",
+            inputs=["magnetic_flux_change"], outputs=["induced_emf"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda magnetic_flux_change: -magnetic_flux_change,
+            causal_direction=[("magnetic_flux_change", "induced_emf")],
+            forbidden_directions=[("induced_emf", "magnetic_flux_change")],
+            # 变化的磁场产生电场 — 因果方向不可逆
+        ))
+        self.register(PhysicsLaw(
+            name="Ampere", domain="electromagnetism",
+            latex=r"\oint B \cdot dl = \mu_0 I",
+            inputs=["current"], outputs=["magnetic_field"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda current: current,
+            causal_direction=[("current", "magnetic_field")],
+        ))
+        self.register(PhysicsLaw(
+            name="Lenz", domain="electromagnetism",
+            latex=r"感应电流的方向是阻碍磁通量变化的方向",
+            inputs=["magnetic_flux_change"], outputs=["induced_current"],
+            constraint_type=ConstraintType.DAG_EDGE,
+            formula=lambda magnetic_flux_change: -magnetic_flux_change,
+            causal_direction=[("magnetic_flux_change", "induced_current")],
+            forbidden_directions=[("induced_current", "magnetic_flux_change")],
+        ))
+        self.register(PhysicsLaw(
+            name="Joule Heating", domain="electromagnetism",
+            latex=r"P = I^2 R",
+            inputs=["current", "resistance"], outputs=["heat_power"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda current, resistance: current * current * resistance,
+            causal_direction=[("current", "heat_power"), ("resistance", "heat_power")],
+            forbidden_directions=[("heat_power", "current")],
+            # 热量不能反向驱动电流 (熵增)
+        ))
         # ── 热力学 ──
+        self.register(PhysicsLaw(
+            name="Kinetic Theory", domain="thermodynamics",
+            latex=r"T = \frac{2}{3k_B} \langle \frac{1}{2}mv^2 \rangle",
+            inputs=["kinetic_energy"], outputs=["temperature"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda kinetic_energy, k_B=1.38e-23: (2/(3*k_B)) * kinetic_energy if k_B != 0 else 0.0,
+            causal_direction=[("kinetic_energy", "temperature")],
+            forbidden_directions=[("temperature", "kinetic_energy")],
+            # 温度是分子平均动能的统计量 — 结构因果方向: KE→T, 不是 T→KE
+        ))
         self.register(PhysicsLaw(
             name="Ideal Gas", domain="thermodynamics",
             latex=r"PV = nRT",
@@ -188,6 +235,77 @@ class PhysicsLibrary:
             inputs=["density", "velocity", "height"], outputs=["pressure"],
             constraint_type=ConstraintType.CONSERVATION,
             formula=lambda density, velocity, height: 0.0,  # 用于验证
+        ))
+        self.register(PhysicsLaw(
+            name="Continuity", domain="fluids",
+            latex=r"A_1 v_1 = A_2 v_2",
+            inputs=["cross_section"], outputs=["velocity"],
+            constraint_type=ConstraintType.CONSERVATION,
+            formula=lambda cross_section, v: 0.0,
+            causal_direction=[("cross_section", "velocity")],
+            forbidden_directions=[("velocity", "cross_section")],
+            # 截面积减小→流速增大 (不可逆因果)
+        ))
+        self.register(PhysicsLaw(
+            name="Poiseuille", domain="fluids",
+            latex=r"Q = \frac{\pi r^4}{8\eta} \frac{\Delta P}{L}",
+            inputs=["radius", "pressure_diff", "viscosity", "length"],
+            outputs=["flow_rate"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda radius, pressure_diff, viscosity, length: 
+                np.pi * radius**4 * pressure_diff / (8 * viscosity * length) if viscosity * length != 0 else 0.0,
+            causal_direction=[("radius", "flow_rate"), ("pressure_diff", "flow_rate")],
+        ))
+        # ── 光学 ──
+        self.register(PhysicsLaw(
+            name="Snell", domain="optics",
+            latex=r"n_1 \sin\theta_1 = n_2 \sin\theta_2",
+            inputs=["n1", "n2", "incident_angle"], outputs=["refraction_angle"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda n1, n2, incident_angle: 
+                np.arcsin(n1 * np.sin(incident_angle) / n2) if n2 != 0 else 0.0,
+            causal_direction=[("n1", "refraction_angle"), ("n2", "refraction_angle"), 
+                            ("incident_angle", "refraction_angle")],
+            forbidden_directions=[("refraction_angle", "incident_angle")],
+        ))
+        self.register(PhysicsLaw(
+            name="Lens", domain="optics",
+            latex=r"\frac{1}{f} = \frac{1}{u} + \frac{1}{v}",
+            inputs=["object_distance", "focal_length"], outputs=["image_distance"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda object_distance, focal_length: 
+                1 / (1/focal_length - 1/object_distance) if abs(1/focal_length - 1/object_distance) > 1e-10 else 0.0,
+            causal_direction=[("object_distance", "image_distance"), ("focal_length", "image_distance")],
+        ))
+        self.register(PhysicsLaw(
+            name="Reflection", domain="optics",
+            latex=r"\theta_i = \theta_r",
+            inputs=["incident_angle"], outputs=["reflection_angle"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda incident_angle: incident_angle,
+            causal_direction=[("incident_angle", "reflection_angle")],
+            forbidden_directions=[("reflection_angle", "incident_angle")],
+        ))
+        # ── 声学 ──
+        self.register(PhysicsLaw(
+            name="WaveSpeed", domain="acoustics",
+            latex=r"v = \lambda f",
+            inputs=["wavelength", "frequency"], outputs=["wave_speed"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda wavelength, frequency: wavelength * frequency,
+            causal_direction=[("wavelength", "wave_speed"), ("frequency", "wave_speed")],
+        ))
+        self.register(PhysicsLaw(
+            name="Doppler", domain="acoustics",
+            latex=r"f' = f \frac{v \pm v_o}{v \mp v_s}",
+            inputs=["source_frequency", "source_velocity", "observer_velocity"],
+            outputs=["observed_frequency"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda source_frequency, source_velocity, observer_velocity, v_sound=343:
+                source_frequency * (v_sound + observer_velocity) / (v_sound - source_velocity) if v_sound != source_velocity else source_frequency,
+            causal_direction=[("source_velocity", "observed_frequency"), 
+                            ("observer_velocity", "observed_frequency")],
+            forbidden_directions=[("observed_frequency", "source_velocity")],
         ))
 
 
