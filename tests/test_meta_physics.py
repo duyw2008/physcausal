@@ -7,8 +7,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import numpy as np
 from meta_physics.symmetry import (
-    SymmetryType, SymmetryDetector, SymmetryBreakingDetector
+    SymmetryType, SymmetryDetector,
 )
+from physics.symmetry_breaking import SymmetryBreakingDetector
 from meta_physics.entropy import EntropyArrow
 
 

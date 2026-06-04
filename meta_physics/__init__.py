@@ -24,7 +24,7 @@
 
 from meta_physics.symmetry import (
     SymmetryType, ConservationLaw, Symmetry,
-    SymmetryDetector, SymmetryBreakingDetector,
+    SymmetryDetector,
 )
 
 from meta_physics.least_action import (
@@ -46,7 +46,7 @@ from meta_physics.measurement import (
 __all__ = [
     # Symmetry
     "SymmetryType", "ConservationLaw", "Symmetry",
-    "SymmetryDetector", "SymmetryBreakingDetector",
+    "SymmetryDetector",
     # Least Action
     "Lagrangian", "ActionResult", "ActionPrinciple",
     "NoetherBridge", "CausalPathValidator",
