@@ -235,11 +235,121 @@ class SpringEnv(PhysicsEnv):
 # Registry
 # ═══════════════════════════════════════════════════════════════
 
+# ── 电磁学 ──
+
+class FaradayEnv(PhysicsEnv):
+    """法拉第电磁感应: dΦ/dt → ε (感应电动势)"""
+    
+    def __init__(self, noise_std: float = 0.05):
+        super().__init__(
+            name="faraday",
+            variables=["flux_change", "induced_emf", "coil_turns"],
+            ground_truth_edges=[("flux_change", "induced_emf"), ("coil_turns", "induced_emf")],
+            domain="electromagnetism",
+            noise_std=noise_std,
+        )
+        self.flux_change = 1.0
+        self.coil_turns = 10
+        self.reset()
+
+    def reset(self):
+        self.flux_change = np.random.uniform(0.1, 5.0)
+        self.coil_turns = np.random.uniform(1, 50)
+
+    def observe(self) -> Dict[str, float]:
+        emf = -self.coil_turns * self.flux_change
+        emf += np.random.normal(0, self.noise_std * abs(emf))
+        return {"flux_change": self.flux_change, "coil_turns": self.coil_turns,
+                "induced_emf": emf}
+
+    def intervene(self, var: str, value: float) -> Dict[str, float]:
+        if var == "flux_change": self.flux_change = value
+        elif var == "coil_turns": self.coil_turns = value
+        return self.observe()
+
+# ── 光学 ──
+
+class SnellEnv(PhysicsEnv):
+    """Snell 折射定律: n1, θ1, n2 → θ2"""
+    
+    def __init__(self, noise_std: float = 0.02):
+        super().__init__(
+            name="snell",
+            variables=["n1", "theta1", "n2", "theta2"],
+            ground_truth_edges=[("n1", "theta2"), ("theta1", "theta2"), ("n2", "theta2")],
+            domain="optics",
+            noise_std=noise_std,
+        )
+        self.n1 = 1.0; self.theta1 = 0.5; self.n2 = 1.5
+        self.reset()
+
+    def reset(self):
+        self.n1 = np.random.uniform(1.0, 1.0)
+        self.theta1 = np.random.uniform(0.1, 1.0)
+        self.n2 = np.random.uniform(1.0, 2.5)
+
+    def observe(self) -> Dict[str, float]:
+        ratio = self.n1 * np.sin(self.theta1) / self.n2
+        ratio = np.clip(ratio, -1.0, 1.0)
+        theta2 = np.arcsin(ratio)
+        theta2 += np.random.normal(0, self.noise_std)
+        return {"n1": self.n1, "theta1": self.theta1, "n2": self.n2, "theta2": theta2}
+
+    def intervene(self, var: str, value: float) -> Dict[str, float]:
+        if var == "n1": self.n1 = value
+        elif var == "theta1": self.theta1 = value
+        elif var == "n2": self.n2 = value
+        return self.observe()
+
+# ── 声学 ──
+
+class DopplerEnv(PhysicsEnv):
+    """多普勒效应: f_s, v_s, v_o → f'"""
+    
+    def __init__(self, noise_std: float = 0.03):
+        super().__init__(
+            name="doppler",
+            variables=["source_freq", "source_vel", "observer_vel", "observed_freq"],
+            ground_truth_edges=[
+                ("source_freq", "observed_freq"),
+                ("source_vel", "observed_freq"),
+                ("observer_vel", "observed_freq"),
+            ],
+            domain="acoustics",
+            noise_std=noise_std,
+        )
+        self.source_freq = 440.0
+        self.source_vel = 0.0
+        self.observer_vel = 0.0
+        self.v_sound = 343.0
+        self.reset()
+
+    def reset(self):
+        self.source_freq = np.random.uniform(200, 1000)
+        self.source_vel = np.random.uniform(-30, 30)
+        self.observer_vel = np.random.uniform(-30, 30)
+
+    def observe(self) -> Dict[str, float]:
+        f_obs = self.source_freq * (self.v_sound + self.observer_vel) / (self.v_sound - self.source_vel)
+        f_obs += np.random.normal(0, self.noise_std * self.source_freq)
+        return {"source_freq": self.source_freq, "source_vel": self.source_vel,
+                "observer_vel": self.observer_vel, "observed_freq": f_obs}
+
+    def intervene(self, var: str, value: float) -> Dict[str, float]:
+        if var == "source_freq": self.source_freq = value
+        elif var == "source_vel": self.source_vel = value
+        elif var == "observer_vel": self.observer_vel = value
+        return self.observe()
+
+
 ENV_REGISTRY = {
     "pendulum": PendulumEnv,
     "collision": CollisionEnv,
     "circuit": CircuitEnv,
     "spring": SpringEnv,
+    "faraday": FaradayEnv,
+    "snell": SnellEnv,
+    "doppler": DopplerEnv,
 }
 
 def make_env(name: str) -> PhysicsEnv:

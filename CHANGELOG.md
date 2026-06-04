@@ -4,6 +4,31 @@
 
 ---
 
+## v0.2.1 (2026-05-18) — 仿真环境 + 主动学习
+
+### 新增
+
+| 模块 | 说明 |
+|------|------|
+| `env/physics_sim.py` | 7 个物理仿真环境 (pendulum/collision/circuit/spring/faraday/snell/doppler) |
+| `rl/active_learner.py` | VOI→干预→数据→更新信念→模块自动入库 |
+| `physics/laws.py` | 12→22 条定律, 4→6 领域 (+光学/声学, +Faraday/Ampere/Lenz/Joule) |
+| `llm/bridge.py` | Step 1.5 物理验证 + 中英变量映射 |
+
+### Agent 命令
+
+```
+> learn circuit 3 20     # 主动因果发现
+> learn all              # 全部 7 个环境
+> modules                # 查看模块库 (手工 + 自动发现)
+```
+
+### 测试
+
+172/172 passing
+
+---
+
 ## v0.2.0 (2026-05-18) — 贝叶斯层 + 创造性联想 + LLM 接口
 
 ### 新增模块
