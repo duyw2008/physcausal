@@ -43,7 +43,10 @@ python agent.py
 
 | 文档 | 内容 |
 |------|------|
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | 完整架构设计 + 元物理五原则 + 压缩哲学 |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | 完整架构设计 — 正确架构图 + 模块全景 |
+| [META_PHYSICS.md](docs/META_PHYSICS.md) | 元物理五条第一性原理详解 |
+| [PHYSICS_MODELS.md](docs/PHYSICS_MODELS.md) | 22条物理定律 — LaTeX + 因果方向 |
+| [MATHEMATICAL_FOUNDATIONS.md](docs/MATHEMATICAL_FOUNDATIONS.md) | 数学基础 — SCM/do-演算/反事实/谱/信息论 |
 | [COMPRESSION_TAXONOMY.md](docs/COMPRESSION_TAXONOMY.md) | 七条压缩路径分类学 |
 | [GAP_ANALYSIS.md](docs/GAP_ANALYSIS.md) | 缺口分析 + 路线图 (P0/P1/P2) |
 | [AI_ASSOCIATION.md](docs/AI_ASSOCIATION.md) | AI 联想能力分析 |
