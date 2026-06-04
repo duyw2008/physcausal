@@ -15,6 +15,7 @@ import numpy as np
 from perception.encoder import SimpleFeatureExtractor
 from integration.perception_bridge import PerceptionToCausal, VariableSelector
 from integration.physics_bridge import PhysicsToCausal
+from integration.information_gate import InformationGate
 from spectral.spectral import SpectralDecomposer
 
 
@@ -25,9 +26,10 @@ class PhysCausalPipeline:
     端到端: 原始数据 → 因果结论
     """
 
-    def __init__(self):
+    def __init__(self, beta: float = 0.5):
         self.perception_bridge = PerceptionToCausal()
         self.physics_bridge = PhysicsToCausal()
+        self.info_gate = InformationGate(beta=beta)
 
     def run(self,
             raw_data: np.ndarray,
