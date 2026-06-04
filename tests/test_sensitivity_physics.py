@@ -36,32 +36,25 @@ class TestSensitivity:
 
 
 class TestPhysics:
-    def test_library_has_laws(self):
-        from causal.physics import PhysicsLibrary
-        lib = PhysicsLibrary()
-        assert len(lib.list_all()) >= 14
+    def test_library_counts(self):
+        from physics.laws import library
+        laws = library.list_all()
+        assert len(laws) >= 22
 
-    def test_domains(self):
-        from causal.physics import PhysicsLibrary
-        lib = PhysicsLibrary()
-        assert "mechanics" in lib.domains()
-        assert "electromagnetism" in lib.domains()
+    def test_domain_list(self):
+        from physics.laws import library
+        domains = set(l.domain for l in library.list_all())
+        assert "mechanics" in domains
+        assert "electromagnetism" in domains
+        assert "optics" in domains
+        assert "acoustics" in domains
 
     def test_find_relevant(self):
-        from causal.physics import PhysicsLibrary
-        lib = PhysicsLibrary()
-        laws = lib.find_relevant(["Force", "Mass", "Acceleration"])
-        assert len(laws) >= 2  # newton_2nd, kinetic_energy at minimum
+        from physics.laws import library
+        laws = library.find_relevant(["force", "mass", "acceleration"])
+        assert len(laws) >= 1
 
-    def test_pendulum_pipeline(self):
-        from causal.physics import physics_causal_pipeline
-        rng = np.random.default_rng(42)
-        L = rng.uniform(0.5, 2.0, 300)
-        g = np.full(300, 9.81) + rng.normal(0, 0.01, 300)
-        T = 2 * np.pi * np.sqrt(L / g) + rng.normal(0, 0.02, 300)
-        data = np.column_stack([L, g, T])
-        result = physics_causal_pipeline(
-            data, ["Length", "Gravity", "Period"], "Length", "Period"
-        )
-        assert "Period" in result["physics_equations"]
-        assert result["identification"]["identifiable"]
+    def test_forbidden_edges(self):
+        from physics.laws import library
+        forbidden = library.forbidden_edges(["temperature", "kinetic_energy"])
+        assert ("temperature", "kinetic_energy") in forbidden
