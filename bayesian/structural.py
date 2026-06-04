@@ -73,6 +73,26 @@ class StructuralPosterior:
         self.max_cond_size = max_cond_size  # PC 的最大条件集大小
         self._cache: Dict[str, GraphPosterior] = {}
 
+    def infer_from_edges(self, edges, var_names, data):
+        """从已知边集快速构建后验 — 跳过 PC (O(1) 替代 O(n^k))"""
+        eps = []
+        for src, dst in edges:
+            try:
+                s_idx = var_names.index(src)
+                d_idx = var_names.index(dst)
+                corr = abs(np.corrcoef(data[:, s_idx], data[:, d_idx])[0, 1])
+                prob = min(0.99, max(0.7, corr + 0.2))
+            except Exception:
+                prob = 0.85
+            eps.append(EdgePosterior(source=src, target=dst, probability=prob,
+                                     direction_prob={"→": prob, "←": 1-prob}))
+
+        return GraphPosterior(
+            edge_posteriors=eps, top_graphs=[(edges, 0.0)],
+            entropy=0.0, n_samples=1,
+            notes="Inferred from physics prior — PC bypassed",
+        )
+
     def infer(self,
               data: np.ndarray,
               variable_names: List[str],

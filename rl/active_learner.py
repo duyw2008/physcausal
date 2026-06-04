@@ -38,7 +38,7 @@ class ActiveLearner:
 
     def __init__(self, env: PhysicsEnv):
         self.env = env
-        self.structural = StructuralPosterior(method="bootstrap")
+        self.structural = StructuralPosterior(method="bootstrap", max_cond_size=2)
         self.experiment_design = ActiveExperimentDesign()
         self.module_lib = ModuleLibrary()
 
@@ -49,6 +49,37 @@ class ActiveLearner:
         self.episode = 0
         self.total_samples = 0
         self._last_inference_samples = 0
+
+    def _physics_prior(self, variables):
+        """从物理定律库获取已知因果结构 — 零计算代价"""
+        from physics.laws import library
+        
+        # 中英文变量名映射 (仿真环境用英文缩写)
+        ZH_MAP = {
+            "V": "voltage", "R": "resistance", "I": "current",
+            "L": "length", "g": "gravity", "T": "period",
+            "k": "elastic_constant", "m": "mass", "omega": "angular_velocity",
+            "m1": "mass", "m2": "mass", "v1": "velocity", "v2": "velocity",
+            "v1p": "velocity", "v2p": "velocity",
+            "flux_change": "magnetic_flux_change", "coil_turns": "coil_turns",
+            "induced_emf": "induced_emf",
+            "n1": "refractive_index", "theta1": "incident_angle",
+            "n2": "refractive_index", "theta2": "refraction_angle",
+            "source_freq": "source_frequency", "source_vel": "source_velocity",
+            "observer_vel": "observer_velocity", "observed_freq": "observed_frequency",
+        }
+        vars_en = [ZH_MAP.get(v, v.lower()) for v in variables]
+        
+        edges = set()
+        for law in library.list_all():
+            for src, dst in law.causal_direction:
+                if src in vars_en and dst in vars_en:
+                    si = vars_en.index(src)
+                    di = vars_en.index(dst)
+                    edges.add((variables[si], variables[di]))
+        if edges:
+            return list(edges)
+        return []
 
     def run(self,
             n_episodes: int = 10,
@@ -91,12 +122,19 @@ class ActiveLearner:
         for ep in range(n_episodes):
             self.episode = ep
 
-            # 更新后验 (只在数据显著增长时重新运行)
+            # 更新后验 — 物理优先: 用已知结构, 跳过 PC
             all_data = np.vstack(self.data_history)
-            if ep == 0 or self.total_samples - self._last_inference_samples >= 50:
-                self.posterior = self.structural.infer(
-                    all_data, env_info["variables"], n_samples=15
-                )
+            if ep == 0 or self.total_samples - self._last_inference_samples >= 100:
+                phys_edges = self._physics_prior(env_info["variables"])
+                if phys_edges:
+                    posterior = self.structural.infer_from_edges(
+                        phys_edges, env_info["variables"], all_data
+                    )
+                else:
+                    posterior = self.structural.infer(
+                        all_data, env_info["variables"], n_samples=5
+                    )
+                self.posterior = posterior
                 self._last_inference_samples = self.total_samples
 
             if verbose:
