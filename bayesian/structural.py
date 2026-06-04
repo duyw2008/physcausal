@@ -68,8 +68,10 @@ class StructuralPosterior:
       method="order":     Order MCMC (效率最高, 适用于大规模)
     """
 
-    def __init__(self, method: str = "bootstrap"):
+    def __init__(self, method: str = "bootstrap", max_cond_size: int = 2):
         self.method = method
+        self.max_cond_size = max_cond_size  # PC 的最大条件集大小
+        self._cache: Dict[str, GraphPosterior] = {}
 
     def infer(self,
               data: np.ndarray,
@@ -115,13 +117,15 @@ class StructuralPosterior:
         edge_counts: Dict[Tuple[str, str], int] = {}
         graph_samples: List[List[Tuple[str, str]]] = []
 
-        for b in range(n_samples):
-            # 重采样
-            indices = np.random.choice(n, n, replace=True)
+        # 自适应快速: 样本数和bootstrap次数都受限
+        actual = max(8, min(n_samples, n // 20))
+        for b in range(actual):
+            indices = np.random.choice(n, min(n, 80), replace=True)
             sample = data[indices]
 
             try:
-                dag = pc_algorithm(sample, var_names, alpha=alpha)
+                dag = pc_algorithm(sample, var_names, alpha=alpha,
+                                   max_cond_size=self.max_cond_size)
                 edges = set()
                 for src in var_names:
                     for dst in dag.children(src):

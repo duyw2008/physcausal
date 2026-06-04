@@ -48,6 +48,7 @@ class ActiveLearner:
         self.experiments_done: List[str] = []
         self.episode = 0
         self.total_samples = 0
+        self._last_inference_samples = 0
 
     def run(self,
             n_episodes: int = 10,
@@ -90,11 +91,13 @@ class ActiveLearner:
         for ep in range(n_episodes):
             self.episode = ep
 
-            # 更新后验
+            # 更新后验 (只在数据显著增长时重新运行)
             all_data = np.vstack(self.data_history)
-            self.posterior = self.structural.infer(
-                all_data, env_info["variables"], n_samples=30
-            )
+            if ep == 0 or self.total_samples - self._last_inference_samples >= 50:
+                self.posterior = self.structural.infer(
+                    all_data, env_info["variables"], n_samples=15
+                )
+                self._last_inference_samples = self.total_samples
 
             if verbose:
                 high = sum(1 for e in self.posterior.edge_posteriors if e.probability > 0.7)
