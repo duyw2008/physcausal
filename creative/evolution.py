@@ -101,7 +101,7 @@ class CreativeEvolution:
                     required_edges=required_edges,
                     novelty_threshold=novelty_threshold,
                 )
-                scored.append((edges, result["tier1_score"], result.get("tier2_novel", False)))
+                scored.append((edges, result.get("tier1_score", -999), result.get("tier2_novel", False)))
 
             # 精英保留 — 得分最高的前 20%
             scored.sort(key=lambda x: -x[1])
