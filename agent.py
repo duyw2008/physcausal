@@ -300,144 +300,134 @@ class PhysCausalAgent:
 
 
 # ═══════════════════════════════════════════════════════════════
-# CLI
+# CLI — Command Registry
 # ═══════════════════════════════════════════════════════════════
+
+CMD_HELP = {
+    "≡ Causal": {
+        "ask <question>":       "LLM causal analysis (+ physics validation)",
+        "learn <env|all> [e] [s]": "active discovery (7 envs)",
+        "pipeline <csv> <T> <Y>": "full 4-layer pipeline",
+    },
+    "≡ Creative": {
+        "creative transfer <src> <vars> <types> <csv>": "cross-domain skeleton",
+        "creative evolve <csv> <vars> [gen]": "evolution search",
+        "modules":               "module library (auto-grows)",
+        "skeletons":             "skeleton library",
+        "compose":               "auto-compose modules",
+    },
+    "≡ Meta-Physics": {
+        "symmetry <v1,v2,...>":  "detect symmetries + conservation",
+        "entropy <csv> <A> <B>": "entropy arrow direction",
+        "status":                "layer status",
+    },
+}
+
+def _parse_options(rest, n_min, n_max=99):
+    """Parse optional numeric arguments."""
+    parts = rest.split()
+    args = {}
+    for p in parts:
+        if '=' in p:
+            k, v = p.split('=', 1)
+            try: args[k] = int(v)
+            except: args[k] = v
+    return args
 
 def run_interactive():
     agent = PhysCausalAgent()
-
     print(bold("=" * 60))
     print(bold("  PhysCausal Agent — 物理为骨 · 因果为肌 · 感知为眼"))
-    print(bold("  v0.1.0  |  Type 'help' for commands, 'quit' to exit"))
+    print(bold("  v0.2.1  |  Type 'help' for commands, 'quit' to exit"))
     print(bold("=" * 60))
 
     while True:
         try:
             user_input = input(f"\n{cyan('>')} ").strip()
-            if not user_input:
-                continue
+            if not user_input: continue
             _add_hist(user_input)
             if user_input.lower() in ("quit", "exit", "q"):
-                _save_hist()
-                print("Goodbye!")
-                break
+                print("Goodbye!"); break
 
-            cmd = user_input.split()[0].lower()
-            rest = user_input[len(cmd):].strip()
+            parts = user_input.split()
+            cmd, rest = parts[0], " ".join(parts[1:])
 
+            # ── Help ──
             if cmd in ("help", "h"):
-                print(f"""{bold('Commands:')}
-  {cyan('=== 因果分析 ===')}
-  ask <question>              — LLM causal analysis (+ physics validation)
-  pipeline <csv> <T> <Y>      — full 4-layer pipeline
-  learn <env|all> [eps] [n]   — active causal discovery ({green('7 envs')})
+                for section, cmds in CMD_HELP.items():
+                    print(f"\n{bold(section)}")
+                    for c, desc in cmds.items():
+                        print(f"  {c:<45s} {desc}")
+                continue
 
-  {cyan('=== 创造性联想 ===')}
-  creative transfer <src> <vars> <types> <csv> — cross-domain skeleton
-  creative evolve <csv> <vars> [gens] — evolution search
-  modules                      — module library ({green('auto-grows')})
-  skeletons                    — skeleton library
-  compose                      — auto-compose modules
+            # ── Status ──
+            if cmd == "status":
+                print(agent.status()); continue
 
-  {cyan('=== 元物理分析 ===')}
-  symmetry <v1,v2,...>         — detect symmetries
-  entropy <csv> <A> <B>        — entropy arrow
-  status                       — layer status
-  quit                         — exit
-""")
+            # ── Ask ──
+            if cmd == "ask":
+                if not rest: print(red("Usage: ask <question>")); continue
+                print(agent.ask(rest)); continue
 
-            elif cmd == "status":
-                print(agent.status())
+            # ── Learn ──
+            if cmd == "learn":
+                p = rest.split()
+                if not p: print(red("Usage: learn <env|all> [episodes] [samples]")); continue
+                env, eps, sam = p[0], 3, 20
+                if len(p) > 1: eps = int(p[1])
+                if len(p) > 2: sam = int(p[2])
+                print(agent.learn(env, eps, sam)); continue
 
-            elif cmd == "symmetry":
-                if not rest:
-                    print(red("Usage: symmetry var1,var2,..."))
-                else:
-                    print(agent.analyze_physics(rest))
+            # ── Pipeline ──
+            if cmd == "pipeline":
+                p = rest.split()
+                if len(p) < 3: print(red("Usage: pipeline <csv> <T> <Y>")); continue
+                print(agent.pipeline(p[0], p[1], p[2])); continue
 
-            elif cmd == "entropy":
-                parts = rest.split()
-                if len(parts) < 3:
-                    print(red("Usage: entropy <file.csv> <var_a> <var_b>"))
-                else:
-                    print(agent.entropy_direction(parts[0], parts[1], parts[2]))
+            # ── Creative ──
+            if cmd == "creative":
+                sub = rest.split()
+                if not sub: print(red("Usage: creative transfer|evolve ...")); continue
+                if sub[0] == "transfer":
+                    if len(sub) < 5: print(red("Usage: creative transfer <src> <vars> <types> <csv>")); continue
+                    print(agent.creative_transfer(sub[1], sub[2], sub[3], sub[4])); continue
+                if sub[0] == "evolve":
+                    if len(sub) < 3: print(red("Usage: creative evolve <csv> <vars> [gen]")); continue
+                    gen = int(sub[3]) if len(sub) > 3 else 30
+                    print(agent.creative_evolve(sub[1], sub[2], gen)); continue
 
-            elif cmd == "worlds":
-                parts = rest.split()
-                if len(parts) < 3:
-                    print(red("Usage: worlds x=1,y=2 intv1;intv2 outcome_var"))
-                else:
-                    print(agent.counterfactual_worlds(parts[0], parts[1], parts[2]))
-
-            elif cmd == "pipeline":
-                parts = rest.split()
-                if len(parts) < 3:
-                    print(red("Usage: pipeline <file.csv> <treatment> <outcome>"))
-                else:
-                    print(agent.pipeline(parts[0], parts[1], parts[2]))
-
-            elif cmd == "ask":
-                if not rest:
-                    print(red("Usage: ask <your causal question in natural language>"))
-                else:
-                    print(agent.ask(rest))
-
-            elif cmd == "learn":
-                parts = rest.split()
-                if not parts:
-                    print(red("Usage: learn <circuit|pendulum|spring|collision|all> [episodes] [samples]"))
-                else:
-                    env = parts[0]
-                    eps = int(parts[1]) if len(parts) > 1 else 5
-                    sam = int(parts[2]) if len(parts) > 2 else 30
-                    print(agent.learn(env, eps, sam))
-
-            elif cmd == "modules":
+            if cmd == "modules":
                 from creative.module_library import ModuleLibrary
                 lib = ModuleLibrary()
                 for m in lib.list_all():
-                    edges_str = ", ".join(f"{a}→{b}" for a, b in m.edges)
-                    print(f"  {cyan(m.name)} [{m.domain}]: {edges_str}")
+                    print(f"  {m.name} ({m.domain}): {m.edges}"); continue
 
-            elif cmd == "skeletons":
+            if cmd == "skeletons":
                 from creative.skeleton_library import SkeletonLibrary
-                sk_lib = SkeletonLibrary()
-                for s in sk_lib.list_all():
-                    print(f"  {magenta(s.name)}: {s.description}")
+                for s in SkeletonLibrary().list_skeletons():
+                    print(f"  {s['name']}: {len(s['variables'])} vars, {len(s['edges'])} edges"); continue
 
-            elif cmd == "creative":
-                sub = rest.split()
-                if not sub:
-                    print(red("Usage: creative transfer|evolve ..."))
-                elif sub[0] == "transfer":
-                    if len(sub) < 5:
-                        print(red("Usage: creative transfer <source_module> <var1,var2> <type1:val,type2:val> <file.csv>"))
-                    else:
-                        print(agent.creative_transfer(sub[1], sub[2], sub[3], sub[4]))
-                elif sub[0] == "evolve":
-                    if len(sub) < 3:
-                        print(red("Usage: creative evolve <file.csv> <var1,var2> [generations]"))
-                    else:
-                        gens = int(sub[3]) if len(sub) > 3 else 30
-                        print(agent.creative_evolve(sub[1], sub[2], gens))
-
-            elif cmd == "compose":
+            if cmd == "compose":
                 from composition.composer import CompositionDiscovery
-                disc = CompositionDiscovery()
-                result = disc.auto_compose()
-                print(green(f"Discovered {result['n_discovered']} compositions, "
-                             f"added {result['n_added']} to library"))
+                r = CompositionDiscovery().auto_compose(verbose=False)
+                print(green(f"Discovered {r['n_discovered']}, added {r['n_added']}")); continue
 
-            else:
-                print(yellow(f"Unknown command: {cmd}. Type 'help'."))
+            # ── Meta-Physics ──
+            if cmd == "symmetry":
+                if not rest: print(red("Usage: symmetry v1,v2,...")); continue
+                print(agent.analyze_physics(rest)); continue
+
+            if cmd == "entropy":
+                p = rest.split()
+                if len(p) < 3: print(red("Usage: entropy <csv> <A> <B>")); continue
+                print(agent.entropy_direction(p[0], p[1], p[2])); continue
+
+            print(yellow(f"Unknown command: {cmd}. Type 'help'."))
 
         except KeyboardInterrupt:
-            _save_hist()
-            print("\nGoodbye!")
-            break
-        except Exception as e:
-            print(red(f"Error: {e}"))
-
+            print("\nGoodbye!"); break
+        except EOFError:
+            print("\nGoodbye!"); break
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
