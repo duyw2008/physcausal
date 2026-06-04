@@ -46,17 +46,20 @@ class CounterfactualEngine:
 
         dag = CausalDAG(variable_names, edges)
 
-        # 拟合 SCM
-        rng = np.random.RandomState(42)
+        # 拟合 SCM — 用线性回归替代 corrcoef (更准确)
         coeffs = {}
         for v in variable_names:
             parents = list(dag.parents(v))
             if parents:
-                coeffs[v] = {}
-                for p in parents:
-                    p_idx = variable_names.index(p)
-                    v_idx = variable_names.index(v)
-                    coeffs[v][p] = np.corrcoef(data[:, p_idx], data[:, v_idx])[0, 1]
+                v_idx = variable_names.index(v)
+                y = data[:, v_idx]
+                X = np.column_stack([data[:, variable_names.index(p)] for p in parents])
+                X = np.column_stack([np.ones(len(y)), X])  # +截距
+                try:
+                    beta = np.linalg.lstsq(X, y, rcond=None)[0]
+                    coeffs[v] = {p: beta[i+1] for i, p in enumerate(parents)}
+                except Exception:
+                    coeffs[v] = {p: 0.0 for p in parents}
 
         scm = linear_scm(dag, coeffs, noise_std=0.1)
 

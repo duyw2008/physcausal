@@ -74,6 +74,34 @@ class PhysCausalPipeline:
         selected_vars = perception_result["variable_names"]
         selected_data = perception_result["data"]
 
+        # ═══ Stage 1.5: 信息质检 ═══
+        n_orig = raw_data.shape[1]
+        n_comp = selected_data.shape[1]
+        if verbose:
+            print(f"\n  Information Gate: {n_orig}dim → {n_comp}dim")
+
+        target_data = None
+        if outcome and outcome in variable_names:
+            t_idx = variable_names.index(outcome)
+            target_data = raw_data[:, t_idx]
+
+        info_result = self.info_gate.measure_compression(
+            raw_data, selected_data, target_data,
+            step_name=f"perception_{n_orig}d_to_{n_comp}d"
+        )
+        stages["information"] = info_result
+
+        if verbose:
+            print(f"    I(T;Y) retained: {info_result['i_ty']:.1%}  "
+                  f"{info_result['verdict']}")
+
+        if info_result["verdict"] == "warning" and n_comp > 3:
+            if verbose:
+                print("    ⚠ High info loss, keeping more dimensions...")
+            # 回退: 保留更多维度
+            selected_vars = variable_names[:max(n_comp + 2, n_orig // 2)]
+            selected_data = raw_data[:, :len(selected_vars)]
+
         # ═══ Stage 2: 因果发现 ═══
         if verbose:
             print(f"\n=== Stage 2: Causal Discovery ===")

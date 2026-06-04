@@ -248,13 +248,30 @@ class ModuleLibrary:
         擦除无意义的组合:
           - 跨域组合且无共享物理定律 → 大概率假
           - 内部无物理定律且纯抽象模板 → 不是真发现
+          - 自组合 (A∘A) → 无意义
         """
         removed = 0
         for name in list(self.modules.keys()):
             mod = self.modules[name]
-            # 跨域组合 (如 mechanics+electromagnetism) — 可疑
-            if "+" in mod.domain:
-                if not mod.physics_law or len(mod.physics_law) < 3:
-                    del self.modules[name]
-                    removed += 1
+            keep = True
+
+            # 自组合 — 无意义
+            if "∘" in name:
+                parts = name.split("∘")
+                if len(parts) == 2 and parts[0] == parts[1]:
+                    keep = False
+
+            # 跨域组合 — 需要有共享物理定律
+            elif "+" in mod.domain:
+                if not mod.physics_law or len(mod.physics_law) < 5:
+                    keep = False
+
+            # 纯抽象模板 — 不是真发现
+            if mod.physics_law == "" and len(mod.edges) > 4:
+                keep = False
+
+            if not keep:
+                del self.modules[name]
+                removed += 1
+
         return removed
