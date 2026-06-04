@@ -258,6 +258,20 @@ class PhysicsLibrary:
         ))
         # ── 光学 ──
         self.register(PhysicsLaw(
+            name="Locality", domain="relativity",
+            latex=r"\Delta s^2 = c^2\Delta t^2  - \Delta x^2 \geq 0",
+            inputs=["time", "distance"], outputs=["causal_possible"],
+            constraint_type=ConstraintType.DAG_EDGE,
+            formula=lambda time, distance, c=3e8: 1 if c * time >= distance else 0,
+            causal_direction=[],
+            forbidden_directions=[],
+            # 局域因果: 原因必须在结果的光锥之内
+            # 类空间隔的事件不能有直接因果联系
+            # 这不是元规律——Newton 力学里因果是瞬时的
+            # 只是在我们的宇宙里, SR 是正确的
+        ))
+        # ── 光学 ──
+        self.register(PhysicsLaw(
             name="Snell", domain="optics",
             latex=r"n_1 \sin\theta_1 = n_2 \sin\theta_2",
             inputs=["n1", "n2", "incident_angle"], outputs=["refraction_angle"],
