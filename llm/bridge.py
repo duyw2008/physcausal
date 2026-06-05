@@ -122,6 +122,22 @@ class LLMBridge:
             "磁": ["magnetic_flux_change", "induced_emf", "Faraday"],
             "频率": ["frequency", "wavelength", "wave_speed", "Doppler"],
             "摆": ["length", "gravity", "period", "Pendulum: T=2π√(L/g)"],
+            # 新增 9 条
+            "引力": ["mass", "distance", "force_gravity", "Gravity: F=GMm/r²"],
+            "重力": ["mass", "acceleration", "force", "Gravity: F=mg"],
+            "碰撞": ["m1", "m2", "v1", "v2", "Momentum: conservation"],
+            "动量": ["mass", "velocity", "momentum", "Momentum: p=mv"],
+            "透镜": ["object_distance", "focal_length", "image_distance", "Lens: 1/f=1/u+1/v"],
+            "焦距": ["focal_length", "object_distance", "image_distance", "Lens"],
+            "气体": ["pressure", "volume", "temperature", "Ideal Gas: PV=nRT"],
+            "气压": ["pressure", "volume", "temperature", "Ideal Gas"],
+            "流体": ["velocity", "pressure", "density", "Bernoulli"],
+            "流速": ["cross_section", "velocity", "flow_rate", "Continuity: A1v1=A2v2"],
+            "发热": ["current", "resistance", "heat_power", "Joule: P=I²R"],
+            "反射": ["incident_angle", "reflection_angle", "Reflection: θi=θr"],
+            "做功": ["force", "displacement", "energy", "Work: W=F·d"],
+            "动能": ["mass", "velocity", "kinetic_energy", "KE: ½mv²"],
+            "能量": ["mass", "velocity", "energy", "KE + PE conservation"],
         }
 
         hints = []
