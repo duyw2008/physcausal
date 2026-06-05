@@ -167,31 +167,31 @@ class CollisionEnv(PhysicsEnv):
 # ═══════════════════════════════════════════════════════════════
 
 class CircuitEnv(PhysicsEnv):
-    """电路: V, R → I (Ohm 定律)"""
+    """电路: I, R → V (Ohm 定律 V=IR)"""
     
     def __init__(self, noise_std: float = 0.03):
         super().__init__(
             name="circuit",
-            variables=["V", "R", "I"],
-            ground_truth_edges=[("V", "I"), ("R", "I")],
+            variables=["I", "R", "V"],
+            ground_truth_edges=[("I", "V"), ("R", "V")],
             domain="electromagnetism",
             noise_std=noise_std,
         )
-        self.V = 5.0
+        self.I = 0.5
         self.R = 10.0
         self.reset()
 
     def reset(self):
         rng = np.random
-        self.V = rng.uniform(1, 12)
+        self.I = rng.uniform(0.1, 2.0)
         self.R = rng.uniform(1, 100)
 
     def observe(self) -> Dict[str, float]:
-        I = self.V / self.R + np.random.normal(0, self.noise_std * self.V / self.R)
-        return {"V": self.V, "R": self.R, "I": I}
+        V = self.I * self.R + np.random.normal(0, self.noise_std * self.I * self.R)
+        return {"I": self.I, "R": self.R, "V": V}
 
     def intervene(self, var: str, value: float) -> Dict[str, float]:
-        if var == "V": self.V = value
+        if var == "I": self.I = value
         elif var == "R": self.R = value
         return self.observe()
 

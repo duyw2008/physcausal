@@ -47,11 +47,52 @@ class LLMBridge:
 
     # ═══ Step 1: LLM → 因果图 ═══
 
+    THEORY_KEYWORDS = ["如果", "假如", "假设", "要是", "推理", "推导", "为什么",
+                       "怎么", "如何计算", "证明", "理论上", "if", "why", "prove"]
+
+    def _is_theoretical(self, question: str) -> bool:
+        """检测是否是理论推导问题 (不需要数据, 只需定律+数学)"""
+        return any(kw in question for kw in self.THEORY_KEYWORDS)
+
+    def _theory_context(self, question: str) -> str:
+        """
+        为理论问题注入完整物理定律库。
+
+        LLM + 定律库 = 符号推理引擎
+        """
+        from physics.laws import library
+
+        # 找相关定律
+        relevant = library.find_relevant(self._all_law_variables())[:10]
+
+        lines = ["你是一个精通理论物理推导的科学家。"]
+        lines.append("以下是 PhysCausal 物理定律库中的相关定律, 请用它们进行严格推导:")
+        lines.append("")
+
+        for law in relevant[:8]:
+            eq = law.latex if hasattr(law, 'latex') and law.latex else law.name
+            lines.append(f"  {law.name} ({law.domain}): {eq}")
+            if law.causal_direction:
+                dirs = [f"{s}->{d}" for s, d in law.causal_direction]
+                lines.append(f"    因果方向: {', '.join(dirs)}")
+            if law.forbidden_directions:
+                fdirs = [f"{s}->{d}" for s, d in law.forbidden_directions]
+                lines.append(f"    禁止方向: {', '.join(fdirs)}")
+
+        lines.append("")
+        lines.append("请基于以上定律进行数学推导，给出严格答案。")
+        lines.append("如果推导涉及积分、极限或对称性分析，请明确写出每一步。")
+        return "\n".join(lines)
+
+    def _all_law_variables(self) -> list:
+        from physics.laws import library
+        vars_ = set()
+        for law in library.list_all():
+            vars_.update(law.inputs)
+            vars_.update(law.outputs)
+        return list(vars_)
+
     CAUSAL_GRAPH_PROMPT = """你是一个因果推断专家。从以下自然语言描述中提取因果图。
-
-描述: {question}
-
-请以严格的 JSON 格式返回，只返回 JSON:
 {{
   "variables": ["变量1", "变量2", ...],
   "edges": [["原因", "结果"], ...],
@@ -105,7 +146,7 @@ class LLMBridge:
 
         让 LLM 知道: 这个问题涉及哪些物理变量，不能漏掉。
         """
-        from physics.laws import library
+        hints = []
 
         # 关键词 → 变量映射
         KEYWORD_MAP = {
@@ -310,6 +351,22 @@ class LLMBridge:
 
     # ═══ 完整管道 ═══
 
+    def _ask_theoretical(self, question: str, verbose: bool) -> Dict:
+        """理论问题模式 — 不生成数据, 直接推导"""
+        if verbose:
+            print("  Mode: THEORETICAL (laws + math, no data needed)")
+
+        theory_prompt = self._theory_context(question)
+        response = self.client.chat([
+            {"role": "user", "content": f"{theory_prompt}\n\n问题: {question}"}
+        ])
+        return {
+            "question": question,
+            "graph": {"variables": [], "edges": [], "mode": "theoretical"},
+            "analysis": {"ate": None, "method": "theoretical derivation"},
+            "explanation": response,
+        }
+
     def _validate_graph(self, graph: Dict) -> Dict:
         """
         Step 1.5: 物理验证 — LLM 的因果图是否正确？
@@ -378,6 +435,10 @@ class LLMBridge:
         """
         if verbose:
             print(f"  Query: {question}")
+
+        # 检测理论问题 — 用定律库 + 数学推导
+        if self._is_theoretical(question) and self.is_available():
+            return self._ask_theoretical(question, verbose)
 
         # Step 1
         if verbose: print("  Step 1: LLM extracting causal graph...")

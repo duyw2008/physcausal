@@ -27,7 +27,7 @@ ZH_MAP = {
     "观测频率": "observed_frequency",
     # 仿真环境变量名映射
     "V": "voltage", "R": "resistance", "I": "current",
-    "L": "length", "g": "gravity", "T": "period",
+    "L": "length", "g": "g", "T": "period",
     "k": "elastic_constant", "m": "mass", "omega": "angular_velocity",
     "m1": "mass", "m2": "mass", "v1": "velocity", "v2": "velocity",
     "v1p": "velocity", "v2p": "velocity",
