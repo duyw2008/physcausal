@@ -330,28 +330,9 @@ class LLMBridge:
         # 查物理定律库 — 是否有禁止边
         from physics.laws import library as phys_lib
 
-        # 中英文变量名映射
-        ZH_MAP = {
-            "力": "force", "质量": "mass", "加速度": "acceleration",
-            "速度": "velocity", "位移": "displacement", "时间": "time",
-            "能量": "energy", "动量": "momentum", "功": "work",
-            "电压": "voltage", "电流": "current", "电阻": "resistance",
-            "功率": "power", "温度": "temperature", "压力": "pressure",
-            "体积": "volume", "密度": "density", "长度": "length",
-            "频率": "frequency", "周期": "period",
-            "分子运动": "kinetic_energy", "动能": "kinetic_energy",
-            "分子动能": "kinetic_energy", "分子运动加剧": "kinetic_energy",
-            "波长": "wavelength", "频率": "frequency", "声速": "wave_speed",
-            "入射角": "incident_angle", "折射角": "refraction_angle",
-            "反射角": "reflection_angle", "焦距": "focal_length",
-            "物距": "object_distance", "像距": "image_distance",
-            "截面积": "cross_section", "流速": "flow_rate",
-            "磁通量": "magnetic_flux_change", "感应电流": "induced_current",
-            "热量": "heat_power", "声源速度": "source_velocity",
-            "观测频率": "observed_frequency",
-        }
-
-        # 变量 → 英文 (用于匹配物理定律库)
+        # 统一的变量名映射
+        from shared import ZH_MAP
+        
         vars_en = [ZH_MAP.get(v, v.lower()) for v in variables]
         forbidden_en = phys_lib.forbidden_edges(vars_en)
 

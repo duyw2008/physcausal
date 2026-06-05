@@ -53,33 +53,8 @@ class ActiveLearner:
     def _physics_prior(self, variables):
         """从物理定律库获取已知因果结构 — 零计算代价"""
         from physics.laws import library
-        
-        # 中英文变量名映射 (仿真环境用英文缩写)
-        ZH_MAP = {
-            "V": "voltage", "R": "resistance", "I": "current",
-            "L": "length", "g": "gravity", "T": "period",
-            "k": "elastic_constant", "m": "mass", "omega": "angular_velocity",
-            "m1": "mass", "m2": "mass", "v1": "velocity", "v2": "velocity",
-            "v1p": "velocity", "v2p": "velocity",
-            "flux_change": "magnetic_flux_change", "coil_turns": "coil_turns",
-            "induced_emf": "induced_emf",
-            "n1": "refractive_index", "theta1": "incident_angle",
-            "n2": "refractive_index", "theta2": "refraction_angle",
-            "source_freq": "source_frequency", "source_vel": "source_velocity",
-            "observer_vel": "observer_velocity", "observed_freq": "observed_frequency",
-        }
-        vars_en = [ZH_MAP.get(v, v.lower()) for v in variables]
-        
-        edges = set()
-        for law in library.list_all():
-            for src, dst in law.causal_direction:
-                if src in vars_en and dst in vars_en:
-                    si = vars_en.index(src)
-                    di = vars_en.index(dst)
-                    edges.add((variables[si], variables[di]))
-        if edges:
-            return list(edges)
-        return []
+        from shared import ZH_MAP, physics_prior
+        return physics_prior(variables)
 
     def run(self,
             n_episodes: int = 10,
