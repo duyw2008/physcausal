@@ -104,10 +104,16 @@ class CausalMDP:
         false_pos = len(discovered - self.true_edges)
         accuracy = correct / max(self.n_true, 1)
 
-        # 奖励设计
-        reward = accuracy * 10.0          # 准确率奖励
-        reward -= false_pos * 2.0         # 假阳性惩罚
-        reward += accuracy * 0.5          # 效率: 步数越少越好
+        # 奖励: 改进 vs 上一轮 + 发现奖励
+        # 用 edge 置信度变化来判断进步
+        prev_correct = self._prev_correct if hasattr(self, '_prev_correct') else 0
+        self._prev_correct = correct
+
+        improvement = correct - prev_correct  # +1 = 发现新边, -1 = 丢边
+        reward = improvement * 5.0            # 发现奖励 (大)
+        reward += accuracy * 2.0              # 准确率 (持续信号)
+        reward -= false_pos * 1.0             # 假阳性惩罚 (轻)
+        reward -= self.step_count * 0.05      # 步数惩罚 (微小, 鼓励效率)
 
         # 是否完成
         done = (self.step_count >= self.max_steps or
@@ -131,8 +137,13 @@ class CausalQLearner:
     """
 
     def __init__(self, env, n_bins: int = 5,
-                 alpha: float = 0.3, gamma: float = 0.9,
-                 epsilon: float = 0.3):
+                 alpha: float = 0.5, gamma: float = 0.95,
+                 epsilon: float = 0.8):
+        """
+        alpha:   学习率 (0.5 = 快速学习)
+        gamma:   折扣因子 (0.95 = 重视长期回报)
+        epsilon: 初始探索率 (0.8 = 开始时多探索)
+        """
         self.mdp = CausalMDP(env)
         self.n_bins = n_bins
         self.alpha = alpha
@@ -202,10 +213,12 @@ class CausalQLearner:
             acc = state[0] if len(state) >= 1 else 0.0
             accuracies.append(acc)
 
-            if verbose and (ep + 1) % 10 == 0:
-                self.epsilon = max(0.05, self.epsilon * 0.95)  # 衰减
-                print(f"  Ep {ep+1}: reward={total_reward:.1f}, "
-                      f"acc={acc:.0%}, epsilon={self.epsilon:.2f}")
+            if verbose and (ep + 1) % 20 == 0:
+                self.epsilon = max(0.05, self.epsilon * 0.97)  # 慢衰减
+                avg_r = np.mean(episode_rewards[-10:])
+                avg_acc = np.mean(accuracies[-10:])
+                print(f"  Ep {ep+1}: reward={avg_r:.1f}, "
+                      f"acc={avg_acc:.0%}, epsilon={self.epsilon:.2f}")
 
         return {
             "n_episodes": n_episodes,
