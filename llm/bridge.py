@@ -74,7 +74,11 @@ class LLMBridge:
         if not self.is_available():
             return self._fallback_graph(question)
 
+        # 注入物理上下文 — 让 LLM 知道不该漏掉哪些变量
+        physics_hint = self._detect_physics_context(question)
         prompt = self.CAUSAL_GRAPH_PROMPT.format(question=question)
+        if physics_hint:
+            prompt += f"\n\n物理定律提示 (根据问题自动检测):\n{physics_hint}\n请确保因果图包含这些定律中涉及的所有变量。"
         try:
             response = self.client.chat([
                 {"role": "user", "content": prompt}
@@ -94,6 +98,42 @@ class LLMBridge:
             pass
 
         return self._fallback_graph(question)
+
+    def _detect_physics_context(self, question: str) -> str:
+        """
+        检测问题涉及的物理领域，返回相关定律提示。
+
+        让 LLM 知道: 这个问题涉及哪些物理变量，不能漏掉。
+        """
+        from physics.laws import library
+
+        # 关键词 → 变量映射
+        KEYWORD_MAP = {
+            "电压": ["voltage", "电阻", "current", "Ohm: V=IR"],
+            "电流": ["current", "电压", "电阻", "Ohm: V=IR"],
+            "电阻": ["resistance", "电压", "电流", "Ohm: V=IR"],
+            "力": ["force", "mass", "acceleration", "Newton: F=ma"],
+            "加速度": ["acceleration", "force", "mass", "Newton: F=ma"],
+            "质量": ["mass", "force", "acceleration", "Newton: F=ma"],
+            "温度": ["temperature", "kinetic_energy", "Kinetic Theory: KE→T"],
+            "分子运动": ["kinetic_energy", "temperature", "Kinetic Theory: KE→T"],
+            "弹": ["elastic_constant", "displacement", "force", "Hooke: F=-kx"],
+            "折射": ["incident_angle", "refraction_angle", "refractive_index", "Snell"],
+            "磁": ["magnetic_flux_change", "induced_emf", "Faraday"],
+            "频率": ["frequency", "wavelength", "wave_speed", "Doppler"],
+            "摆": ["length", "gravity", "period", "Pendulum: T=2π√(L/g)"],
+        }
+
+        hints = []
+        for keyword, info in KEYWORD_MAP.items():
+            if keyword in question:
+                law = info[-1]
+                vars_ = info[:-1]
+                hints.append(f"- {law}: 变量 = {vars_}")
+
+        if hints:
+            return "\n".join(hints)
+        return ""
 
     def _fallback_graph(self, question: str) -> Dict:
         """LLM 不可用时的简单回退"""
