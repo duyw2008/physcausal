@@ -227,6 +227,60 @@ class CausalQLearner:
             "converged": np.mean(accuracies[-10:]) > 0.8,
         }
 
+    def save(self, path: str = None):
+        """保存 Q-table 和策略到磁盘"""
+        import pickle, os
+        if path is None:
+            path = os.path.expanduser(f"~/.hermes/physcausal_q_{self.mdp.env.name}.pkl")
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        data = {
+            "q_table": self.Q,
+            "visits": self.visit_counts,
+            "epsilon": self.epsilon,
+            "alpha": self.alpha,
+            "gamma": self.gamma,
+            "env_name": self.mdp.env.name,
+            "variables": self.mdp.env.variables,
+        }
+        with open(path, "wb") as f:
+            pickle.dump(data, f)
+        return path
+
+    @classmethod
+    def load(cls, env, path: str = None):
+        """从磁盘加载 Q-table"""
+        import pickle, os
+        if path is None:
+            path = os.path.expanduser(f"~/.hermes/physcausal_q_{env.name}.pkl")
+        if not os.path.exists(path):
+            return None
+        with open(path, "rb") as f:
+            data = pickle.load(f)
+        learner = cls(env, alpha=data["alpha"], gamma=data["gamma"],
+                      epsilon=data["epsilon"])
+        learner.Q = data["q_table"]
+        learner.visit_counts = data["visits"]
+        return learner
+
+    def as_skill(self) -> dict:
+        """将学到的策略导出为技能格式"""
+        best_actions = {}
+        for i0 in range(self.n_bins):
+            for i1 in range(self.n_bins):
+                for i2 in range(self.n_bins):
+                    for i3 in range(self.n_bins):
+                        if self.visit_counts[i0,i1,i2,i3].max() > 0:
+                            a = np.argmax(self.Q[i0,i1,i2,i3])
+                            var = self.mdp.env.variables[a]
+                            best_actions[f"acc≈{i0/self.n_bins:.1f}"] = var
+        return {
+            "skill_type": "causal_policy",
+            "env": self.mdp.env.name,
+            "variables": self.mdp.env.variables,
+            "n_states_learned": len(best_actions),
+            "best_actions": [{s: a} for s, a in list(best_actions.items())[:5]],
+        }
+
     def policy(self) -> List[str]:
         """提取学习到的策略 — 每个状态对应的最优动作"""
         actions = []
