@@ -122,6 +122,7 @@ class PhysicsLibrary:
             constraint_type=ConstraintType.SCM_EQUATION,
             formula=lambda k, x: -k * x,
             causal_direction=[("x", "force")],
+            forbidden_directions=[("force", "x")],
         ))
         self.register(PhysicsLaw(
             name="Gravity", domain="mechanics",
@@ -145,6 +146,7 @@ class PhysicsLibrary:
             latex=r"m_1 v_1 + m_2 v_2 = m_1 v_1' + m_2 v_2'",
             inputs=["m1", "m2", "v1", "v2"], outputs=["v1_prime", "v2_prime"],
             constraint_type=ConstraintType.CONSERVATION,
+            forbidden_directions=[("v1_prime", "m1"), ("v1_prime", "v1")],
             formula=lambda m1, m2, v1, v2: 0.0,  # 守恒律 — 用于验证而非替换
         ))
         self.register(PhysicsLaw(
@@ -163,6 +165,7 @@ class PhysicsLibrary:
             constraint_type=ConstraintType.SCM_EQUATION,
             formula=lambda current, resistance: current * resistance,
             causal_direction=[("current", "voltage"), ("resistance", "voltage")],
+            forbidden_directions=[("voltage", "current"), ("voltage", "resistance")],
         ))
         self.register(PhysicsLaw(
             name="Coulomb", domain="electromagnetism",
