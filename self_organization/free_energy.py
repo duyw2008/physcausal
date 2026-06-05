@@ -163,7 +163,7 @@ class SelfOrganizingLearner:
 
     def __init__(self, env):
         from bayesian.structural import StructuralPosterior
-        from rl.active_learner import ActiveLearner
+        from active_experiment.active_learner import ActiveLearner
 
         self.env = env
         self.learner = ActiveLearner(env)

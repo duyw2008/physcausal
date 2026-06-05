@@ -10,7 +10,7 @@ from composition.composer import (
     TypedPort, ModuleInterface, interface_from_module, CompositionDiscovery,
 )
 from env.physics_sim import make_env, ENV_REGISTRY
-from rl.active_learner import ActiveLearner
+from active_experiment.active_learner import ActiveLearner
 from creative.module_library import ModuleLibrary
 
 

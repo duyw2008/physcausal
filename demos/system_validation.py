@@ -109,7 +109,7 @@ print(bold("  Test 3: Active Learning — All 7 Environments"))
 print(bold("=" * 60))
 
 from env.physics_sim import make_env, ENV_REGISTRY
-from rl.active_learner import ActiveLearner
+from active_experiment.active_learner import ActiveLearner
 
 for env_name in sorted(ENV_REGISTRY.keys()):
     env = make_env(env_name)

@@ -134,7 +134,7 @@ score_pc += 1 if cf_ok else 0
 print(f"\n{cyan('Part 3: Active Learning — 7 Environments')}")
 
 from env.physics_sim import make_env, ENV_REGISTRY
-from rl.active_learner import ActiveLearner
+from active_experiment.active_learner import ActiveLearner
 
 env_scores = []
 for name in sorted(ENV_REGISTRY.keys()):

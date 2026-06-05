@@ -182,7 +182,7 @@ class PhysCausalAgent:
     def learn(self, env_name: str, episodes: int = 5, samples: int = 30) -> str:
         """主动学习 — 通过干预实验发现因果结构"""
         from env.physics_sim import make_env, ENV_REGISTRY
-        from rl.active_learner import ActiveLearner
+        from active_experiment.active_learner import ActiveLearner
 
         if env_name == "all":
             learner = ActiveLearner(None)

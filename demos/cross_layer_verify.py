@@ -149,7 +149,7 @@ check("LLM fallback works without API",
 print(f"\n{cyan('Test 6: Learn → Module Library → Composition')}")
 
 from env.physics_sim import make_env
-from rl.active_learner import ActiveLearner
+from active_experiment.active_learner import ActiveLearner
 from creative.module_library import ModuleLibrary
 from composition.composer import CompositionDiscovery
 

@@ -213,7 +213,7 @@ bridge.py           — 五步管道:
 
 ```
 env/physics_sim.py  — 7个物理仿真环境
-rl/active_learner.py — VOI → 干预 → 数据 → 更新 → 入库
+active_experiment/active_learner.py — VOI → 干预 → 数据 → 更新 → 入库
 ```
 
 ### 5.3 桥接 (Integration)
