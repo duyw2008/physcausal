@@ -194,6 +194,53 @@ engine.py           — CounterfactualEngine (Pearl 三步 + 物理验证)
                     — AttributionEngine (中介归因)
 ```
 
+### 4.3 行动层三层协作
+
+主动实验、强化学习、自组织 —— 不是冗余，是分工明确的协作。
+
+```
+active_experiment/  — 模型驱动, VOI 公式, 零样本即可用
+                      一步算出最优干预, 不学, 快但不一定最优
+
+reinforcement/      — 数据驱动, Q-Learning, 多步策略
+                      从经验中学习, 能发现 VOI 算不到的策略
+
+self_organization/  — 自由能驱动, 自适应调节 β
+                      告诉系统何时探索, 何时利用
+```
+
+**三层协作模式:**
+
+```
+self_organization  →  自由能判断:   该探索还是利用?
+                          │
+            ┌─────────────┴─────────────┐
+            ▼                           ▼
+       探索模式                       利用模式
+       active_experiment             reinforcement
+       VOI 提供初始猜测              Q-table 直接选最优
+       「优先干预这个变量」          「已知的最好行动是...」
+            │                           │
+            └─────────────┬─────────────┘
+                          ▼
+                   reinforcement 更新 Q
+                   VOI 先验 → Q 初始值 (不是从零学)
+                   经验微调 → 超越先验
+```
+
+**核心关系:**
+
+```
+active_experiment → reinforcement 的先验
+  Q(s,a) 初始值 = f(VOI(a))
+
+reinforcement → 精调, 在经验中修正 VOI 的盲区
+
+self_organization → 驱动, 控制探索/利用的节奏
+
+三者保留, 各司其职, 互补而非冗余。
+```
+
 ---
 
 ## 五、外围
