@@ -228,10 +228,11 @@ class CausalQLearner:
         }
 
     def save(self, path: str = None):
-        """保存 Q-table 和策略到磁盘"""
+        """保存 Q-table 到磁盘，按因果骨架索引"""
         import pickle, os
+        skeleton = self._skeleton_signature()
         if path is None:
-            path = os.path.expanduser(f"~/.hermes/physcausal_q_{self.mdp.env.name}.pkl")
+            path = os.path.expanduser(f"~/.hermes/physcausal_q_{skeleton}.pkl")
         os.makedirs(os.path.dirname(path), exist_ok=True)
         data = {
             "q_table": self.Q,
@@ -239,6 +240,7 @@ class CausalQLearner:
             "epsilon": self.epsilon,
             "alpha": self.alpha,
             "gamma": self.gamma,
+            "skeleton": skeleton,
             "env_name": self.mdp.env.name,
             "variables": self.mdp.env.variables,
         }
@@ -246,21 +248,47 @@ class CausalQLearner:
             pickle.dump(data, f)
         return path
 
+    def _skeleton_signature(self) -> str:
+        """提取环境的因果骨架签名 — 用于跨环境策略共享"""
+        edges = self.mdp.env.variable_info()["ground_truth"]
+        # 签名: sorted edge pattern
+        pattern = []
+        in_deg = {}
+        for s, d in edges:
+            in_deg[d] = in_deg.get(d, 0) + 1
+            if s not in in_deg: in_deg[s] = 0
+        # 模式: [input_count, hidden_count, output_count]
+        inputs = sum(1 for v, d in in_deg.items() if d == 0)
+        outputs = sum(1 for v in self.mdp.env.variables if v not in in_deg)
+        hidden = len(self.mdp.env.variables) - inputs - outputs
+        return f"{inputs}in_{hidden}hid_{outputs}out"
+
     @classmethod
     def load(cls, env, path: str = None):
-        """从磁盘加载 Q-table"""
+        """加载 Q-table — 先按骨架匹配，再按环境名"""
         import pickle, os
+        skeleton = cls._skeleton_static(env)
         if path is None:
-            path = os.path.expanduser(f"~/.hermes/physcausal_q_{env.name}.pkl")
+            path = os.path.expanduser(f"~/.hermes/physcausal_q_{skeleton}.pkl")
         if not os.path.exists(path):
             return None
         with open(path, "rb") as f:
             data = pickle.load(f)
         learner = cls(env, alpha=data["alpha"], gamma=data["gamma"],
-                      epsilon=data["epsilon"])
+                      epsilon=data["epsilon"] * 0.3)  # 已学过，降低探索
         learner.Q = data["q_table"]
         learner.visit_counts = data["visits"]
         return learner
+
+    @staticmethod
+    def _skeleton_static(env) -> str:
+        edges = env.variable_info()["ground_truth"]
+        in_deg = {}
+        for s, d in edges:
+            in_deg[d] = in_deg.get(d, 0) + 1
+        inputs = sum(1 for v in env.variables if v not in in_deg)
+        outputs = sum(1 for v in env.variables if in_deg.get(v, 0) == 0 and v in [e[1] for e in edges])
+        return f"{inputs}in_{len(env.variables)-inputs-outputs}hid_{outputs}out"
 
     def as_skill(self) -> dict:
         """将学到的策略导出为技能格式"""
