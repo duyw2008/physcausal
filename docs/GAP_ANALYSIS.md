@@ -1,19 +1,25 @@
 # PhysCausal — 缺口分析与后续方向
 
-> 版本: 2026-05-18 | 定位: 从当前架构到通用智能体的路线图
-> 当前状态: 143 tests | 5/5 元物理原则 | 4 后端感知 | 端到端管线
+> 版本: 2026-06-05 | 定位: 从当前架构到通用智能体的路线图
+> 当前状态: 179 tests | 3/3 元物理原则 | 4 后端感知 | 端到端管线 | RL + 自组织 | 10 仿真环境 100% 覆盖
+> 压力测试: PC F1=0.94 (3 vars) | 4+ vars 组合爆炸风险 (已知限制)
 
 ---
 
 ## 一、已完成 (地基)
 
 ```
-元物理层   5/5 原则 ✅     least_action / symmetry / entropy / locality / measurement
-横切层     2/2 ✅          spectral (特征谱) / information (信息度量)
-物理层     基础 ✅          11 条定律 + constraint DAG
-因果层     完整 ✅          12 模块 (DAG/SCM/discovery/estimation/mediation/...)
-感知层     4 后端 ✅        simple / image / timeseries / object_detect
-桥接层     3 模块 ✅        perception_bridge / physics_bridge / pipeline
+元物理层   3/3 原则 ✅       least_action / symmetry / entropy
+横切层     2/2 ✅            spectral (特征谱) / information (信息度量)
+物理层     22 条定律 ✅      7 领域 + constraint DAG + symmetry_breaking
+因果层     完整 ✅           12 模块 (DAG/SCM/discovery/estimation/mediation/...)
+感知层     4 后端 ✅          simple / image / timeseries / object_detect
+桥接层     4 模块 ✅          perception_bridge / physics_bridge / meta_physics_bridge / pipeline
+主动实验   已实现 ✅         active_experiment/ — VOI → 干预 → 更新 → 模块入库
+组合泛化   已实现 ✅         composition/ — TypedPort + ModuleInterface + auto-compose
+自由能     已实现 ✅         self_organization/ — FreeEnergyAgent + SelfOrganizingLearner
+RL 层      已实现 ✅         reinforcement/ — CausalMDP + Q-Learning + StrategyTransfer
+仿真环境   7 环境 ✅         pendulum/collision/circuit/spring/faraday/snell/doppler
 ```
 
 ---
@@ -22,7 +28,10 @@
 
 没有这些，谈不上通用。每个都需要从零构建，不能用已有模块拼凑。
 
-### 2.1 主动因果实验设计 (Active Causal Discovery)
+### 2.1 主动因果实验设计 (Active Causal Discovery) ✅
+
+已实现: `active_experiment/active_learner.py` — VOI → 干预 → 数据 → 更新信念 → 模块入库。
+支持 7 个物理仿真环境, physics_prior 物理优先跳过 PC, <1s per env。
 
 ```
 当前: 只能分析已有观测数据
@@ -61,7 +70,10 @@
 优先级: P0 (致命) — 没有层次化抽象，复杂度天花板很低
 ```
 
-### 2.3 组合泛化 (Compositional Generalization)
+### 2.3 组合泛化 (Compositional Generalization) ✅
+
+已实现: `composition/composer.py` — TypedPort + ModuleInterface + can_connect_to() + compose() + CompositionDiscovery。
+模块库支持 deduplicate() 和 prune_invalid_compositions()。
 
 ```
 当前: SCM 是平铺的。学会了「摆锤」和「推车」，不会「推车上的摆锤」
@@ -81,7 +93,10 @@
 优先级: P0 (致命) — 没有组合，泛化边界就是训练边界
 ```
 
-### 2.4 目标/价值系统 (Free Energy / Intrinsic Motivation)
+### 2.4 目标/价值系统 (Free Energy / Intrinsic Motivation) ✅
+
+已实现: `self_organization/free_energy.py` — FreeEnergyAgent (变分自由能 + 预期自由能 G(π)) + SelfOrganizingLearner (自动 β 调控探索/利用)。
+三部曲 symmetry → symmetry_breaking → self_organization 完成。
 
 ```
 当前: 智能体没有内在驱动力
@@ -272,33 +287,21 @@ PhysCausal 需要的不是选边，而是**分工**:
 > 用物理和因果做过滤，才是从「可靠的工具」
 > 到「有创造力的智能体」的跨越。
 
-### 3.1 元学习 (Meta-Learning)
+### 3.1 元学习 (Meta-Learning) ⚠️ 部分
 
 ```
-当前: 每次遇到新领域从零运行因果发现
+当前: RL 层有 StrategyTransfer (骨架同构环境 Q 表迁移)
 缺口: 不能越学越快。碰到第 10 个力学场景时仍和第 1 个一样慢
-
-核心能力:
-  - 从因果结构库中快速匹配相似结构
-  - 「这个新场景和之前见过的 pendulum 很像」→ 迁移先验
-  - 共享物理模板的跨域迁移 (type5 domain transfer 的扩展版)
+      跨域迁移 (type5 domain transfer) 的扩展版
 
 优先级: P1 (严重)
 ```
 
-### 3.2 不确定性量化 (Bayesian SCM)
+### 3.2 不确定性量化 (Bayesian SCM) ✅
 
-```
-当前: 效应估计只给点估计 (ATE ± CI)
-缺口: 不能量化「我对这个因果图的置信度是多少」
+已实现: `bayesian/structural.py` (P(G|D) bootstrap + MCMC) + `bayesian/parameter.py` (P(θ|G,D) ATE posterior with physical prior)。
 
-核心能力:
-  - Bayesian Causal Discovery: P(G|D) 而非单点 G
-  - 结构不确定性传播到效应估计
-  - 「60% 概率 X→Y, 40% 概率 X←Y」的真概率
-
-优先级: P1 (严重)
-```
+缺口: 结构不确定性传播到效应估计的 FULL propagation 还没做。
 
 ### 3.3 多步因果规划 (Causal + RL 规划)
 
@@ -321,7 +324,7 @@ PhysCausal 需要的不是选边，而是**分工**:
 ### 4.1 物理领域扩展
 
 ```
-当前: 11 条定律，3 个领域 (力学/电磁/热力学/流体)
+当前: 22 条定律，6 领域 (力学/电磁/热力学/流体/光学/声学)
 需要: 50+ 领域全覆盖
 
   - 声学 (波动方程、共振)
@@ -335,7 +338,7 @@ PhysCausal 需要的不是选边，而是**分工**:
 ### 4.2 组合知识库
 
 ```
-当前: 0 (没有组合机制)
+当前: 20+ 因果模块 (手工 + 自动发现), composition/ 完成基础
 需要: >10⁴ 可组合的因果模块
 需要: 自动发现新模块 (从感知数据中提取)
 需要: 模块版本化 + 冲突解决
@@ -344,7 +347,7 @@ PhysCausal 需要的不是选边，而是**分工**:
 ### 4.3 工程规模
 
 ```
-当前:     ~8000 行 Python, 143 tests
+当前:     ~16,000 行 Python, 179 tests
 需要:     测试框架 (property-based, fuzzing)
 需要:     CI/CD + benchmark suite
 需要:     分布式因果发现 (大数据集)
@@ -356,19 +359,21 @@ PhysCausal 需要的不是选边，而是**分工**:
 
 ```
 P0 (致命 — 无此不通用):
-  ├── 主动实验设计             ← 下一个要做的
-  ├── 层次化抽象 / 涌现
-  ├── 组合泛化
-  └── 目标/价值系统
+  └── 层次化抽象 / 涌现          ← 唯一剩下的 P0
+
+P0 已完成:
+  ├── ✅ 主动实验设计
+  ├── ✅ 组合泛化
+  └── ✅ 目标/价值系统 (自由能)
 
 P1 (严重 — 当前能工作但有天花板):
-  ├── 元学习
-  ├── Bayesian SCM
-  └── 多步因果规划
+  ├── 元学习 (部分: StrategyTransfer)
+  ├── 多步因果规划
+  └── ✅ Bayesian SCM (基本完成)
 
 P2 (工程 — 规模化和体验):
   ├── 物理领域扩展
-  ├── 组合知识库
+  ├── 组合知识库规模化
   └── 工程基础设施
 
 P3 (研究 — 长期探索):
@@ -383,12 +388,12 @@ P3 (研究 — 长期探索):
 ```
 v0.2  — 元物理完备 + 因果层迁移                    ✅
 v0.3  — 感知层升级 + information 横切层            ✅
-v0.4  — 主动实验设计 (Causal Bandit)               P0
-v0.5  — 层次化抽象 (Renormalization × Causal)      P0
-v0.6  — 组合泛化 (Modular SCM)                     P0
-v0.7  — 自由能原理 (Active Inference engine)       P0
-v0.8  — Bayesian SCM + 不确定性量化                P1
-v0.9  — 因果规划 + 元学习                           P1
+v0.4  — 主动实验设计 (Causal Bandit)               ✅
+v0.5  — 层次化抽象 (Renormalization × Causal)      P0 ← 当前
+v0.6  — 组合泛化 (Modular SCM)                     ✅
+v0.7  — 自由能原理 (Active Inference engine)       ✅
+v0.8  — Bayesian SCM + 不确定性量化                ✅ (基本)
+v0.9  — 因果规划 + 元学习 (StrategyTransfer done)  P1
 v1.0  — 可演示的通用物理因果智能体
 ```
 
@@ -396,4 +401,4 @@ v1.0  — 可演示的通用物理因果智能体
 
 ## 七、一句话
 
-> 地基是对的。差距不在核心原理 (五条原则已经完备)，而在生长机制 (如何从这些原则中生长出组合抽象和主动探索)。下一阶段的核心问题不是「还缺什么原则」，而是「如何让已确立的原则互相咬合，产生涌现行为」。
+> 地基是对的。差距不在核心原理 (三条原则已经完备)，而在生长机制 (如何从这些原则中生长出层次化抽象)。下一阶段的核心问题是——层次化抽象/涌现: 如何让智能体自动发现"温度"是分子的宏观序参量。

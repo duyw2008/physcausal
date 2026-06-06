@@ -146,8 +146,8 @@ result = evo.cross_domain_discover(
     {"V": "voltage", "R": "scalar", "I": "current"},
     ohm_data,
 )
-check("creative", "F=ma->Ohm", result["discoveries"] is not None,
-      f"edges={result['edges']}, score={result.get('score','?')}")
+check("creative", "F=ma->Ohm", result["success"],
+      f"edges={result['discovered_edges']}, score={result.get('score','?')}")
 
 # 4b: Pendulum -> Spring (L,g->T -> k,m->omega)
 print(cyan("\n4b: Pendulum skeleton -> Spring"))

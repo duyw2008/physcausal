@@ -23,6 +23,60 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 
 
+# ═══════════════════════════════════════════════════════════════
+# LaTeX → Unicode 转换器
+# ═══════════════════════════════════════════════════════════════
+
+_LATEX_UNICODE = {
+    # Greek
+    r"\Delta": "Δ", r"\delta": "δ", r"\sigma": "σ", r"\Sigma": "Σ",
+    r"\pi": "π", r"\Pi": "Π", r"\lambda": "λ", r"\Lambda": "Λ",
+    r"\omega": "ω", r"\Omega": "Ω", r"\psi": "ψ", r"\Psi": "Ψ",
+    r"\phi": "φ", r"\Phi": "Φ", r"\theta": "θ", r"\Theta": "Θ",
+    r"\rho": "ρ", r"\alpha": "α", r"\beta": "β", r"\gamma": "γ",
+    r"\epsilon": "ε", r"\varepsilon": "ε", r"\mu": "μ", r"\nu": "ν",
+    r"\tau": "τ", r"\eta": "η", r"\xi": "ξ", r"\zeta": "ζ",
+    r"\chi": "χ", r"\kappa": "κ",
+    # Math operators and symbols
+    r"\geq": "≥", r"\leq": "≤", r"\approx": "≈", r"\equiv": "≡",
+    r"\propto": "∝", r"\sim": "∼", r"\neq": "≠", r"\pm": "±",
+    r"\mp": "∓", r"\times": "×", r"\cdot": "·", r"\cdots": "⋯",
+    r"\infty": "∞", r"\partial": "∂", r"\nabla": "∇",
+    r"\int": "∫", r"\oint": "∮", r"\sum": "∑", r"\prod": "∏",
+    r"\sqrt": "√", r"\rightarrow": "→", r"\Rightarrow": "⇒",
+    r"\leftarrow": "←", r"\Leftarrow": "⇐",
+    r"\nRightarrow": "⇏", r"\longrightarrow": "⟶",
+    r"\langle": "⟨", r"\rangle": "⟩",
+    r"\hbar": "ℏ", r"\mathcal{E}": "ℰ", r"\mathcal{E}": "ℰ",
+    # Fractions (simple: \frac{a}{b} → a/b)
+    # Subscripts/superscripts handled separately
+    r"\text{entanglement}": "entanglement",
+    r"\text{signaling}": "signaling",
+    r"\text{gravity}": "gravity",
+    r"\text{acceleration}": "acceleration",
+    # Clean up
+    r"\{": "", r"\}": "", r"\\": "",
+}
+
+def _latex_to_unicode(latex: str) -> str:
+    """将 LaTeX 公式转为 Unicode 显示"""
+    s = latex
+    # Replace known patterns
+    for lt, uni in _LATEX_UNICODE.items():
+        s = s.replace(lt, uni)
+    # Simple fractions: \frac{a}{b} → a/b
+    s = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'\1/\2', s)
+    # Remove remaining {} and backslashes
+    s = s.replace("{", "").replace("}", "")
+    # Subscripts: _{...} → 保持原文 (如 r_s → r_s)
+    # Superscripts: ^{...} → 保持原文
+    s = re.sub(r'_{([^}]+)}', r'_\1', s)
+    s = re.sub(r'\^{([^}]+)}', r'^\1', s)
+    # text{} → just the content
+    s = re.sub(r'\\text\{([^}]+)\}', r'\1', s)
+    return s.strip()
+
+
 class LLMBridge:
     """
     LLM ↔ PhysCausal 桥接器。
@@ -48,40 +102,129 @@ class LLMBridge:
     # ═══ Step 1: LLM → 因果图 ═══
 
     THEORY_KEYWORDS = ["如果", "假如", "假设", "要是", "推理", "推导", "为什么",
-                       "怎么", "如何计算", "证明", "理论上", "if", "why", "prove"]
+                       "怎么", "如何影响", "如何计算", "证明", "理论上",
+                       "会不会", "是否", "有没有", "谁更", "哪个更", "更高", "更快",
+                       "更强", "更大", "更小", "更重", "更轻",
+                       "是什么关系", "有什么关系", "有何关系", "什么关系",
+                       # 因果方向提问
+                       "原因还是结果", "是因还是果", "谁是因谁是果",
+                       "谁是因", "谁是果", "哪个是因", "哪个是果",
+                       # 假设后果提问 (无"如果"的条件句)
+                       "会怎样", "会如何", "会怎么", "会变化",
+                       # 定律/概念解释提问
+                       "说的是什么", "是什么", "什么是", "什么意思",
+                       "定义", "解释一下", "介绍一下"]
+
+    # 物理理论概念 — 匹配到这些且没有具体变量名 → 理论模式
+    PHYSICS_THEORY_CONCEPTS = [
+        "熵", "时间方向", "时间箭头", "不可逆", "最小作用", "对称性",
+        "守恒", "noether", "波函数", "量子", "相对论", "光速不变",
+        "等效原理", "不确定性", "测不准", "薛定谔", "波粒二象",
+        "熵增", "热寂", "麦克斯韦妖", "因果律", "决定论",
+        "涌现", "重整化", "粗粒化", "全息原理",
+        # 常见物理量 (配合因果方向提问时触发)
+        "温度升高", "分子运动", "分子动能", "热运动",
+        "光速", "时空弯曲", "引力波", "暗能量", "暗物质",
+    ]
+
+    def _is_physics_question(self, question: str) -> bool:
+        """
+        语义分类: 这个问题的本质是物理原理推导, 还是经验因果推断?
+
+        用 LLM 做一次性判断, 不依赖关键词列表。
+        LLM 不可用时回退到关键词系统。
+        """
+        if not self.is_available():
+            return False  # 回退到 _is_theoretical + _mentions_physics
+
+        prompt = (
+            "判断以下问题是询问物理学/自然科学原理, 还是社会科学/经验因果效应。\n\n"
+            "物理学问题 (physics): 问的是自然界规律和机制。\n"
+            "  例: '铁球和羽毛谁先落地', '力和加速度的关系', '光速为什么是极限', "
+            "'温度升高是原因还是结果', '量子纠缠能超光速吗'。\n\n"
+            "经验因果问题 (empirical): 问的是社会/经济/医学中的因果关系, 需要数据来回答。\n"
+            "  例: '教育如何影响收入', '药物对康复时间的影响', '广告对销量的效应', "
+            "'运动能减肥吗', '吸烟与肺癌的关系'。\n\n"
+            f"问题: {question}\n\n"
+            "只回答一个词: physics 或 empirical"
+        )
+        try:
+            response = self.client.chat([{"role": "user", "content": prompt}])
+            return "physics" in response.lower()[:20]
+        except Exception:
+            return False
+
+    def _mentions_physics(self, question: str) -> bool:
+        """检测问题是否涉及已知物理变量或物理场景"""
+        PHYSICS_VARIABLES = [
+            # 力学
+            "力", "质量", "加速度", "速度", "位移", "动量", "动能", "势能",
+            "弹性", "弹簧", "摩擦", "重力", "引力",
+            # 电磁
+            "电压", "电流", "电阻", "电荷", "电场", "磁场", "磁通量",
+            "感应", "电容", "电感",
+            # 热力学
+            "温度", "热量", "热", "压力", "体积", "熵", "热力学",
+            "分子运动", "分子动能",
+            # 光学/声学
+            "光", "折射", "反射", "波长", "频率", "声", "波速",
+            # 量子/相对论
+            "量子", "光子", "电子", "波函数", "纠缠", "光速",
+            "时间膨胀", "黑洞", "事件视界",
+            # 流体
+            "浮力", "流速", "密度", "压强",
+            # 物理场景 (实验/思想实验)
+            "落地", "自由落体", "下落", "扔下", "掉下", "落下",
+            "铁球", "羽毛", "铅球", "真空", "空气阻力",
+            "碰撞", "弹回", "反弹", "摆", "单摆", "钟摆",
+            "漂浮", "沉没", "轨道", "绕", "公转",
+        ]
+        return any(var in question for var in PHYSICS_VARIABLES)
 
     def _is_theoretical(self, question: str) -> bool:
         """检测是否是理论推导问题 (不需要数据, 只需定律+数学)"""
-        return any(kw in question for kw in self.THEORY_KEYWORDS)
+        if any(kw in question for kw in self.THEORY_KEYWORDS):
+            return True
+        # 检查是否在问物理理论概念 (没有具体变量名时)
+        if any(concept in question for concept in self.PHYSICS_THEORY_CONCEPTS):
+            # 确认不是在问具体因果效应 (没有明确的 treatment/outcome 变量)
+            import re
+            # 检测是否包含"影响"+"什么"这类因果效应提问
+            effect_pattern = re.search(r'(.+?)(影响|导致|造成|引起)(.+?)(吗|？|\?)', question)
+            if not effect_pattern:
+                return True
+        return False
 
     def _theory_context(self, question: str) -> str:
         """
-        为理论问题注入完整物理定律库。
+        为理论问题注入完整物理定律库 (Unicode 数学)。
 
         LLM + 定律库 = 符号推理引擎
         """
         from physics.laws import library
 
-        # 找相关定律
-        relevant = library.find_relevant(self._all_law_variables())[:10]
+        all_laws = library.list_all()
 
         lines = ["你是一个精通理论物理推导的科学家。"]
-        lines.append("以下是 PhysCausal 物理定律库中的相关定律, 请用它们进行严格推导:")
+        lines.append("请使用 Unicode 数学符号 (如 ΔS ≥ 0, F = ma, ω = √(k/m)), 不要用 LaTeX。")
+        lines.append(f"以下是 PhysCausal 物理定律库中的全部 {len(all_laws)} 条定律:")
         lines.append("")
 
-        for law in relevant[:8]:
+        for law in all_laws:
             eq = law.latex if hasattr(law, 'latex') and law.latex else law.name
-            lines.append(f"  {law.name} ({law.domain}): {eq}")
+            # LaTeX → Unicode 转换
+            eq_u = _latex_to_unicode(eq)
+            lines.append(f"  {law.name} ({law.domain}): {eq_u}")
             if law.causal_direction:
-                dirs = [f"{s}->{d}" for s, d in law.causal_direction]
+                dirs = [f"{s}→{d}" for s, d in law.causal_direction]
                 lines.append(f"    因果方向: {', '.join(dirs)}")
             if law.forbidden_directions:
-                fdirs = [f"{s}->{d}" for s, d in law.forbidden_directions]
-                lines.append(f"    禁止方向: {', '.join(fdirs)}")
+                dirs = [f"{s}→{d}" for s, d in law.forbidden_directions[:3]]
+                lines.append(f"    禁止: {', '.join(dirs)}")
+            lines.append("")
 
         lines.append("")
-        lines.append("请基于以上定律进行数学推导，给出严格答案。")
-        lines.append("如果推导涉及积分、极限或对称性分析，请明确写出每一步。")
+        lines.append("请基于以上定律进行严格推导，使用 Unicode 数学符号，给出明确的物理结论。")
         return "\n".join(lines)
 
     def _all_law_variables(self) -> list:
@@ -351,20 +494,117 @@ class LLMBridge:
 
     # ═══ 完整管道 ═══
 
-    def _ask_theoretical(self, question: str, verbose: bool) -> Dict:
+    def _ask_theoretical(self, question: str, history: list = None,
+                          verbose: bool = True) -> Dict:
         """理论问题模式 — 不生成数据, 直接推导"""
         if verbose:
             print("  Mode: THEORETICAL (laws + math, no data needed)")
 
         theory_prompt = self._theory_context(question)
-        response = self.client.chat([
-            {"role": "user", "content": f"{theory_prompt}\n\n问题: {question}"}
-        ])
+        messages = [{"role": "user", "content": theory_prompt}]
+
+        # 注入历史会话 (最近几轮 Q&A)
+        if history and len(history) >= 2:
+            recent = history[-6:]  # 最近 3 轮
+            context = ["以下是之前的对话历史，请参考上下文回答当前问题:"]
+            for h in recent:
+                role = "用户" if h.get("role") == "user" else "PhysCausal"
+                context.append(f"  {role}: {h.get('content', '')[:200]}")
+            messages.append({"role": "user", "content": "\n".join(context)})
+
+        messages.append({"role": "user", "content": f"问题: {question}"})
+        response = self.client.chat(messages)
         return {
             "question": question,
             "graph": {"variables": [], "edges": [], "mode": "theoretical"},
             "analysis": {"ate": None, "method": "theoretical derivation"},
             "explanation": response,
+        }
+
+    def _ask_theoretical_fallback(self, question: str, verbose: bool) -> Dict:
+        """理论问题降级模式 — 用物理定律库 + 元物理原则回答, 不调用 LLM"""
+        if verbose:
+            print("  Mode: THEORETICAL (no LLM — physics library only)")
+
+        from physics.laws import library
+        from meta_physics.entropy import EntropyArrow
+        from meta_physics.symmetry import SymmetryDetector
+
+        answer_parts = []
+
+        # 关键词检测: 熵 / 时间方向 / 热力学第二定律
+        entropy_kw = ["熵", "entropy", "热力学第二", "时间方向", "时间箭头", "不可逆"]
+        symmetry_kw = ["对称", "守恒", "noether"]
+        action_kw = ["最小作用", "least action", "变分"]
+        locality_kw = ["光速", "locality", "类时", "类空"]
+
+        # 检测涉及哪些元物理原则
+        if any(kw in question for kw in entropy_kw):
+            answer_parts.append(
+                "【熵增与时间方向】\n"
+                "根据热力学第二定律 (元物理原则③): ΔS ≥ 0。\n\n"
+                "熵增原理直接定义了时间的箭头:\n"
+                "  - 孤立系统的熵只增不减 → 区分了过去和未来\n"
+                "  - 时间的方向就是熵增的方向\n"
+                "  - 这是宏观不可逆性的根源\n\n"
+                "Eddington 称熵为「时间之箭」(Arrow of Time)。\n"
+                "在微观层面, 物理定律 (牛顿/F=ma, 薛定谔方程) 是时间反演对称的;\n"
+                "时间方向的涌现纯粹来自统计——宏观状态数增长使熵增几乎必然。\n\n"
+                "PhysCausal 中的实现:\n"
+                "  meta_physics/entropy.py — EntropyArrow 类\n"
+                "  用条件熵 H(Y|X) < H(X|Y) 判定因果方向 (熵增方向 = 因果方向)"
+            )
+
+        if any(kw in question for kw in symmetry_kw):
+            answer_parts.append(
+                "【对称性与守恒】\n"
+                "根据 Noether 定理 (元物理原则②): 每种连续对称性对应一个守恒量。\n"
+                "  - 时间平移对称 → 能量守恒\n"
+                "  - 空间平移对称 → 动量守恒\n"
+                "  - 旋转对称 → 角动量守恒\n"
+            )
+
+        if any(kw in question for kw in action_kw):
+            answer_parts.append(
+                "【最小作用量原理】\n"
+                "根据最小作用量原理 (元物理原则①): δS = 0。\n"
+                "这是物理定律的生成性原理——所有经典运动方程都可从 δS=0 导出。\n"
+            )
+
+        # 搜索相关物理定律
+        q_lower = question.lower()
+        relevant_laws = []
+        for law in library.list_all():
+            if law.name.lower() in q_lower or law.domain.lower() in q_lower:
+                relevant_laws.append(law)
+            # 检查输入输出变量
+            for var in law.inputs + law.outputs:
+                if var.lower().replace("_", "") in q_lower.replace(" ", ""):
+                    if law not in relevant_laws:
+                        relevant_laws.append(law)
+
+        if relevant_laws and not answer_parts:
+            answer_parts.append("【相关物理定律】\n")
+            for law in relevant_laws:
+                answer_parts.append(
+                    f"  {law.name} ({law.domain}): {law.latex}\n"
+                    f"    因果方向: {law.causal_direction}\n"
+                )
+
+        if not answer_parts:
+            answer_parts.append(
+                "这个问题涉及理论推导, 需要 LLM 来做数学推理。\n"
+                "当前 DeepSeek API 不可用, 无法生成完整回答。\n\n"
+                "PhysCausal 已加载的物理定律库:\n"
+                f"  {len(library.list_all())} 条定律, 8 个领域\n"
+                "设置 DEEPSEEK_API_KEY 以启用 LLM 理论推导模式。"
+            )
+
+        return {
+            "question": question,
+            "graph": {"variables": [], "edges": [], "mode": "theoretical_fallback"},
+            "analysis": {"ate": None, "method": "physics library + meta-physics"},
+            "explanation": "\n\n".join(answer_parts),
         }
 
     def _validate_graph(self, graph: Dict) -> Dict:
@@ -427,7 +667,7 @@ class LLMBridge:
 
         return graph
 
-    def ask(self, question: str, verbose: bool = True) -> Dict:
+    def ask(self, question: str, history: list = None, verbose: bool = True) -> Dict:
         """
         完整 LLM+PhysCausal 管道。
 
@@ -436,9 +676,26 @@ class LLMBridge:
         if verbose:
             print(f"  Query: {question}")
 
-        # 检测理论问题 — 用定律库 + 数学推导
-        if self._is_theoretical(question) and self.is_available():
-            return self._ask_theoretical(question, verbose)
+        # 检测理论问题 — 关键词系统 (快速, 覆盖大部分情况)
+        if self._is_theoretical(question):
+            if self.is_available():
+                return self._ask_theoretical(question, history=history, verbose=verbose)
+            else:
+                return self._ask_theoretical_fallback(question, verbose)
+
+        # 预检测: 问题涉及已知物理变量/场景 → 理论模式
+        if self._mentions_physics(question):
+            if self.is_available():
+                return self._ask_theoretical(question, history=history, verbose=verbose)
+            else:
+                return self._ask_theoretical_fallback(question, verbose)
+
+        # 语义分类: 关键词漏网时, 用 LLM 判断问题本质
+        if self._is_physics_question(question):
+            if self.is_available():
+                return self._ask_theoretical(question, history=history, verbose=verbose)
+            else:
+                return self._ask_theoretical_fallback(question, verbose)
 
         # Step 1
         if verbose: print("  Step 1: LLM extracting causal graph...")

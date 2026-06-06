@@ -54,7 +54,15 @@ class ActiveLearner:
         """从物理定律库获取已知因果结构 — 零计算代价"""
         from physics.laws import library
         from shared import ZH_MAP, physics_prior
-        return physics_prior(variables)
+        edges = physics_prior(variables)
+        if edges:
+            return edges
+        # Fallback: 骨架匹配 (无物理定律覆盖时)
+        from skeleton import matcher as skeleton_matcher
+        if self.data_history:
+            all_data = np.vstack(self.data_history)
+            return skeleton_matcher.match(all_data, variables)
+        return []
 
     def run(self,
             n_episodes: int = 10,
@@ -106,8 +114,13 @@ class ActiveLearner:
                         phys_edges, env_info["variables"], all_data
                     )
                 else:
+                    # 无物理先验: PC bootstrap. 大变量集降级避免挂死
+                    n_vars = len(env_info["variables"])
+                    n_samples_infer = 3 if n_vars > 5 else 5
+                    if n_vars > 5 and verbose:
+                        print(f"    ⚠ {n_vars} vars, no physics_prior — reduced bootstrap")
                     posterior = self.structural.infer(
-                        all_data, env_info["variables"], n_samples=5
+                        all_data, env_info["variables"], n_samples=n_samples_infer
                     )
                 self.posterior = posterior
                 self._last_inference_samples = self.total_samples
@@ -158,10 +171,16 @@ class ActiveLearner:
                 if verbose: print(f"    All edges above {confidence_threshold} → converged!")
                 break
 
-        # 最终评估
-        final_posterior = self.structural.infer(
-            np.vstack(self.data_history), env_info["variables"], n_samples=50
-        )
+        # 最终评估 — 物理优先: 用 infer_from_edges, 与 episode loop 一致
+        phys_edges = self._physics_prior(env_info["variables"])
+        if phys_edges:
+            final_posterior = self.structural.infer_from_edges(
+                phys_edges, env_info["variables"], np.vstack(self.data_history)
+            )
+        else:
+            final_posterior = self.structural.infer(
+                np.vstack(self.data_history), env_info["variables"], n_samples=50
+            )
         discovered = set()
         for ep_post in final_posterior.edge_posteriors:
             if ep_post.probability > 0.5:

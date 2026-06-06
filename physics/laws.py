@@ -142,11 +142,29 @@ class PhysicsLibrary:
             forbidden_directions=[("period", "length")],
         ))
         self.register(PhysicsLaw(
+            name="Simple Harmonic", domain="mechanics",
+            latex=r"\omega = \sqrt{k/m}",
+            inputs=["elastic_constant", "m"], outputs=["angular_velocity"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda elastic_constant, m: np.sqrt(elastic_constant / m) if m > 0 else 0.0,
+            causal_direction=[("elastic_constant", "angular_velocity"), ("m", "angular_velocity")],
+            forbidden_directions=[("angular_velocity", "elastic_constant"), ("angular_velocity", "m")],
+        ))
+        self.register(PhysicsLaw(
             name="Momentum Conservation", domain="mechanics",
             latex=r"m_1 v_1 + m_2 v_2 = m_1 v_1' + m_2 v_2'",
             inputs=["m1", "m2", "v1", "v2"], outputs=["v1_prime", "v2_prime"],
             constraint_type=ConstraintType.CONSERVATION,
-            forbidden_directions=[("v1_prime", "m1"), ("v1_prime", "v1")],
+            causal_direction=[
+                ("m1", "v1_prime"), ("v1", "v1_prime"),
+                ("m2", "v1_prime"), ("v2", "v1_prime"),
+                ("m1", "v2_prime"), ("v1", "v2_prime"),
+                ("m2", "v2_prime"), ("v2", "v2_prime"),
+            ],
+            forbidden_directions=[
+                ("v1_prime", "m1"), ("v1_prime", "v1"),
+                ("v2_prime", "m2"), ("v2_prime", "v2"),
+            ],
             formula=lambda m1, m2, v1, v2: 0.0,  # 守恒律 — 用于验证而非替换
         ))
         self.register(PhysicsLaw(
@@ -177,12 +195,12 @@ class PhysicsLibrary:
         ))
         self.register(PhysicsLaw(
             name="Faraday", domain="electromagnetism",
-            latex=r"\mathcal{E} = -\frac{d\Phi_B}{dt}",
-            inputs=["magnetic_flux_change"], outputs=["induced_emf"],
+            latex=r"\mathcal{E} = -N \frac{d\Phi_B}{dt}",
+            inputs=["magnetic_flux_change", "coil_turns"], outputs=["induced_emf"],
             constraint_type=ConstraintType.SCM_EQUATION,
-            formula=lambda magnetic_flux_change: -magnetic_flux_change,
-            causal_direction=[("magnetic_flux_change", "induced_emf")],
-            forbidden_directions=[("induced_emf", "magnetic_flux_change")],
+            formula=lambda magnetic_flux_change, coil_turns=1: -coil_turns * magnetic_flux_change,
+            causal_direction=[("magnetic_flux_change", "induced_emf"), ("coil_turns", "induced_emf")],
+            forbidden_directions=[("induced_emf", "magnetic_flux_change"), ("induced_emf", "coil_turns")],
             # 变化的磁场产生电场 — 因果方向不可逆
         ))
         self.register(PhysicsLaw(
@@ -222,6 +240,16 @@ class PhysicsLibrary:
             causal_direction=[("kinetic_energy", "temperature")],
             forbidden_directions=[("temperature", "kinetic_energy")],
             # 温度是分子平均动能的统计量 — 结构因果方向: KE→T, 不是 T→KE
+        ))
+        self.register(PhysicsLaw(
+            name="Entropy Increase", domain="thermodynamics",
+            latex=r"\Delta S \geq 0",
+            inputs=["system_state"], outputs=["entropy"],
+            constraint_type=ConstraintType.CONSERVATION,
+            formula=lambda system_state: 0.0,
+            causal_direction=[("system_state", "entropy")],
+            forbidden_directions=[("entropy", "system_state")],
+            # 第二定律: 孤立系统的熵不减 → 时间箭头
         ))
         self.register(PhysicsLaw(
             name="Ideal Gas", domain="thermodynamics",
@@ -320,9 +348,172 @@ class PhysicsLibrary:
             constraint_type=ConstraintType.SCM_EQUATION,
             formula=lambda source_frequency, source_velocity, observer_velocity, v_sound=343:
                 source_frequency * (v_sound + observer_velocity) / (v_sound - source_velocity) if v_sound != source_velocity else source_frequency,
-            causal_direction=[("source_velocity", "observed_frequency"), 
+            causal_direction=[("source_frequency", "observed_frequency"),
+                            ("source_velocity", "observed_frequency"), 
                             ("observer_velocity", "observed_frequency")],
-            forbidden_directions=[("observed_frequency", "source_velocity")],
+            forbidden_directions=[("observed_frequency", "source_velocity"),
+                                ("observed_frequency", "source_frequency")],
+        ))
+        # ── 热力学扩展 ──
+        self.register(PhysicsLaw(
+            name="StefanBoltzmann", domain="thermodynamics",
+            latex=r"P = \sigma A T^4",
+            inputs=["temperature", "area"], outputs=["radiated_power"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda temperature, area, sigma=5.67e-8: sigma * area * temperature**4,
+            causal_direction=[("temperature", "radiated_power"), ("area", "radiated_power")],
+            forbidden_directions=[("radiated_power", "temperature")],
+        ))
+        self.register(PhysicsLaw(
+            name="NewtonCooling", domain="thermodynamics",
+            latex=r"\frac{dT}{dt} = -k(T - T_{env})",
+            inputs=["temperature_diff"], outputs=["cooling_rate"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda temperature_diff, k=0.1: k * temperature_diff,
+            causal_direction=[("temperature_diff", "cooling_rate")],
+            forbidden_directions=[("cooling_rate", "temperature_diff")],
+        ))
+        # ── 流体力学 ──
+        self.register(PhysicsLaw(
+            name="Archimedes", domain="fluids",
+            latex=r"F_b = \rho g V",
+            inputs=["fluid_density", "volume"], outputs=["buoyant_force"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda fluid_density, volume, g=9.8: fluid_density * g * volume,
+            causal_direction=[("fluid_density", "buoyant_force"), ("volume", "buoyant_force")],
+            forbidden_directions=[("buoyant_force", "fluid_density"), ("buoyant_force", "volume")],
+        ))
+        # ── 电磁学扩展 ──
+        self.register(PhysicsLaw(
+            name="Lorentz", domain="electromagnetism",
+            latex=r"F = q(E + v \times B)",
+            inputs=["charge", "velocity", "magnetic_field"], outputs=["lorentz_force"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda charge, velocity, magnetic_field: charge * velocity * magnetic_field,
+            causal_direction=[("charge", "lorentz_force"), ("velocity", "lorentz_force"),
+                            ("magnetic_field", "lorentz_force")],
+            forbidden_directions=[("lorentz_force", "charge"), ("lorentz_force", "magnetic_field")],
+        ))
+        # ── 现代物理 ──
+        self.register(PhysicsLaw(
+            name="MassEnergy", domain="modern",
+            latex=r"E = mc^2",
+            inputs=["mass"], outputs=["energy"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda mass, c=3e8: mass * c**2,
+            causal_direction=[("mass", "energy")],
+            forbidden_directions=[("energy", "mass")],
+        ))
+        self.register(PhysicsLaw(
+            name="Photoelectric", domain="modern",
+            latex=r"E = hf - \phi",
+            inputs=["frequency"], outputs=["electron_energy"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda frequency, h=6.63e-34, phi=2.0: h * frequency - phi,
+            causal_direction=[("frequency", "electron_energy")],
+            forbidden_directions=[("electron_energy", "frequency")],
+        ))
+        # ── 量子力学 ──
+        self.register(PhysicsLaw(
+            name="deBroglie", domain="quantum",
+            latex=r"\lambda = h / p",
+            inputs=["momentum"], outputs=["wavelength"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda momentum, h=6.63e-34: h / momentum if momentum != 0 else float('inf'),
+            causal_direction=[("momentum", "wavelength")],
+            forbidden_directions=[("wavelength", "momentum")],
+            # 波粒二象性: 动量越大, 波长越短
+        ))
+        self.register(PhysicsLaw(
+            name="HeisenbergUncertainty", domain="quantum",
+            latex=r"\Delta x \Delta p \geq \hbar/2",
+            inputs=["position_uncertainty", "momentum_uncertainty"],
+            outputs=[], constraint_type=ConstraintType.CONSERVATION,
+            formula=lambda position_uncertainty, momentum_uncertainty: position_uncertainty * momentum_uncertainty,
+            causal_direction=[],
+            forbidden_directions=[],
+            # 不确定原理: 位置和动量不能同时精确确定
+        ))
+        self.register(PhysicsLaw(
+            name="BornRule", domain="quantum",
+            latex=r"P = |\psi|^2",
+            inputs=["wave_function"], outputs=["probability"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda wave_function: abs(wave_function)**2,
+            causal_direction=[("wave_function", "probability")],
+            forbidden_directions=[("probability", "wave_function")],
+            # 概率幅 → 观测概率 (测量坍缩)
+        ))
+        self.register(PhysicsLaw(
+            name="NoCommunication", domain="quantum",
+            latex=r"\text{entanglement} \nRightarrow \text{signaling}",
+            inputs=["measurement_outcome"], outputs=[],
+            constraint_type=ConstraintType.CONSERVATION,
+            formula=lambda measurement_outcome: 0.0,
+            causal_direction=[],
+            forbidden_directions=[],
+            # 量子纠缠不能用于超光速通信
+        ))
+        self.register(PhysicsLaw(
+            name="PauliExclusion", domain="quantum",
+            latex=r"\text{no two fermions share all quantum numbers}",
+            inputs=["quantum_state"], outputs=["occupation_limit"],
+            constraint_type=ConstraintType.CONSERVATION,
+            formula=lambda quantum_state: 1.0,
+            causal_direction=[("quantum_state", "occupation_limit")],
+            forbidden_directions=[],
+            # 泡利不相容: 每个量子态最多一个费米子
+        ))
+        self.register(PhysicsLaw(
+            name="EnergyQuantization", domain="quantum",
+            latex=r"E_n = (n + 1/2)\hbar\omega",
+            inputs=["quantum_number"], outputs=["energy_level"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda quantum_number, hbar=1.05e-34, omega=1: (quantum_number + 0.5) * hbar * omega,
+            causal_direction=[("quantum_number", "energy_level")],
+            forbidden_directions=[("energy_level", "quantum_number")],
+            # 能量量子化: 离散能级
+        ))
+        # ── 广义相对论 ──
+        self.register(PhysicsLaw(
+            name="Schwarzschild", domain="general_relativity",
+            latex=r"r_s = 2GM/c^2",
+            inputs=["mass"], outputs=["schwarzschild_radius"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda mass, G=6.67e-11, c=3e8: 2 * G * mass / c**2,
+            causal_direction=[("mass", "schwarzschild_radius")],
+            forbidden_directions=[("schwarzschild_radius", "mass")],
+            # 史瓦西半径: 质量越大, 事件视界越大
+        ))
+        self.register(PhysicsLaw(
+            name="TimeDilation", domain="general_relativity",
+            latex=r"t' = t \sqrt{1 - v^2/c^2}",
+            inputs=["velocity"], outputs=["dilated_time"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda velocity, rest_time=1.0, c=3e8: rest_time / np.sqrt(1 - velocity**2 / c**2) if velocity < c else float('inf'),
+            causal_direction=[("velocity", "dilated_time")],
+            forbidden_directions=[("dilated_time", "velocity")],
+            # 时间膨胀: 速度越快, 时间越慢
+        ))
+        self.register(PhysicsLaw(
+            name="GravitationalRedshift", domain="general_relativity",
+            latex=r"\Delta f / f = g\Delta h / c^2",
+            inputs=["gravity", "height"], outputs=["frequency_shift"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda gravity, height, c=3e8: gravity * height / c**2,
+            causal_direction=[("gravity", "frequency_shift"), ("height", "frequency_shift")],
+            forbidden_directions=[("frequency_shift", "gravity")],
+            # 引力红移: 光爬出引力场时频率降低
+        ))
+        self.register(PhysicsLaw(
+            name="EquivalencePrinciple", domain="general_relativity",
+            latex=r"\text{gravity} \equiv \text{acceleration}",
+            inputs=["gravitational_mass", "inertial_mass"], outputs=[],
+            constraint_type=ConstraintType.CONSERVATION,
+            formula=lambda gravitational_mass, inertial_mass: gravitational_mass / inertial_mass if inertial_mass != 0 else 0,
+            causal_direction=[],
+            forbidden_directions=[],
+            # 等效原理: 引力质量 = 惯性质量, 引力不可区分于加速
         ))
 
 

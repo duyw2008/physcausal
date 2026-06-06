@@ -13,6 +13,10 @@ References:
 """
 
 from __future__ import annotations
+
+import warnings
+warnings.filterwarnings("ignore", category=RuntimeWarning)
+
 from itertools import combinations
 from typing import Dict, List, Optional, Set, Tuple
 

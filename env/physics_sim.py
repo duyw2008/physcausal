@@ -342,6 +342,114 @@ class DopplerEnv(PhysicsEnv):
         return self.observe()
 
 
+# ═══════════════════════════════════════════════════════════
+# Gas Law
+# ═══════════════════════════════════════════════════════════
+
+class GasLawEnv(PhysicsEnv):
+    """理想气体: T → P, V (PV ∝ T)"""
+
+    def __init__(self, noise_std: float = 0.05):
+        super().__init__(
+            name="gas_law",
+            variables=["temp", "pres", "vol"],
+            ground_truth_edges=[("temp", "pres"), ("temp", "vol")],
+            domain="thermodynamics",
+            noise_std=noise_std,
+        )
+        self.temp = 300.0
+        self.nR = 1.0
+        self.reset()
+
+    def reset(self):
+        self.temp = np.random.uniform(200, 500)
+
+    def observe(self) -> Dict[str, float]:
+        vol = self.nR * self.temp / 100 + np.random.normal(0, self.noise_std)
+        pres = 100 + np.random.normal(0, self.noise_std)
+        return {"temp": self.temp, "pres": pres, "vol": vol}
+
+    def intervene(self, var: str, value: float) -> Dict[str, float]:
+        if var == "temp":
+            self.temp = value
+        return self.observe()
+
+
+# ═══════════════════════════════════════════════════════════
+# Buoyancy
+# ═══════════════════════════════════════════════════════════
+
+class BuoyancyEnv(PhysicsEnv):
+    """浮力: ρ, V → F_b (Archimedes)"""
+
+    def __init__(self, noise_std: float = 0.05):
+        super().__init__(
+            name="buoyancy",
+            variables=["fluid_density", "volume", "buoyant_force"],
+            ground_truth_edges=[("fluid_density", "buoyant_force"), ("volume", "buoyant_force")],
+            domain="fluids",
+            noise_std=noise_std,
+        )
+        self.fluid_density = 1000.0
+        self.volume = 0.01
+        self.reset()
+
+    def reset(self):
+        self.fluid_density = np.random.uniform(500, 2000)
+        self.volume = np.random.uniform(0.001, 0.1)
+
+    def observe(self) -> Dict[str, float]:
+        Fb = self.fluid_density * 9.8 * self.volume + np.random.normal(0, self.noise_std * 10)
+        return {"fluid_density": self.fluid_density, "volume": self.volume, "buoyant_force": Fb}
+
+    def intervene(self, var: str, value: float) -> Dict[str, float]:
+        if var == "fluid_density": self.fluid_density = value
+        elif var == "volume": self.volume = value
+        return self.observe()
+
+
+# ═══════════════════════════════════════════════════════════
+# Lorentz Force
+# ═══════════════════════════════════════════════════════════
+
+class LorentzEnv(PhysicsEnv):
+    """洛伦兹力: q, v, B → F"""
+
+    def __init__(self, noise_std: float = 0.05):
+        super().__init__(
+            name="lorentz",
+            variables=["charge", "velocity", "magnetic_field", "lorentz_force"],
+            ground_truth_edges=[
+                ("charge", "lorentz_force"),
+                ("velocity", "lorentz_force"),
+                ("magnetic_field", "lorentz_force"),
+            ],
+            domain="electromagnetism",
+            noise_std=noise_std,
+        )
+        self.charge = 1e-6
+        self.velocity = 100.0
+        self.magnetic_field = 0.5
+        self.reset()
+
+    def reset(self):
+        self.charge = np.random.uniform(0.1e-6, 10e-6)
+        self.velocity = np.random.uniform(10, 1000)
+        self.magnetic_field = np.random.uniform(0.1, 2.0)
+
+    def observe(self) -> Dict[str, float]:
+        F = self.charge * self.velocity * self.magnetic_field
+        F += np.random.normal(0, self.noise_std * abs(F) + 1e-9)
+        return {"charge": self.charge, "velocity": self.velocity,
+                "magnetic_field": self.magnetic_field, "lorentz_force": F}
+
+    def intervene(self, var: str, value: float) -> Dict[str, float]:
+        if var == "charge": self.charge = value
+        elif var == "velocity": self.velocity = value
+        elif var == "magnetic_field": self.magnetic_field = value
+        return self.observe()
+
+
 ENV_REGISTRY = {
     "pendulum": PendulumEnv,
     "collision": CollisionEnv,
@@ -350,6 +458,9 @@ ENV_REGISTRY = {
     "faraday": FaradayEnv,
     "snell": SnellEnv,
     "doppler": DopplerEnv,
+    "gas_law": GasLawEnv,
+    "buoyancy": BuoyancyEnv,
+    "lorentz": LorentzEnv,
 }
 
 def make_env(name: str) -> PhysicsEnv:

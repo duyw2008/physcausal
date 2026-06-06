@@ -28,27 +28,37 @@ ZH_MAP = {
     # 仿真环境变量名映射
     "V": "voltage", "R": "resistance", "I": "current",
     "L": "length", "g": "g", "T": "period",
-    "k": "elastic_constant", "m": "mass", "omega": "angular_velocity",
-    "m1": "mass", "m2": "mass", "v1": "velocity", "v2": "velocity",
-    "v1p": "velocity", "v2p": "velocity",
+    "k": "elastic_constant", "omega": "angular_velocity",
+    # collision — 保持原名以匹配动量守恒定律
+    "v1p": "v1_prime", "v2p": "v2_prime",
     "flux_change": "magnetic_flux_change", "coil_turns": "coil_turns",
     "induced_emf": "induced_emf",
-    "n1": "refractive_index", "theta1": "incident_angle",
-    "n2": "refractive_index", "theta2": "refraction_angle",
+    "n1": "n1", "theta1": "incident_angle",
+    "n2": "n2", "theta2": "refraction_angle",
     "source_freq": "source_frequency", "source_vel": "source_velocity",
     "observer_vel": "observer_velocity", "observed_freq": "observed_frequency",
+    # 新环境
+    "temp": "temperature", "pres": "pressure", "vol": "volume",
+    "fluid_density": "fluid_density", "buoyant_force": "buoyant_force",
+    "charge": "charge", "magnetic_field": "magnetic_field", "lorentz_force": "lorentz_force",
 }
 
 
 def physics_prior(variables: list):
-    """从物理定律库获取已知因果结构 (零计算代价)"""
+    """从物理定律库获取已知因果结构 (零计算代价)
+
+    支持多对一映射: 当多个 env 变量映射到同一个 law 变量时
+    (如 m1,m2 → "mass")，生成所有组合边。
+    """
     from physics.laws import library
     vars_en = [ZH_MAP.get(v, v.lower()) for v in variables]
     edges = set()
     for law in library.list_all():
         for src, dst in law.causal_direction:
-            if src in vars_en and dst in vars_en:
-                si = vars_en.index(src)
-                di = vars_en.index(dst)
-                edges.add((variables[si], variables[di]))
+            src_indices = [i for i, v in enumerate(vars_en) if v == src]
+            dst_indices = [i for i, v in enumerate(vars_en) if v == dst]
+            for si in src_indices:
+                for di in dst_indices:
+                    if si != di:  # 排除自环
+                        edges.add((variables[si], variables[di]))
     return list(edges) if edges else []
