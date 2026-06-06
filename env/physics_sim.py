@@ -450,6 +450,170 @@ class LorentzEnv(PhysicsEnv):
         return self.observe()
 
 
+# ═══════════════════════════════════════════════════════════
+# de Broglie Wavelength
+# ═══════════════════════════════════════════════════════════
+
+class DeBroglieEnv(PhysicsEnv):
+    """物质波: p → λ (de Broglie)"""
+
+    def __init__(self, noise_std: float = 0.02):
+        super().__init__(
+            name="debroglie",
+            variables=["momentum", "wavelength"],
+            ground_truth_edges=[("momentum", "wavelength")],
+            domain="quantum",
+            noise_std=noise_std,
+        )
+        self.momentum = 1e-24
+        self.reset()
+
+    def reset(self):
+        self.momentum = np.random.uniform(1e-25, 1e-22)
+
+    def observe(self) -> Dict[str, float]:
+        h = 6.63e-34
+        lam = h / self.momentum + np.random.normal(0, self.noise_std * h / self.momentum)
+        return {"momentum": self.momentum, "wavelength": lam}
+
+    def intervene(self, var: str, value: float) -> Dict[str, float]:
+        if var == "momentum": self.momentum = value
+        return self.observe()
+
+
+# ═══════════════════════════════════════════════════════════
+# Energy Quantization
+# ═══════════════════════════════════════════════════════════
+
+class EnergyLevelsEnv(PhysicsEnv):
+    """量子谐振子: n → E_n"""
+
+    def __init__(self, noise_std: float = 0.02):
+        super().__init__(
+            name="energy_levels",
+            variables=["quantum_number", "energy_level"],
+            ground_truth_edges=[("quantum_number", "energy_level")],
+            domain="quantum",
+            noise_std=noise_std,
+        )
+        self.n = 0
+        self.reset()
+
+    def reset(self):
+        self.n = np.random.randint(0, 10)
+
+    def observe(self) -> Dict[str, float]:
+        hbar, omega = 1.05e-34, 1.0
+        E = (self.n + 0.5) * hbar * omega
+        E += np.random.normal(0, self.noise_std * hbar * omega)
+        return {"quantum_number": float(self.n), "energy_level": E}
+
+    def intervene(self, var: str, value: float) -> Dict[str, float]:
+        if var == "quantum_number": self.n = int(value)
+        return self.observe()
+
+
+# ═══════════════════════════════════════════════════════════
+# Schwarzschild Radius
+# ═══════════════════════════════════════════════════════════
+
+class SchwarzschildEnv(PhysicsEnv):
+    """史瓦西半径: M → r_s"""
+
+    def __init__(self, noise_std: float = 0.02):
+        super().__init__(
+            name="schwarzschild",
+            variables=["mass", "schwarzschild_radius"],
+            ground_truth_edges=[("mass", "schwarzschild_radius")],
+            domain="general_relativity",
+            noise_std=noise_std,
+        )
+        self.mass = 1e30
+        self.reset()
+
+    def reset(self):
+        self.mass = np.random.uniform(1e28, 1e32)
+
+    def observe(self) -> Dict[str, float]:
+        G, c = 6.67e-11, 3e8
+        rs = 2 * G * self.mass / c**2
+        rs += np.random.normal(0, self.noise_std * rs)
+        return {"mass": self.mass, "schwarzschild_radius": rs}
+
+    def intervene(self, var: str, value: float) -> Dict[str, float]:
+        if var == "mass": self.mass = value
+        return self.observe()
+
+
+# ═══════════════════════════════════════════════════════════
+# Time Dilation
+# ═══════════════════════════════════════════════════════════
+
+class TimeDilationEnv(PhysicsEnv):
+    """时间膨胀: v → t'"""
+
+    def __init__(self, noise_std: float = 0.02):
+        super().__init__(
+            name="time_dilation",
+            variables=["velocity", "dilated_time"],
+            ground_truth_edges=[("velocity", "dilated_time")],
+            domain="general_relativity",
+            noise_std=noise_std,
+        )
+        self.velocity = 1e7
+        self.reset()
+
+    def reset(self):
+        self.velocity = np.random.uniform(1e6, 2.9e8)
+
+    def observe(self) -> Dict[str, float]:
+        c = 3e8
+        if self.velocity >= c:
+            self.velocity = c * 0.99
+        gamma = 1 / np.sqrt(1 - self.velocity**2 / c**2)
+        t = gamma + np.random.normal(0, self.noise_std)
+        return {"velocity": self.velocity, "dilated_time": t}
+
+    def intervene(self, var: str, value: float) -> Dict[str, float]:
+        if var == "velocity": self.velocity = value
+        return self.observe()
+
+
+# ═══════════════════════════════════════════════════════════
+# Gravitational Redshift
+# ═══════════════════════════════════════════════════════════
+
+class RedshiftEnv(PhysicsEnv):
+    """引力红移: g, h → Δf/f"""
+
+    def __init__(self, noise_std: float = 0.05):
+        super().__init__(
+            name="redshift",
+            variables=["gravity", "height", "frequency_shift"],
+            ground_truth_edges=[("gravity", "frequency_shift"), ("height", "frequency_shift")],
+            domain="general_relativity",
+            noise_std=noise_std,
+        )
+        self.gravity = 9.8
+        self.height = 100.0
+        self.reset()
+
+    def reset(self):
+        self.gravity = np.random.uniform(1, 100)
+        self.height = np.random.uniform(10, 10000)
+
+    def observe(self) -> Dict[str, float]:
+        c = 3e8
+        shift = self.gravity * self.height / c**2
+        shift += np.random.normal(0, self.noise_std * abs(shift) + 1e-30)
+        return {"gravity": self.gravity, "height": self.height, "frequency_shift": shift}
+
+    def intervene(self, var: str, value: float) -> Dict[str, float]:
+        if var == "gravity": self.gravity = value
+        elif var == "height": self.height = value
+        return self.observe()
+
+
 ENV_REGISTRY = {
     "pendulum": PendulumEnv,
     "collision": CollisionEnv,
@@ -461,6 +625,11 @@ ENV_REGISTRY = {
     "gas_law": GasLawEnv,
     "buoyancy": BuoyancyEnv,
     "lorentz": LorentzEnv,
+    "debroglie": DeBroglieEnv,
+    "energy_levels": EnergyLevelsEnv,
+    "schwarzschild": SchwarzschildEnv,
+    "time_dilation": TimeDilationEnv,
+    "redshift": RedshiftEnv,
 }
 
 def make_env(name: str) -> PhysicsEnv:

@@ -406,6 +406,7 @@ CMD_HELP = {
         "skeletons":             "skeleton library",
         "compose":               "auto-compose modules",
         "associate [module]":    "discover structural associations",
+        "explain <module1> <module2>": "explain why two modules are isomorphic",
     },
     "≡ Meta-Physics": {
         "symmetry <v1,v2,...>":  "detect symmetries + conservation",
@@ -516,6 +517,36 @@ def run_interactive():
                         print(yellow(f"No isomorphic modules found for '{rest}'"))
                 else:
                     print(discovery.summary())
+                continue
+
+            if cmd == "explain":
+                parts = rest.split()
+                if len(parts) < 2:
+                    print(red("Usage: explain <module1> <module2>"))
+                    continue
+                from creative.structure_discovery import _topology_signature
+                from creative.module_library import ModuleLibrary
+                lib = ModuleLibrary()
+                m1, m2 = lib.get(parts[0]), lib.get(parts[1])
+                if not m1: print(red(f"Module '{parts[0]}' not found")); continue
+                if not m2: print(red(f"Module '{parts[1]}' not found")); continue
+                sig1, sig2 = _topology_signature(m1.edges), _topology_signature(m2.edges)
+                if sig1 == sig2:
+                    n_in = len(set(s for s,_ in m1.edges) - set(d for _,d in m1.edges))
+                    print(bold(f"'{m1.name}' ↔ '{m2.name}' are isomorphic"))
+                    print(f"  Same skeleton: {n_in} input(s) → output")
+                    print(f"  {m1.name} ({m1.domain}): {m1.edges}")
+                    print(f"  {m2.name} ({m2.domain}): {m2.edges}")
+                    print(f"  Structural signature: {sig1}")
+                    print(f"\n  {green('Role mapping:')}")
+                    m1_inputs = [s for s,_ in m1.edges if s not in set(d for _,d in m1.edges)]
+                    m2_inputs = [s for s,_ in m2.edges if s not in set(d for _,d in m2.edges)]
+                    for a, b in zip(m1_inputs, m2_inputs):
+                        print(f"    {m1.domain}::{a} ↔ {m2.domain}::{b}")
+                else:
+                    print(yellow(f"'{m1.name}' and '{m2.name}' are NOT isomorphic"))
+                    print(f"  sig1={sig1}")
+                    print(f"  sig2={sig2}")
                 continue
 
             # ── Meta-Physics ──

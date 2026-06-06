@@ -41,6 +41,13 @@ ZH_MAP = {
     "temp": "temperature", "pres": "pressure", "vol": "volume",
     "fluid_density": "fluid_density", "buoyant_force": "buoyant_force",
     "charge": "charge", "magnetic_field": "magnetic_field", "lorentz_force": "lorentz_force",
+    # 量子/GR 新环境
+    "momentum": "momentum", "wavelength": "wavelength",
+    "quantum_number": "quantum_number", "energy_level": "energy_level",
+    "schwarzschild_radius": "schwarzschild_radius",
+    "dilated_time": "dilated_time",
+    "frequency_shift": "frequency_shift",
+    "height": "height",
 }
 
 

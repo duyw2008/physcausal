@@ -254,10 +254,12 @@ class PhysicsLibrary:
         self.register(PhysicsLaw(
             name="Ideal Gas", domain="thermodynamics",
             latex=r"PV = nRT",
-            inputs=["n", "temperature"], outputs=["pressure"],
+            inputs=["n", "temperature"], outputs=["pressure", "volume"],
             constraint_type=ConstraintType.SCM_EQUATION,
             formula=lambda n, temperature, volume=1.0: n * 8.314 * temperature / volume if volume != 0 else 0.0,
-            # Note: volume as kwarg for flexibility
+            causal_direction=[("temperature", "pressure"), ("temperature", "volume"),
+                            ("n", "pressure"), ("n", "volume")],
+            forbidden_directions=[("pressure", "temperature"), ("volume", "temperature")],
         ))
         # ── 流体 ──
         self.register(PhysicsLaw(
