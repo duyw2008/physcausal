@@ -902,6 +902,20 @@ def run_interactive():
                         print(f"  一致度={v['score']:.0%}  汇聚点={v['convs']}")
 
                 print(f"\n{agent_auto.trend_report()}")
+                # ── 语义聚类 + 粗粒化 ──
+                from meta_cognition.semantic_cluster import find_semantic_clusters
+                from emergence.coarse_grainer import report as coarse_report
+                from emergence.hierarchical_abstraction import abstraction_report
+                clusters = find_semantic_clusters(min_combined=0.5)
+                if clusters:
+                    print(f"\n{green('语义聚类')}:")
+                    for c in clusters[:3]:
+                        print(f"  {c['variables'][0]} ↔ {c['variables'][1]} (名称={c['name_sim']:.0%})")
+                cg = coarse_report()
+                if '候选宏观变量: 0' not in cg:
+                    print(f"\n{green('粗粒化')}:")
+                    for line in cg.split('\n')[1:6]:
+                        if line.strip(): print(f"  {line.strip()}")
                 continue
 
             print(yellow(f"Unknown command: {cmd}. Type 'help'."))

@@ -932,7 +932,8 @@ class PhysicsLibrary:
                 "Ohm", "LeastAction", "NoetherTheorem",
                 "Ideal Gas", "Kinetic Theory", "Archimedes", "Bernoulli"],
             # 层级 2 — 主流理论 (未100%确证但广泛接受)
-            2: ["Decoherence", "Inflation", "HiggsMechanism"],
+            2: ["Decoherence", "Inflation", "HiggsMechanism",
+                "ER_EPR", "SpinNetworkGeometry", "AdS_CFT"],
             # 层级 3 — 严肃假说
             3: ["ObjectiveCollapse"],
             # 层级 4 — 探索性编码

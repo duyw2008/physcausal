@@ -1,24 +1,28 @@
 # PhysCausal — 缺口分析与后续方向
 
-> 版本: 2026-06-05 | 定位: 从当前架构到通用智能体的路线图
-> 当前状态: 179 tests | 3/3 元物理原则 | 4 后端感知 | 端到端管线 | RL + 自组织 | 10 仿真环境 100% 覆盖
-> 压力测试: PC F1=0.94 (3 vars) | 4+ vars 组合爆炸风险 (已知限制)
+> 版本: 2026-06-07 | 定位: 从当前架构到通用智能体的路线图
+> 当前状态: 179 tests | δS=0 唯一生成原理 | 71 定律 11 领域 | 11 透镜 | 自主循环(0 token) 
+> 几何化: mass → interference 完整链 | QM↔GR 五条桥 | arXiv 摄入管线
 
 ---
 
 ## 一、已完成 (地基)
 
 ```
-元物理层   3/3 原则 ✅       least_action / symmetry / entropy
-横切层     2/2 ✅            spectral (特征谱) / information (信息度量)
-物理层     22 条定律 ✅      7 领域 + constraint DAG + symmetry_breaking
-因果层     完整 ✅           12 模块 (DAG/SCM/discovery/estimation/mediation/...)
-感知层     4 后端 ✅          simple / image / timeseries / object_detect
-桥接层     4 模块 ✅          perception_bridge / physics_bridge / meta_physics_bridge / pipeline
-主动实验   已实现 ✅         active_experiment/ — VOI → 干预 → 更新 → 模块入库
-组合泛化   已实现 ✅         composition/ — TypedPort + ModuleInterface + auto-compose
-自由能     已实现 ✅         self_organization/ — FreeEnergyAgent + SelfOrganizingLearner
-RL 层      已实现 ✅         reinforcement/ — CausalMDP + Q-Learning + StrategyTransfer
+元物理层   δS=0 (Tier 0) + Noether/Locality/Entropy (派生) ✅
+物理层     71 条定律 ✅      11 领域 + 约束 DAG
+因果层     完整 ✅           12 模块
+自主循环   cron 30min ✅     5 驱动 + 品味进化 + 升级机制
+前沿地图   稀疏区/尺度裂缝/断头路 ✅
+哲学透镜   11 条 ✅         几何/量子/信息/群论/稳定性
+信任层级   5 层 ✅          公理→共识→理论→假说→探索
+语义聚类   名称+邻居双验证 ✅
+层次抽象   互信息+粗粒化+涌现评分 ✅
+arXiv摄入  搜索+阅读+LLM提取 ✅   paper 命令
+群论分类   SU(2)/U(1)/SO(3)/SO(3,1)/Discrete ✅
+几何化     mass→interference 12变量链 ✅
+QM↔GR桥   Hawking+ER_EPR+LQG+AdS/CFT+PathIntegral ✅
+```
 仿真环境   7 环境 ✅         pendulum/collision/circuit/spring/faraday/snell/doppler
 ```
 
@@ -389,12 +393,12 @@ P3 (研究 — 长期探索):
 v0.2  — 元物理完备 + 因果层迁移                    ✅
 v0.3  — 感知层升级 + information 横切层            ✅
 v0.4  — 主动实验设计 (Causal Bandit)               ✅
-v0.5  — 层次化抽象 (Renormalization × Causal)      P0 ← 当前
+v0.5  — 层次化抽象 (MI + 粗粒化 + 涌现评分)         ✅
 v0.6  — 组合泛化 (Modular SCM)                     ✅
 v0.7  — 自由能原理 (Active Inference engine)       ✅
 v0.8  — Bayesian SCM + 不确定性量化                ✅ (基本)
-v0.9  — 因果规划 + 元学习 (StrategyTransfer done)  P1
-v1.0  — 可演示的通用物理因果智能体
+v0.9  — 因果规划 + 元学习                          P1
+```
 ```
 
 ---
