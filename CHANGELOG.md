@@ -22,6 +22,28 @@
 
 ---
 
+## v0.3.10 (2026-06-07) — 因果规划 + 元学习 v2 + 创新引擎
+
+### 因果规划
+- `inference/causal_planner.py`: 反向搜索 + 路径评分 + forbidden/tier 过滤
+- `plan` 命令: `plan mass wavelength` 找最优路径
+- `plan bridge quantum GR` 领域桥接
+
+### 元学习 v2
+- `reinforcement/meta_learner_v2.py`: 模式模板 + 跨域迁移
+- 自动发现 geodesic_path 跨 3 领域汇聚
+
+### 创新引擎
+- `creative/innovation_engine.py`: 生成器 + 过滤器 + 进化器
+- 随机生成候选因果边 → 公理链验证 → 通过后提案
+- `innovate` 命令 + 融入自主循环
+- 30 条候选, 100% 通过率, 8 条"新物理"边
+
+### 统计
+- 71 定律, 11 透镜, 179 测试全绿
+
+---
+
 ## v0.3.9 (2026-06-07) — δS=0 生成根 + 论文摄入 + 群论分类
 
 ### δS=0 确认为唯一生成根

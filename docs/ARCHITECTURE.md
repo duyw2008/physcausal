@@ -368,14 +368,16 @@ pipeline.py             — 端到端四层流水线
 ## 七、统计
 
 ```
-模块: ~67  |  测试: 179
-物理定律: 66 条 (13 领域 + 自学习 + paper_ingest)
+模块: ~70  |  测试: 179
+物理定律: 71 条 (11 领域 + 自学习 + paper_ingest)
 元物理: 1 生成原理 (δS=0) + 3 派生原则 (Noether, Locality, Entropy)
-变量本体论: 12 基础 + 9 几何 + 7 量子 + 107 派生
-负向约束: 80% 定律有 forbidden_directions
-置信层级: ◎8 + ●37 + ○1 + ◇2 + ?1
-哲学透镜: 7 条 (3 层: 解释/引导/标注)
-自主循环: 5 驱动 (前沿/失调/联想/结构/反思), cron 30min, 0 token
-arXiv 摄入: search + read + LLM 提取 → tier 3 入库
+变量本体论: 12 基础 + 9 几何 + 7 量子 + 91 派生
+负向约束: 90% 定律有 forbidden_directions
+置信层级: ◎8 + ●56 + ○4 + ◇2 + ?1
+哲学透镜: 11 条 (3 层: 解释/引导/标注)
+自主循环: 5 驱动, cron 30min, 0 token
+arXiv 摄入: search + read + LLM 提取
+因果规划: 反向搜索 + 路径评分 (plan 命令)
+创新引擎: 生成器 + 过滤器 (innovate 命令)
 几何化: mass → interference 完整链 (12 变量可达)
 ```
