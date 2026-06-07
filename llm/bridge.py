@@ -113,7 +113,10 @@ class LLMBridge:
                        "会怎样", "会如何", "会怎么", "会变化",
                        # 定律/概念解释提问
                        "说的是什么", "是什么", "什么是", "什么意思",
-                       "定义", "解释一下", "介绍一下"]
+                       "定义", "解释一下", "介绍一下",
+                       # 元物理/哲学问题
+                       "稳定", "结构", "原理", "定律", "规则",
+                       "本质", "根本", "底层", "基础"]
 
     # 物理理论概念 — 匹配到这些且没有具体变量名 → 理论模式
     PHYSICS_THEORY_CONCEPTS = [
@@ -125,6 +128,8 @@ class LLMBridge:
         # 常见物理量 (配合因果方向提问时触发)
         "温度升高", "分子运动", "分子动能", "热运动",
         "光速", "时空弯曲", "引力波", "暗能量", "暗物质",
+        # 元物理/信息
+        "稳定结构", "特征结构", "信息熵", "Landauer",
     ]
 
     def _is_physics_question(self, question: str) -> bool:
@@ -170,7 +175,10 @@ class LLMBridge:
             "光", "折射", "反射", "波长", "频率", "声", "波速",
             # 量子/相对论
             "量子", "光子", "电子", "波函数", "纠缠", "光速",
+            "坍缩", "本征态", "本征值", "测量公设", "退相干",
             "时间膨胀", "黑洞", "事件视界",
+            # Jacobi / Kaluza-Klein / 几何化
+            "测地线", "度规", "投影", "高维", "紧致化", "Kaluza", "Jacobi",
             # 流体
             "浮力", "流速", "密度", "压强",
             # 物理场景 (实验/思想实验)
@@ -178,6 +186,9 @@ class LLMBridge:
             "铁球", "羽毛", "铅球", "真空", "空气阻力",
             "碰撞", "弹回", "反弹", "摆", "单摆", "钟摆",
             "漂浮", "沉没", "轨道", "绕", "公转",
+            # 天文
+            "太阳", "地球", "自转", "东边升起", "日出", "日落",
+            "月球", "行星", "卫星", "日食", "月食", "潮汐",
         ]
         return any(var in question for var in PHYSICS_VARIABLES)
 
@@ -197,20 +208,64 @@ class LLMBridge:
 
     def _theory_context(self, question: str) -> str:
         """
-        为理论问题注入完整物理定律库 (Unicode 数学)。
+        为理论问题注入相关物理定律 (不是全部 88 条，而是与问题相关的)。
 
-        LLM + 定律库 = 符号推理引擎
+        过滤策略: 问题中提到变量名 → 定律包含该变量 → 注入
+                 问题中提到领域词 → 注入该领域全部定律
+                 无匹配 → 注入元物理原则 (兜底)
         """
         from physics.laws import library
 
         all_laws = library.list_all()
 
+        # 关键词→领域映射
+        DOMAIN_KEYWORDS = {
+            "mechanics": ["力", "质量", "加速度", "速度", "位移", "动量", "动能",
+                          "弹簧", "摆", "碰撞", "弹性", "摩擦", "重力", "引力"],
+            "electromagnetism": ["电压", "电流", "电阻", "电荷", "电场", "磁场",
+                                  "电磁", "感应", "电容", "电感", "磁通"],
+            "thermodynamics": ["温度", "热", "热量", "压力", "体积", "熵", "热力学"],
+            "quantum": ["量子", "波函数", "坍缩", "本征", "退相干", "纠缠", "光子",
+                        "电子", "泡利", "测不准", "不确定性", "薛定谔", "波粒"],
+            "general_relativity": ["相对论", "光速", "时空", "黑洞", "时间膨胀",
+                                    "引力波", "史瓦西", "等效原理"],
+            "optics": ["光", "折射", "反射", "波长", "透镜", "焦距"],
+            "acoustics": ["声", "波速", "频率", "多普勒"],
+            "fluids": ["流体", "浮力", "流速", "密度", "压强"],
+            "unification": ["高维", "投影", "测地线", "度规", "Kaluza", "Jacobi"],
+        }
+
+        # 确定相关领域
+        relevant_domains = set()
+        for domain, keywords in DOMAIN_KEYWORDS.items():
+            if any(kw in question for kw in keywords):
+                relevant_domains.add(domain)
+
+        # 如果匹配到具体领域，只注入这些领域 + 元物理原则
+        if relevant_domains:
+            filtered_laws = [law for law in all_laws
+                             if law.domain in relevant_domains
+                             or law.domain in ("meta_physics",)]
+            # 加上通用的物理原则: Newton II (F=ma 几乎总是相关的)
+            for law in all_laws:
+                if law.name in ("Newton II", "Locality", "NoCommunication"):
+                    if law not in filtered_laws:
+                        filtered_laws.append(law)
+        else:
+            # 无匹配 → 注入全部 (兜底)
+            filtered_laws = all_laws
+
         lines = ["你是一个精通理论物理推导的科学家。"]
         lines.append("请使用 Unicode 数学符号 (如 ΔS ≥ 0, F = ma, ω = √(k/m)), 不要用 LaTeX。")
-        lines.append(f"以下是 PhysCausal 物理定律库中的全部 {len(all_laws)} 条定律:")
+
+        if relevant_domains:
+            lines.append(f"以下是 PhysCausal 定律库中与问题相关的 {len(filtered_laws)}/{len(all_laws)} 条定律 "
+                         f"(领域: {', '.join(sorted(relevant_domains))}):")
+        else:
+            lines.append(f"以下是 PhysCausal 物理定律库中的全部 {len(all_laws)} 条定律:")
         lines.append("")
 
-        for law in all_laws:
+        for law in filtered_laws:
             eq = law.latex if hasattr(law, 'latex') and law.latex else law.name
             # LaTeX → Unicode 转换
             eq_u = _latex_to_unicode(eq)
@@ -221,10 +276,20 @@ class LLMBridge:
             if law.forbidden_directions:
                 dirs = [f"{s}→{d}" for s, d in law.forbidden_directions[:3]]
                 lines.append(f"    禁止: {', '.join(dirs)}")
+            if getattr(law, 'collapse_timescale', None):
+                lines.append(f"    坍缩时间尺度: {law.collapse_timescale}")
             lines.append("")
 
         lines.append("")
-        lines.append("请基于以上定律进行严格推导，使用 Unicode 数学符号，给出明确的物理结论。")
+        lines.append("推理方法 (矛盾驱动):")
+        lines.append("1. 先扫描问题中涉及的概念，找出定律库中覆盖这些概念的多条定律")
+        lines.append("2. 如果多条定律对同一现象给出了不同的约束 (不同的时间尺度、不同的因果方向、不同的理论框架)，")
+        lines.append("   这就是矛盾的起点——不要跳过它，以矛盾为线索组织分析")
+        lines.append("3. 逐一分析每个框架下的推导路径和结论")
+        lines.append("4. 说明分歧的根源 (是公设差异? 尺度边界? 理论范式不同?)")
+        lines.append("5. 给出综合结论，诚实标注哪些是确定的、哪些是解释分歧")
+        lines.append("")
+        lines.append("请基于以上定律进行推导，使用 Unicode 数学符号。")
         return "\n".join(lines)
 
     def _all_law_variables(self) -> list:
@@ -501,18 +566,23 @@ class LLMBridge:
             print("  Mode: THEORETICAL (laws + math, no data needed)")
 
         theory_prompt = self._theory_context(question)
-        messages = [{"role": "user", "content": theory_prompt}]
+        messages = [{"role": "system", "content": theory_prompt}]
 
-        # 注入历史会话 (最近几轮 Q&A)
+        # 注入历史会话 — 以真实 role 交替插入，保持对话格式
         if history and len(history) >= 2:
             recent = history[-6:]  # 最近 3 轮
-            context = ["以下是之前的对话历史，请参考上下文回答当前问题:"]
+            if verbose:
+                n_q = sum(1 for h in recent if h.get("role") == "user")
+                print(f"  History: {n_q} recent Q&A rounds injected")
             for h in recent:
-                role = "用户" if h.get("role") == "user" else "PhysCausal"
-                context.append(f"  {role}: {h.get('content', '')[:200]}")
-            messages.append({"role": "user", "content": "\n".join(context)})
+                role = h.get("role", "user")
+                content = h.get("content", "")
+                # questions 保留完整，answers 截断到 500 字（远长于原来的 200）
+                if role == "assistant":
+                    content = content[:500]
+                messages.append({"role": role, "content": content})
 
-        messages.append({"role": "user", "content": f"问题: {question}"})
+        messages.append({"role": "user", "content": question})
         response = self.client.chat(messages)
         return {
             "question": question,
@@ -696,6 +766,17 @@ class LLMBridge:
                 return self._ask_theoretical(question, history=history, verbose=verbose)
             else:
                 return self._ask_theoretical_fallback(question, verbose)
+
+        # 对话追问检测: 短问题 + 有历史 → 可能是对上一轮理论讨论的追问
+        FOLLOWUP_PATTERNS = [
+            "你觉得", "你感觉", "你认为", "你怎么看", "你倾向",
+            "哪个对", "哪种", "哪个更", "哪一个是",
+            "是吗", "真的吗", "对吗", "这样吗",
+            "为什么", "什么意思", "怎么说", "解释一下",
+        ]
+        if history and len(history) >= 2 and len(question) < 40:
+            if any(p in question for p in FOLLOWUP_PATTERNS):
+                return self._ask_theoretical(question, history=history, verbose=verbose)
 
         # Step 1
         if verbose: print("  Step 1: LLM extracting causal graph...")

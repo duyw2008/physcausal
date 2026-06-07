@@ -1,7 +1,7 @@
 # PhysCausal Agent — 架构设计文档
 
-> 版本: v0.3.0 | 日期: 2026-06-05
-> 定位: 物理为骨 · 因果为肌 · 感知为眼 · LLM 为口 · RL 为手
+> 版本: v0.3.7 | 日期: 2026-06-07
+> 定位: 物理为骨 · 因果为肌 · 矛盾驱动 · 自主生长
 
 ---
 
@@ -151,16 +151,43 @@ PhysCausal 的核心架构**不是纵向堆栈**，而是**三个独立输入层
 
 ```
 物理层 (Physics):
-  laws.py           — 39条物理定律, 10领域
+  laws.py           — 66 条物理定律, 13 领域 + 自学习扩展
   constraints.py    — PhysicsConstrainedDAG
 
-元物理层 (Meta-Physics) — 三条第一性原理:
-  least_action.py   — ① 最小作用量 δS = 0 (生成性原理)
-  symmetry.py       — ② 对称性 → 守恒 (Noether 定理)
-  entropy.py        — ③ 熵增 ΔS ≥ 0 (因果箭头)
-  locality.py       — ④ 局域因果 (光锥约束)
-  measurement.py    — ⑤ 信息边界 (获取信息 = 投影)
+元物理层 (Meta-Physics) — 1 条生成原理 + 3 条派生原则:
+
+  Tier 0 — 生成性原理:
+    least_action.py   — δS = 0, 最小作用量
+                        所有动力学方程的源头。
+                        经典力学 (Euler-Lagrange) →
+                        广义相对论 (Einstein-Hilbert) →
+                        量子力学 (路径积分 e^{iS/ħ})
+
+  Tier 1 — 派生原则:
+    symmetry.py       — Noether 定理: L 的对称性 → 守恒量
+                        是 δS=0 的直接推论, 非独立原理
+    locality.py       — 局域因果: 光锥约束, 类空间隔无因果
+                        不来自 δS=0 但局域场论天然满足
+    entropy.py        — 熵增 ΔS ≥ 0: 统计涌现, 非动力学
+                        底层微观动力学时间反演对称
+
+  层级关系:
+    δS=0 (生成性)
+      ├─→ Noether (推论: 对称→守恒)
+      └─→ Locality (约束: 光锥)
+             └─→ Entropy (涌现: ΔS≥0)
 ```
+
+物理层变量本体论:
+
+| 类别 | 数量 | 示例 |
+|------|------|------|
+| 基础变量 | 12 | mass, energy, time, momentum, charge |
+| 几何变量 | 9 | geodesic_path, spacetime_curvature, gauge_field |
+| 量子变量 | 7 | wave_function, quantum_amplitude, collapse_probability |
+| 派生变量 | 107 | kinetic_energy, pressure, flow_rate |
+
+负向约束覆盖率: 80% (53/66 定律有 forbidden_directions)
 
 ### 3.3 创造性层 (Creative)
 
@@ -177,6 +204,49 @@ skeleton/           — 骨架匹配 fallback:
 composition/        — 组合泛化:
   composer.py       — ModuleInterface + TypedPort + 自动对接
 ```
+
+### 3.4 认知层 (Meta-Cognition) — 自主智能体的核心
+
+```
+meta_cognition/     — 内在驱动力系统:
+  autonomous.py     — AutonomousAgent: 五大驱动竞争 (frontier/dissonance/structure/associate/reflect)
+                      think() 随机激活 → _learn_from() → update() 品味进化
+                      状态持久化到 ~/.hermes/physcausal_autonomous_state.json
+  dissonance.py     — 认知失调检测: detect_domain_boundaries() + detect_scale_boundaries()
+                      扫描定律库找跨域张力 + 尺度边界
+  frontier.py       — FrontierMap: 前沿地图 — 标注未知边界而非已知矛盾
+                      稀疏区 (变量缺席哪些领域) + 断头路 (chain 在哪停止) + 尺度裂缝 (跨尺度缺失桥接)
+  __init__.py       — ValueSystem (显著性排序), salience 评分
+
+inference/          — 反事实推理:
+  counterfactual_chain.py — propagate(): 沿 causal_direction 正向传播假设变化
+                             build_dependency_graph() + BFS + forbidden 检查
+                             format_chain() 人类可读输出
+
+session/            — 知识生长:
+  auto_learn.py     — 三条学习路径:
+                      ├─ auto_learn()            — LLM 文本缺口检测 → LLM 补全 (1 API call)
+                      ├─ learn_external_mentions() — LLM 回答中提取外部定律 (1 API call)
+                      └─ learn_from_chain()      — 因果图结构分析 (0 token)
+                         └─ 汇聚路径检测 + 跨域桥接 + 去重 + forbidden 验证
+  knowledge_extractor.py — 从 LLM 回答中提取因果断言
+
+自主闭环:
+  dissonance → chain → learn_from_chain (0 token, 纯图推理)
+     ↓ 无产出
+  auto_learn (1 API call, LLM 回退)
+
+Cron 定时:
+  physcausal-autonomous: 每 30 分钟跑 15 轮, 0 token, 有发现推送报告
+```
+
+| 模块 | 驱动模式 | 输入 | 输出 | token |
+|------|---------|------|------|-------|
+| `_think_frontier` | 前瞻式 | 前沿地图 | 稀疏区/裂缝/断头路方向 | 0 |
+| `_think_dissonance` | 反应式 | 定律库 | 跨域张力/尺度边界 | 0 |
+| `_think_structure` | 联想式 | 模块库 | 同构组 | 0 |
+| `_think_associate` | 联想式 | 随机模块对 | 跨域同构 | 0 |
+| `_think_reflect` | 回顾式 | salience | 重点定律 | 0 |
 
 ---
 
@@ -262,7 +332,7 @@ bridge.py           — 五步管道:
 ### 5.2 仿真 + 主动学习
 
 ```
-env/physics_sim.py  — 10个物理仿真环境
+env/physics_sim.py  — 15个物理仿真环境 (经典 + 量子 + 广义相对论)
 active_experiment/active_learner.py — VOI → 干预 → 数据 → 更新 → 入库
 ```
 
@@ -298,9 +368,14 @@ pipeline.py             — 端到端四层流水线
 ## 七、统计
 
 ```
-模块: ~55  |  代码行: ~18,000  |  测试: 179 unit + 15 system + 9 cross-layer
-物理定律: 39 条, 10 领域  |  仿真环境: 10 个 (全 physics_prior 100% 覆盖)
-预置模块: 14 + 自动发现  |  预置骨架: 9 个
-元物理原则: 3/3 完备  |  P0 缺口: 3/4 完成 (仅剩层次化抽象)
-压力测试: PC F1=0.94 (3 vars) / 4+ vars 组合爆炸风险 (已知限制)
+模块: ~67  |  测试: 179
+物理定律: 66 条 (13 领域 + 自学习 + paper_ingest)
+元物理: 1 生成原理 (δS=0) + 3 派生原则 (Noether, Locality, Entropy)
+变量本体论: 12 基础 + 9 几何 + 7 量子 + 107 派生
+负向约束: 80% 定律有 forbidden_directions
+置信层级: ◎8 + ●37 + ○1 + ◇2 + ?1
+哲学透镜: 7 条 (3 层: 解释/引导/标注)
+自主循环: 5 驱动 (前沿/失调/联想/结构/反思), cron 30min, 0 token
+arXiv 摄入: search + read + LLM 提取 → tier 3 入库
+几何化: mass → interference 完整链 (12 变量可达)
 ```

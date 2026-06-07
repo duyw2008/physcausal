@@ -1,72 +1,95 @@
 """
-会话知识提取 — 从 LLM 回答中自动提取因果断言并入库
+会话知识提取 — LLM 驱动的因果断言提取
 
-核心: 每轮对话后, 扫描 LLM 回答中的因果断言,
+核心: 每轮对话后, 用 LLM 提取回答中的因果断言,
       物理验证后自动加入模块库, 实现"越聊越胖"。
+
+两层:
+  1. LLM 提取 (主) — 一次 LLM 调用, 捕获所有断言
+  2. 正则 fallback — LLM 不可用时的降级方案
 """
 
 from __future__ import annotations
+import json as _json
 import re
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 
 from creative.module_library import ModuleLibrary, CausalModule
 
 
-# 中文因果断言模式
+def extract_via_llm(answer: str, client) -> List[Dict]:
+    """
+    用 LLM 从回答中提取因果断言。
+
+    Returns:
+        [{source, target, direction, confidence}, ...]
+    """
+    if not client:
+        return []
+
+    prompt = (
+        "从以下物理推导文本中提取所有明确的因果断言。\n\n"
+        f"文本:\n{answer[:3000]}\n\n"
+        "以 JSON 数组格式返回, 每个断言包含:\n"
+        '{"source": "原因变量", "target": "结果变量", '
+        '"direction": "forward" 或 "forbidden", '
+        '"confidence": 0.0-1.0}\n\n'
+        "只返回 JSON 数组, 不要其他文字。最多 10 条。"
+    )
+    try:
+        response = client.chat([{"role": "user", "content": prompt}])
+        json_match = re.search(r'\[.*\]', response, re.DOTALL)
+        if json_match:
+            assertions = _json.loads(json_match.group())
+            result = []
+            for a in assertions:
+                if a.get("source") and a.get("target"):
+                    result.append({
+                        "source": str(a["source"]).strip(),
+                        "target": str(a["target"]).strip(),
+                        "direction": a.get("direction", "forward"),
+                        "confidence": float(a.get("confidence", 0.7)),
+                    })
+            return result
+    except Exception:
+        pass
+    return []
+
+
+# 中文因果断言模式 (LLM 不可用时的 fallback)
 CAUSAL_PATTERNS = [
-    # "X → Y" or "X→Y"
     (r'(\S+?)\s*→\s*(\S+)', 'arrow'),
-    # "X 导致 Y"
     (r'(\S+?)\s*导致\s*(\S+)', 'lead_to'),
-    # "X 是 Y 的(原因|因)"
     (r'(\S+?)\s*是\s*(\S+?)\s*的(?:原因|因)', 'is_cause_of'),
-    # "X 决定 Y"
     (r'(\S+?)\s*决定\s*(\S+)', 'determines'),
-    # "X 影响 Y" (弱因果)
     (r'(\S+?)\s*影响\s*(\S+)', 'affects'),
-    # "X 引起 Y"
     (r'(\S+?)\s*引起\s*(\S+)', 'causes'),
-    # "禁止: X → Y" (forbidden direction)
     (r'禁止[：:]\s*(\S+?)\s*→\s*(\S+)', 'forbidden'),
-    # "X -> Y" (English arrow in Chinese text)
     (r'(\w+)\s*->\s*(\w+)', 'english_arrow'),
 ]
 
 
 def extract_causal_assertions(text: str) -> List[Dict]:
-    """
-    从文本中提取因果断言。
-
-    Returns:
-        [{source, target, direction, pattern_type, raw_match}, ...]
-    """
+    """从文本中提取因果断言 (正则 fallback)"""
     assertions = []
-
     for pattern, ptype in CAUSAL_PATTERNS:
         for match in re.finditer(pattern, text):
             src = match.group(1).strip()
             dst = match.group(2).strip()
-
-            # 过滤噪声: 太短的变量名, 纯数字, 箭头本身
             if len(src) < 1 or len(dst) < 1:
                 continue
-            if src in ('→', '->', '—') or dst in ('→', '->', '—'):
+            if src in ('→', '->', '-') or dst in ('→', '->', '-'):
                 continue
             if src.isdigit() or dst.isdigit():
                 continue
-            # 过滤标点
             if any(c in src for c in '，。！？；：、') or any(c in dst for c in '，。！？；：、'):
                 continue
-
             direction = "forward" if ptype != "forbidden" else "forbidden"
             assertions.append({
-                "source": src,
-                "target": dst,
-                "direction": direction,
-                "pattern": ptype,
+                "source": src, "target": dst,
+                "direction": direction, "pattern": ptype,
             })
 
-    # 去重
     seen = set()
     unique = []
     for a in assertions:
@@ -74,71 +97,41 @@ def extract_causal_assertions(text: str) -> List[Dict]:
         if key not in seen:
             seen.add(key)
             unique.append(a)
-
     return unique
 
 
 def validate_and_add(assertions: List[Dict], domain: str = "extracted") -> Dict:
     """
     物理验证断言并加入模块库。
-
-    验证规则:
-      1. 如果断言的方向与物理定律 forbidden_directions 冲突 → 拒绝
-      2. 如果断言的方向与物理定律 causal_direction 一致 → 通过
-      3. 否则标记为未验证 (保留但低置信)
-
-    Returns:
-        {added, rejected, pending}
     """
     from physics.laws import library
 
     lib = ModuleLibrary()
-    added = []
-    rejected = []
-    pending = []
+    added, rejected, pending = [], [], []
 
     for a in assertions:
         src, dst = a["source"], a["target"]
         edge = (src, dst)
-        reverse = (dst, src)
 
-        # 物理验证
-        validated = False
-        rejected_flag = False
-        matched_law = None
-
+        validated, rejected_flag, matched_law = False, False, None
         for law in library.list_all():
-            # 检查 forbidden: 如果当前断言方向被禁止 → 拒绝
             for fd in law.forbidden_directions:
                 if (fd[0] in src and fd[1] in dst) or (fd[0] == src.lower() and fd[1] == dst.lower()):
-                    rejected_flag = True
-                    matched_law = law.name
-                    break
+                    rejected_flag = True; matched_law = law.name; break
             if rejected_flag:
                 break
-
-            # 检查 causal: 如果当前断言方向被确认 → 通过
             for cd in law.causal_direction:
                 if (cd[0] in src and cd[1] in dst) or (cd[0] == src.lower() and cd[1] == dst.lower()):
-                    validated = True
-                    matched_law = law.name
-                    break
+                    validated = True; matched_law = law.name; break
             if validated:
                 break
 
-        result = {
-            "edge": edge,
-            "source": src,
-            "target": dst,
-            "validated": validated,
-            "rejected": rejected_flag,
-            "matched_law": matched_law,
-        }
+        result = {"edge": edge, "source": src, "target": dst,
+                   "validated": validated, "rejected": rejected_flag, "matched_law": matched_law}
 
         if rejected_flag:
             rejected.append(result)
         elif validated:
-            # 加入模块库
             try:
                 mod = CausalModule(
                     name=f"extracted_{src}_{dst}",
@@ -156,15 +149,13 @@ def validate_and_add(assertions: List[Dict], domain: str = "extracted") -> Dict:
         else:
             pending.append(result)
 
-    return {
-        "added": added,
-        "rejected": rejected,
-        "pending": pending,
-        "total": len(assertions),
-    }
+    return {"added": added, "rejected": rejected, "pending": pending, "total": len(assertions)}
 
 
-def extract_from_answer(answer: str, domain: str = "extracted") -> Dict:
-    """从 LLM 回答中提取并验证因果知识 (一站式)"""
-    assertions = extract_causal_assertions(answer)
+def extract_from_answer(answer: str, client=None, domain: str = "extracted") -> Dict:
+    """从 LLM 回答中提取并验证因果知识 (LLM 优先, 正则 fallback)"""
+    # 优先试用 LLM 提取
+    assertions = extract_via_llm(answer, client)
+    if not assertions:
+        assertions = extract_causal_assertions(answer)
     return validate_and_add(assertions, domain)

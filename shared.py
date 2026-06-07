@@ -48,6 +48,19 @@ ZH_MAP = {
     "dilated_time": "dilated_time",
     "frequency_shift": "frequency_shift",
     "height": "height",
+    # 量子测量
+    "波函数": "wave_function", "测量": "measurement",
+    "本征值": "eigenvalue", "本征态": "post_measurement_state",
+    "坍缩": "post_measurement_state", "测量后状态": "post_measurement_state",
+    "环境": "environment_coupling", "退相干": "mixed_state",
+    "混合态": "mixed_state",
+    "粒子数": "particle_count", "坍缩概率": "collapse_probability",
+    "客观坍缩": "collapse_probability",
+    # Jacobi / Kaluza-Klein
+    "测地线": "geodesic_path", "势能": "potential_energy",
+    "高维度规": "higher_d_metric", "紧致维": "compact_dimension",
+    "规范场": "gauge_field", "标量场": "scalar_field",
+    "投影": "geodesic_path", "高维": "higher_d_metric",
 }
 
 

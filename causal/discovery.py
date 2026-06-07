@@ -237,7 +237,7 @@ def pc_algorithm(
     if var_names is None:
         var_names = [f"V{i}" for i in range(n_vars)]
     if max_cond_size is None:
-        max_cond_size = n_vars
+        max_cond_size = min(2, n_vars - 2)  # 硬上限防止 4+ 变量组合爆炸
 
     ci_test = g_squared_test if discrete else fisher_z_test
 

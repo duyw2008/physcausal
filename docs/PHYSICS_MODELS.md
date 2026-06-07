@@ -1,7 +1,7 @@
 # 物理模型
 
 > PhysCausal 中的物理定律库 — 完整数学形式 + 因果方向
-> 版本: v0.3.0 | 39 条定律, 10 领域
+> 版本: v0.3.2 | 41+ 条定律, 10 领域 + 自学习
 
 ---
 
@@ -48,6 +48,8 @@
 | 37 | Time Dilation | 广义相对论 | t' = t√(1-v²/c²) | v→t' | t'→v |
 | 38 | Grav. Redshift | 广义相对论 | Δf/f = gΔh/c² | g,h→Δf | Δf→g |
 | 39 | Equivalence Princ. | 广义相对论 | gravity ≡ acceleration | — | — |
+| 40 | Angular Momentum | 力学 | L = Iω = const | I→ω | ω→I |
+| 41 | Kepler III | 力学 | T² ∝ a³ | a→T | T→a |
 
 ---
 
@@ -480,5 +482,10 @@ PhysCausal 的 10 个仿真环境与物理定律的对应关系:
 | doppler | Doppler | f_s,v_s,v_o → f' | 3 |
 | gas_law | Ideal Gas | T → P, V | 2 |
 | buoyancy | Archimedes | ρ, V → F_b | 2 |
+| debroglie | de Broglie | p → λ | 1 |
+| energy_levels | Energy Quantization | n → E | 1 |
+| schwarzschild | Schwarzschild | M → r_s | 1 |
+| time_dilation | Time Dilation | v → t' | 1 |
+| redshift | Grav. Redshift | g, h → Δf | 2 |
 
-全 10 环境 physics_prior 100% 覆盖，主动学习精度 100%。
+全 15 环境 physics_prior 100% 覆盖，主动学习精度 100%。自学习定律可继续扩展。

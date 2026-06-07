@@ -28,10 +28,10 @@ def red(s):    return f"{Style.RED}{s}{Style.RESET}"
 def magenta(s): return f"{Style.MAGENTA}{s}{Style.RESET}"
 
 # ── readline history ────────────────────────────────────────────
+_HIST_FILE = os.path.expanduser("~/.hermes/physcausal_history")
+_HIST_MAX = 2000
 try:
     import readline
-    _HIST_FILE = os.path.expanduser("~/.hermes/physcausal_history")
-    _HIST_MAX = 2000
     def _load_hist():
         try:
             os.makedirs(os.path.dirname(_HIST_FILE), exist_ok=True)
@@ -60,6 +60,13 @@ except ImportError:
     def _save_hist(): pass
     def _add_hist(line): pass
 
+# readline prompt-safe: 用 \001/\002 包裹 ANSI 码，避免上下翻历史时残留字符
+if _HAS_READLINE:
+    _RL_START = "\001"
+    _RL_END = "\002"
+    def prompt_cyan(s):  return f"{_RL_START}{Style.CYAN}{_RL_END}{s}{_RL_START}{Style.RESET}{_RL_END}"
+else:
+    def prompt_cyan(s):  return cyan(s)
 
 # ═══════════════════════════════════════════════════════════════
 # Agent Shell
@@ -257,8 +264,18 @@ class PhysCausalAgent:
         lines.append(f"Converged: {result['converged']}")
         return "\n".join(lines)
 
+    META_KEYWORDS = [
+        "刚才问了", "刚才问过", "上次的问题", "之前问了", "历史问题",
+        "我问过什么", "我问了什么", "你记得", "还记得", "回忆一下",
+        "之前问了什么", "刚才问了什么", "之前的对话", "上次对话",
+    ]
+
     def ask(self, question: str, verbose: bool = True) -> str:
         """LLM 自然语言提问"""
+        # 元问题检测: 关于对话历史本身的问题 → 直接回答，不走因果管道
+        if any(kw in question for kw in self.META_KEYWORDS):
+            return self._answer_about_history(question, verbose)
+
         result = self.llm.ask(question, history=self._history, verbose=verbose)
 
         graph = result.get("graph", {})
@@ -303,18 +320,239 @@ class PhysCausalAgent:
         # 提取会话知识: 从回答中提取因果断言入库
         self._extract_knowledge(answer)
 
+        # 标注知识来源: 定律库贡献 vs LLM 贡献
+        if mode in ("theoretical", "theoretical_fallback"):
+            answer = self._format_for_terminal(answer)
+            answer = self._annotate_sources(answer)
+            # 哲学透镜: 从哲学层面解释
+            answer = self._add_philosophical_lens(question, answer)
+            # 矛盾驱动自主探索: 如果回答暴露了定律间的矛盾，触发更深层思考
+            answer = self._react_to_contradictions(question, answer)
+            # 自主学习: 检测知识缺口, 自动补全定律
+            self._auto_learn(question, answer)
+
         return answer
 
+    def _auto_learn(self, question: str, answer: str):
+        """自主学习: 检测知识缺口, 问 LLM 获取候选定律, 验证入库"""
+        try:
+            from session.auto_learn import auto_learn, learn_external_mentions
+            # 先尝试从答案中检测的外部知识直接学习
+            result = learn_external_mentions(self, answer)
+            if result["success"]:
+                print(f"\n  {green('📚 Learned from answer:')} {', '.join(result['learned'])}")
+            # 再尝试从知识缺口学习
+            result2 = auto_learn(self, question, answer)
+            if result2["success"]:
+                if not result["success"]:
+                    print(f"\n  {green('📚 Auto-learned:')} {', '.join(result2['learned'])}")
+        except Exception:
+            pass
+
+    def _add_philosophical_lens(self, question: str, answer: str) -> str:
+        """从哲学透镜层为回答添加解释框架"""
+        try:
+            from meta_cognition.lenses import match_for_context, explain_discovery
+
+            # 从问题和回答中提取变量和领域关键词
+            combined = question + " " + answer[:500]
+            variables = []
+            domains = []
+
+            # 变量检测
+            var_keywords = {
+                "mass": "mass", "energy": "energy", "wavelength": "wavelength",
+                "geodesic": "geodesic_path", "curvature": "curvature",
+                "wave_function": "wave_function", "collapse": "collapse",
+                "entropy": "entropy", "time": "time",
+                "interference": "interference_pattern",
+                "momentum": "momentum", "force": "force",
+            }
+            for kw, var in var_keywords.items():
+                if kw in combined.lower():
+                    variables.append(var)
+
+            # 领域检测
+            domain_keywords = {
+                "quantum": "quantum", "thermodynamics": "thermodynamics",
+                "relativity": "general_relativity", "mechanics": "mechanics",
+                "unification": "unification", "geometry": "geometry",
+            }
+            for kw, dom in domain_keywords.items():
+                if kw in combined.lower():
+                    domains.append(dom)
+
+            if not variables and not domains:
+                return answer
+
+            lens_text = explain_discovery([], variables, domains)
+            if lens_text:
+                # 插入到来源标注之后
+                if "── 知识溯源" in answer:
+                    parts = answer.split("── 知识溯源", 1)
+                    return parts[0] + lens_text + "\n\n── 知识溯源" + parts[1]
+                else:
+                    return answer + lens_text
+        except Exception:
+            pass
+        return answer
+
+    def _react_to_contradictions(self, question: str, answer: str) -> str:
+        """如果回答暴露了定律间的矛盾，触发自主探索"""
+        from physics.laws import library
+
+        # 收集回答中引用的、有 collapse_timescale 的定律
+        mentioned = {}
+        for law in library.list_all():
+            if law.name in answer:
+                ts = getattr(law, 'collapse_timescale', None)
+                if ts:
+                    mentioned[law.name] = ts
+
+        # 需要至少 2 种不同的时间尺度 → 存在矛盾
+        unique_ts = set(mentioned.values())
+        if len(unique_ts) < 2:
+            return answer
+
+        # 用 LLM 生成对这个矛盾的研究问题
+        if not self.llm.is_available():
+            return answer
+
+        try:
+            prompt = (
+                "以下 PhysCausal 定律库中的定律对同一现象给出了不同的描述，形成了理论张力：\n\n"
+            )
+            for name, ts in mentioned.items():
+                prompt += f"  {name}: 坍缩时间尺度 = {ts}\n"
+            prompt += (
+                "\n请生成 1-2 个值得深入研究的问题，帮助理解为什么这些框架会得出不同结论，"
+                "以及如何可能调和它们。只返回问题，用中文，每行一个。"
+            )
+
+            response = self.llm.client.chat([{"role": "user", "content": prompt}])
+            questions = [
+                q.strip().lstrip("0123456789. -•·")
+                for q in response.split("\n")
+                if q.strip() and ("?" in q or "？" in q or len(q) > 15)
+            ]
+
+            if questions:
+                extra = "\n\n💡 检测到理论张力，自主探索:\n"
+                for q in questions[:2]:
+                    extra += f"  → {q}\n"
+                answer += extra
+
+                # 尝试用 chain 对矛盾涉及的变量做链式推导
+                try:
+                    from inference.counterfactual_chain import propagate, format_chain
+                    from collections import Counter
+                    # 收集这些定律的所有变量，找出现次数最多的
+                    var_counter = Counter()
+                    for law in library.list_all():
+                        if law.name in mentioned:
+                            for v in law.inputs + law.outputs:
+                                var_counter[v] += 1
+                    # 选出现最频繁的变量
+                    if var_counter:
+                        var = var_counter.most_common(1)[0][0]
+                        chain = propagate(var, "reconcile")
+                        if chain.get("steps"):
+                            chain_text = format_chain(chain)
+                            answer += f"\n  🔗 链式探索 ({var}):\n{chain_text[:300]}"
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+        return answer
+
+    def _answer_about_history(self, question: str, verbose: bool = True) -> str:
+        """回答关于对话历史本身的元问题"""
+        if not self._history:
+            return "目前还没有任何对话历史。"
+
+        lines = [bold("=== Conversation History ===")]
+        lines.append(f"共 {len(self._history)//2} 轮对话 (最近):\n")
+
+        for h in self._history[-10:]:  # 最近 5 轮
+            role_label = "Q" if h["role"] == "user" else "A"
+            content = h["content"]
+            if h["role"] == "assistant":
+                content = content[:200] + ("..." if len(h["content"]) > 200 else "")
+            lines.append(f"  {cyan(role_label)}: {content}")
+
+        lines.append(f"\n文件: {self.SESSION_FILE}")
+        return "\n".join(lines)
+
+    def _format_for_terminal(self, text: str) -> str:
+        """将 LLM 输出的 Markdown 格式转换为终端 ANSI"""
+        import re
+        # **text** → ANSI bold
+        text = re.sub(r'\*\*(.+?)\*\*', lambda m: bold(m.group(1)), text)
+        # `code` → ANSI dim
+        text = re.sub(r'`([^`]+)`', lambda m: f"\033[2m{m.group(1)}\033[0m", text)
+        # --- → ───
+        text = re.sub(r'^---+$', '─' * 50, text, flags=re.MULTILINE)
+        # Remove LaTeX \(...\) wrappers (already Unicode)
+        text = text.replace(r'\(', '').replace(r'\)', '')
+        text = text.replace(r'\[', '').replace(r'\]', '')
+        return text
+
+    def _annotate_sources(self, answer: str) -> str:
+        """标注答案中 PhysCausal 定律库贡献的部分"""
+        from physics.laws import library
+
+        # 统计被引用的 PhysCausal 定律
+        cited_physcausal = []
+        for law in library.list_all():
+            if law.name in answer:
+                cited_physcausal.append(law.name)
+
+        # 检测 LLM 从外部引入的定律/概念 (不在 PhysCausal 库中)
+        import re
+        external_mentions = set()
+        # 匹配 "XXX定律" 或 "XXX 定律" — 要求至少 2 个字符的前缀
+        for m in re.finditer(r'([A-Za-z\u4e00-\u9fff]{2,}(?:定律|定理|原理|方程|法则|效应))', answer):
+            name = m.group(1)
+            # 检查是否在 PhysCausal 库中
+            in_library = any(law.name in name or name in law.name for law in library.list_all())
+            if not in_library and len(name) > 2:
+                external_mentions.add(name)
+
+        n_physcausal = len(cited_physcausal)
+        n_external = len(external_mentions)
+        total_concepts = n_physcausal + n_external
+
+        # 贡献比例: PhysCausal 定律数 / 总引用概念数
+        if total_concepts > 0:
+            ratio = n_physcausal / total_concepts
+        else:
+            ratio = 0.3  # 默认: 至少提供了推理框架
+
+        ratio = min(ratio, 0.95)
+
+        footer = [f"\n{'─' * 50}"]
+        footer.append(f"📚 PhysCausal 定律库贡献: {ratio:.0%}")
+        if cited_physcausal:
+            footer.append(f"   引用: {', '.join(cited_physcausal[:6])}")
+            if len(cited_physcausal) > 6:
+                footer.append(f"          ... 等 {len(cited_physcausal)} 条")
+        if external_mentions:
+            footer.append(f"🤖 LLM 外部知识 ({n_external}): {', '.join(sorted(external_mentions)[:4])}")
+
+        return answer + "\n".join(footer)
+
     def _extract_knowledge(self, answer: str):
-        """从 LLM 回答中提取因果断言, 物理验证后入库"""
+        """从 LLM 回答中提取因果断言, 物理验证后入库 (LLM 驱动)"""
         try:
             from session.knowledge_extractor import extract_from_answer
-            result = extract_from_answer(answer)
+            client = self.llm.client if self.llm.is_available() else None
+            result = extract_from_answer(answer, client=client)
             if result["added"]:
                 for a in result["added"]:
                     self.values.verify(a["source"], "extracted")
         except Exception:
-            pass  # 知识提取失败不阻塞主流程
+            pass
 
     def _track_interest(self, question: str, answer: str):
         """从问答中提取涉及的定律/概念, 增加显著性"""
@@ -411,6 +649,10 @@ CMD_HELP = {
     "≡ Meta-Physics": {
         "symmetry <v1,v2,...>":  "detect symmetries + conservation",
         "entropy <csv> <A> <B>": "entropy arrow direction",
+        "dissonance":          "detect cognitive dissonance (research questions)",
+        "autonomous [n]":     "let agent think independently (n thoughts)",
+        "chain <var> <change>": "counterfactual propagation (e.g. chain mass 减半)",
+        "meta":              "meta-learning summary (cross-env strategies)",
         "status":                "layer status",
     },
 }
@@ -435,10 +677,11 @@ def run_interactive():
 
     while True:
         try:
-            user_input = input(f"\n{cyan('>')} ").strip()
+            user_input = input(f"\n{prompt_cyan('>')} ").strip()
             if not user_input: continue
             _add_hist(user_input)
             if user_input.lower() in ("quit", "exit", "q"):
+                _save_hist()
                 print("Goodbye!"); break
 
             parts = user_input.split()
@@ -559,11 +802,115 @@ def run_interactive():
                 if len(p) < 3: print(red("Usage: entropy <csv> <A> <B>")); continue
                 print(agent.entropy_direction(p[0], p[1], p[2])); continue
 
+            if cmd == "history":
+                if rest == "clear":
+                    if _HAS_READLINE:
+                        readline.clear_history()
+                        _save_hist()
+                        print(green("Command history cleared."))
+                    else:
+                        print(yellow("Readline not available."))
+                elif rest == "sessions":
+                    if os.path.exists(PhysCausalAgent.SESSION_FILE):
+                        size = os.path.getsize(PhysCausalAgent.SESSION_FILE)
+                        with open(PhysCausalAgent.SESSION_FILE) as f:
+                            lines = f.readlines()
+                        print(f"Session Q&A: {len(lines)//2} exchanges ({size} bytes)")
+                        print(f"  File: {PhysCausalAgent.SESSION_FILE}")
+                    else:
+                        print("No session history yet.")
+                elif rest == "clear-sessions":
+                    if os.path.exists(PhysCausalAgent.SESSION_FILE):
+                        os.remove(PhysCausalAgent.SESSION_FILE)
+                        print(green("Session Q&A history cleared."))
+                    else:
+                        print("No session history to clear.")
+                else:
+                    if _HAS_READLINE:
+                        n = readline.get_current_history_length()
+                        print(f"Command history: {n} entries (max {_HIST_MAX})")
+                        print(f"  File: {_HIST_FILE}")
+                        print(f"  history clear      — clear command history")
+                        print(f"  history sessions   — show session Q&A")
+                        print(f"  history clear-sessions — clear session Q&A")
+                    else:
+                        print("Readline not available.")
+                continue
+
+            if cmd == "meta":
+                from reinforcement.meta_learner import meta
+                print(meta.summary()); continue
+
+            if cmd == "chain":
+                p = rest.split()
+                if len(p) < 2:
+                    print(red("Usage: chain <variable> <change>  (e.g. chain mass 减半)"))
+                    continue
+                from inference.counterfactual_chain import propagate, format_chain
+                chain = propagate(p[0], " ".join(p[1:]))
+                print(format_chain(chain)); continue
+
+            if cmd == "dissonance":
+                from meta_cognition.dissonance import cognitive_summary
+                print(cognitive_summary()); continue
+
+            if cmd == "autonomous":
+                from meta_cognition.autonomous import AutonomousAgent
+                n = int(rest) if rest.isdigit() else 15
+                agent_auto = AutonomousAgent()
+                agent_auto.internal.energy = 1.0
+                agent_auto.internal.coherence_drive = 0.9
+                discoveries = []
+                validations = []
+                for i in range(n):
+                    result = agent_auto.think(verbose=False, llm_bridge=None)
+                    if result:
+                        learned = result.get('learned', [])
+                        rtype = result.get('type', '')
+                        sig = result.get('significance', 0)
+                        if learned and sig > 0 and rtype in ('dissonance', 'frontier'):
+                            tag = result.get('frontier_type', 'tension')
+                            if rtype == 'dissonance':
+                                tag = result.get('issue_law_a','?') + ' <-> ' + result.get('issue_law_b','?')
+                            discoveries.append({'tag': tag, 'rtype': rtype, 'learned': learned, 'sig': sig, 'reason': result.get('sig_reason','')})
+                        vs = result.get('tiered_validation', 0)
+                        if vs > 0:
+                            validations.append({'score': vs, 'convs': result.get('tiered_convergences',[])})
+
+                s = agent_auto.internal
+                print(f"\n=== PhysCausal ({n} 轮思考, 0 token) ===")
+                print(f"好奇心={s.curiosity_level:.2f}  精力={s.energy:.2f}  累计发现={s.total_discoveries}")
+
+                type_cn = {'dissonance': '认知失调', 'frontier': '前沿探索', 'sparse_zone': '稀疏区',
+                           'scale_gap': '尺度裂缝', 'dead_end': '断头路', 'tension': '张力'}
+                rtype_cn = {'dissonance': '失调', 'frontier': '前沿'}
+
+                if discoveries:
+                    print(f"\n{green('新发现')} ({len(discoveries)}):")
+                    for d in discoveries:
+                        stars = '★★★' if d['sig']>=2 else '★★' if d['sig']>=1 else '★'
+                        tag_cn = type_cn.get(d.get('tag', d['tag']), d['tag'])
+                        print(f"  {stars} [{rtype_cn.get(d['rtype'], d['rtype'])}] {tag_cn}")
+                        print(f"     → {d['learned']}")
+                        if d.get('reason'): print(f"     {d['reason']}")
+                else:
+                    print(f"{yellow('本轮无新发现')}")
+
+                if validations:
+                    print(f"\n{green('弱验证')}:")
+                    for v in validations:
+                        print(f"  一致度={v['score']:.0%}  汇聚点={v['convs']}")
+
+                print(f"\n{agent_auto.trend_report()}")
+                continue
+
             print(yellow(f"Unknown command: {cmd}. Type 'help'."))
 
         except KeyboardInterrupt:
+            _save_hist()
             print("\nGoodbye!"); break
         except EOFError:
+            _save_hist()
             print("\nGoodbye!"); break
 
 if __name__ == "__main__":
