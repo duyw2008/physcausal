@@ -870,6 +870,10 @@ def run_interactive():
                     print(format_plan(paths, p[0], " ".join(p[1:])))
                 continue
 
+            if cmd == "innovate":
+                from creative.innovation_engine import innovation_report
+                print(innovation_report()); continue
+
             if cmd == "autonomous":
                 from meta_cognition.autonomous import AutonomousAgent
                 n = int(rest) if rest.isdigit() else 15
