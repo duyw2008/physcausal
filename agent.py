@@ -854,6 +854,22 @@ def run_interactive():
                 from meta_cognition.dissonance import cognitive_summary
                 print(cognitive_summary()); continue
 
+            if cmd == "plan":
+                p = rest.split()
+                if len(p) < 2:
+                    print(red("plan <start> <target>  |  plan bridge <domain1> <domain2>"))
+                    continue
+                from inference.causal_planner import plan, format_plan, find_bridge_paths
+                if p[0] == "bridge" and len(p) >= 3:
+                    paths = find_bridge_paths(p[1], p[2])
+                    print(f"=== 领域桥接: {p[1]} ↔ {p[2]} ===")
+                    for i, b in enumerate(paths[:5]):
+                        print(f"  {i+1}. {b['start_var']}→{b['target_var']} (代价={b['score']:.1f} 长度={b['length']})")
+                else:
+                    paths = plan(p[0], " ".join(p[1:]), max_depth=6)
+                    print(format_plan(paths, p[0], " ".join(p[1:])))
+                continue
+
             if cmd == "autonomous":
                 from meta_cognition.autonomous import AutonomousAgent
                 n = int(rest) if rest.isdigit() else 15
