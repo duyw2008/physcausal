@@ -936,6 +936,14 @@ def run_interactive():
                     print(f"\n{green('粗粒化')}:")
                     for line in cg.split('\n')[1:6]:
                         if line.strip(): print(f"  {line.strip()}")
+
+                # ── 创新引擎 ──
+                from creative.innovation_engine import innovate
+                innovations = innovate(n_candidates=10, min_score=0.8)
+                if innovations:
+                    print(f"\n{green('创新提案')}: {len(innovations)} 条候选边")
+                    for inv in innovations[:3]:
+                        print(f"  {inv['src']} → {inv['dst']} ({inv['verdict']})")
                 continue
 
             print(yellow(f"Unknown command: {cmd}. Type 'help'."))
