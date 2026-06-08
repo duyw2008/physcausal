@@ -874,6 +874,47 @@ def run_interactive():
                 from creative.innovation_engine import innovation_report
                 print(innovation_report()); continue
 
+            if cmd == "watch":
+                if rest == "stop":
+                    if hasattr(agent, '_watch_thread') and agent._watch_thread:
+                        agent._watch_running = False
+                        print(green("Watch stopped."))
+                    else:
+                        print(yellow("No watch running."))
+                    continue
+                import threading
+                def _watch_loop():
+                    while getattr(agent, '_watch_running', True):
+                        time.sleep(1800)  # 30 分钟
+                        if not getattr(agent, '_watch_running', True):
+                            break
+                        try:
+                            from meta_cognition.autonomous import AutonomousAgent
+                            a = AutonomousAgent()
+                            a.internal.energy = 1.0
+                            a.internal.coherence_drive = 0.9
+                            discoveries = []
+                            for i in range(15):
+                                r = a.think(verbose=False, llm_bridge=None)
+                                if r:
+                                    l = r.get('learned', [])
+                                    rt = r.get('type', '')
+                                    s = r.get('significance', 0)
+                                    if l and s > 0 and rt in ('dissonance', 'frontier'):
+                                        discoveries.append({'rtype': rt, 'l': l, 'sig': s})
+                            print(f"\n{green('[PhysCausal]')} {len(discoveries)} 发现, 好奇心={a.internal.curiosity_level:.2f}")
+                            for d in discoveries:
+                                stars = '★★★' if d['sig']>=2 else '★★' if d['sig']>=1 else '★'
+                                print(f"  {stars} [{d['rtype']}] {d['l']}")
+                        except Exception as e:
+                            print(f"[PhysCausal] watch error: {e}")
+                agent._watch_thread = threading.Thread(target=_watch_loop, daemon=True)
+                agent._watch_running = True
+                agent._watch_thread.start()
+                mins = 30
+                print(green(f"Watch started — 每 {mins} 分钟自动运行 (watch stop 停止)"))
+                continue
+
             if cmd == "autonomous":
                 from meta_cognition.autonomous import AutonomousAgent
                 n = int(rest) if rest.isdigit() else 15
