@@ -876,8 +876,8 @@ def run_interactive():
                 print(innovation_report()); continue
 
             if cmd == "research":
-                from creative.research_cycle import research_report
-                print(research_report()); continue
+                from creative.research_cycle import research_report_v2
+                print(research_report_v2()); continue
 
             if cmd == "watch":
                 if rest == "stop":
