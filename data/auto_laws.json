@@ -180,5 +180,119 @@
       ]
     ],
     "confidence_tier": 1
+  },
+  {
+    "name": "ThermalDecoherence",
+    "domain": "quantum",
+    "latex": "\\gamma \\propto T",
+    "inputs": [
+      "temperature"
+    ],
+    "outputs": [
+      "environment_coupling"
+    ],
+    "causal_direction": [
+      [
+        "temperature",
+        "environment_coupling"
+      ]
+    ],
+    "confidence_tier": 2,
+    "_discovery_note": "热退相干: 温度决定环境耦合强度。声子/光子热涨落 → 退相干速率 ∝ T。Landauer 和 Decoherence 之间的桥梁。"
+  },
+  {
+    "name": "DecoherenceEntropy",
+    "domain": "quantum",
+    "latex": "\\Delta S = -k_B \\mathrm{Tr}(\\rho \\ln \\rho)",
+    "inputs": [
+      "mixed_state"
+    ],
+    "outputs": [
+      "entropy"
+    ],
+    "causal_direction": [
+      [
+        "mixed_state",
+        "entropy"
+      ]
+    ],
+    "confidence_tier": 2,
+    "_discovery_note": "退相干熵产生: 量子系统退相干 → 信息流入环境 → 熵增。von Neumann 熵 S = -Tr(ρ ln ρ), Landauer 原理的信息-熵等价。"
+  },
+  {
+    "name": "DecoherenceCollapse",
+    "domain": "quantum",
+    "latex": "P_{\\mathrm{collapse}} \\propto 1 - \\mathrm{Tr}(\\rho^2)",
+    "inputs": [
+      "mixed_state"
+    ],
+    "outputs": [
+      "collapse_probability"
+    ],
+    "causal_direction": [
+      [
+        "mixed_state",
+        "collapse_probability"
+      ]
+    ],
+    "confidence_tier": 3,
+    "_discovery_note": "退相干-坍缩桥接: 混合态的纯度 Tr(ρ^2) 决定有效坍缩概率。这是量子达尔文主义/退相干程序的核心假设，但\"坍缩是否完全由退相干解释\"仍是开放问题。标记 tier 3。"
+  },
+  {
+    "name": "ThermalSymmetryBreaking",
+    "domain": "thermodynamics",
+    "latex": "T < T_c \\Rightarrow \\text{broken symmetry}",
+    "inputs": [
+      "temperature"
+    ],
+    "outputs": [
+      "broken_symmetry"
+    ],
+    "causal_direction": [
+      [
+        "temperature",
+        "broken_symmetry"
+      ]
+    ],
+    "confidence_tier": 2,
+    "_discovery_note": "热力学对称破缺: 温度低于临界温度 → 对称性丢失。铁磁、超导、超流等相变的统一因果机制。"
+  },
+  {
+    "name": "ExternalSymmetryBreaking",
+    "domain": "classical",
+    "latex": "H_{\\mathrm{ext}} \\neq 0 \\Rightarrow \\text{broken symmetry}",
+    "inputs": [
+      "external_perturbation"
+    ],
+    "outputs": [
+      "broken_symmetry"
+    ],
+    "causal_direction": [
+      [
+        "external_perturbation",
+        "broken_symmetry"
+      ]
+    ],
+    "confidence_tier": 2,
+    "_discovery_note": "显式对称破缺: 外场/外扰动直接打破系统对称性。Zeeman效应、Stark效应的因果机制。"
+  },
+  {
+    "name": "QuantumFluctuationSymmetryBreaking",
+    "domain": "quantum",
+    "latex": "\\langle \\phi \\rangle \\neq 0 \\text{ via quantum fluctuation}",
+    "inputs": [
+      "quantum_fluctuation"
+    ],
+    "outputs": [
+      "broken_symmetry"
+    ],
+    "causal_direction": [
+      [
+        "quantum_fluctuation",
+        "broken_symmetry"
+      ]
+    ],
+    "confidence_tier": 3,
+    "_discovery_note": "量子涨落触发对称破缺: 真空期待值 ≠ 0 来自量子涨落的随机触发。Higgs机制的核心。tier 3 因为哪个方向被挑中是随机的，不是确定性的因果——但触发机制本身是确定的。"
   }
 ]

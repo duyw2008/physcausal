@@ -131,6 +131,7 @@ physcausal/
 | [PHYSICS_MODELS.md](docs/PHYSICS_MODELS.md) | 71 定律, 11 领域 |
 | [GAP_ANALYSIS.md](docs/GAP_ANALYSIS.md) | 缺口分析 + 路线图 |
 | [CHANGELOG.md](CHANGELOG.md) | 版本变更记录 |
+| [SYMMETRY_BREAKING.md](docs/SYMMETRY_BREAKING.md) | 对称破缺的因果结构 |
 
 ## 许可证
 
