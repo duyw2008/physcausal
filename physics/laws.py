@@ -1014,7 +1014,8 @@ library = PhysicsLibrary()
 
 # 加载持久化的自学习定律
 import json as _json, os as _os
-_AUTO_LAWS_FILE = _os.path.expanduser("~/.hermes/physcausal_auto_laws.json")
+from data_paths import auto_laws_path
+_AUTO_LAWS_FILE = auto_laws_path()
 if _os.path.exists(_AUTO_LAWS_FILE):
     try:
         with open(_AUTO_LAWS_FILE) as _f:

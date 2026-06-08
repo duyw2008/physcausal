@@ -1,0 +1,184 @@
+[
+  {
+    "name": "Convergence_geodesic_path",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "kinetic_energy",
+      "energy"
+    ],
+    "outputs": [
+      "geodesic_path"
+    ],
+    "causal_direction": [
+      [
+        "kinetic_energy",
+        "geodesic_path"
+      ],
+      [
+        "energy",
+        "geodesic_path"
+      ]
+    ],
+    "confidence_tier": 3,
+    "_chain_discovered": true,
+    "_discovery_note": "Promoted from tier 4 after 3 validations (score=0.82). Convergence of kinetic_energy and energy on geodesic_path confirmed consistent with axiom chain."
+  },
+  {
+    "name": "测地线方程",
+    "domain": "广义相对论 / 微分几何",
+    "latex": "\\frac{d^2 x^\\mu}{d \\lambda^2} + \\Gamma^\\mu_{\\alpha \\beta} \\frac{d x^\\alpha}{d \\lambda} \\frac{d x^\\beta}{d \\lambda} = 0",
+    "inputs": [
+      "x^\\mu (坐标)",
+      "\\lambda (仿射参数)",
+      "\\Gamma^\\mu_{\\alpha \\beta} (克里斯托费尔符号)"
+    ],
+    "outputs": [
+      "测地线轨迹"
+    ],
+    "causal_direction": [
+      [
+        "时空曲率（由度规决定）",
+        "粒子沿测地线的运动"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "牛顿第二定律",
+    "domain": "经典力学",
+    "latex": "F = ma",
+    "inputs": [
+      "m",
+      "a"
+    ],
+    "outputs": [
+      "F"
+    ],
+    "causal_direction": [
+      [
+        "m",
+        "F"
+      ],
+      [
+        "a",
+        "F"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "牛顿第二定律",
+    "domain": "经典力学",
+    "latex": "\\vec{F} = m \\vec{a}",
+    "inputs": [
+      "质量 m",
+      "加速度 a"
+    ],
+    "outputs": [
+      "力 F"
+    ],
+    "causal_direction": [
+      [
+        "力",
+        "加速度"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "未在给定定律",
+    "domain": "未知",
+    "latex": "\\text{未定义}",
+    "inputs": [],
+    "outputs": [],
+    "causal_direction": [],
+    "confidence_tier": 1
+  },
+  {
+    "name": "牛顿第二定律",
+    "domain": "经典力学",
+    "latex": "F = ma",
+    "inputs": [
+      "m (质量)",
+      "a (加速度)"
+    ],
+    "outputs": [
+      "F (力)"
+    ],
+    "causal_direction": [
+      [
+        "质量",
+        "力"
+      ],
+      [
+        "加速度",
+        "力"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "等效原理",
+    "domain": "广义相对论",
+    "latex": "m_i = m_g",
+    "inputs": [
+      "惯性质量 m_i",
+      "引力质量 m_g"
+    ],
+    "outputs": [
+      "等效质量"
+    ],
+    "causal_direction": [
+      [
+        "惯性质量",
+        "引力质量"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "不确定性原理",
+    "domain": "量子力学",
+    "latex": "\\Delta x \\cdot \\Delta p \\ge \\frac{\\hbar}{2}",
+    "inputs": [
+      "位置不确定度Δx",
+      "动量不确定度Δp"
+    ],
+    "outputs": [
+      "乘积下限"
+    ],
+    "causal_direction": [
+      [
+        "位置测量精度",
+        "动量扰动"
+      ],
+      [
+        "动量测量精度",
+        "位置扰动"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "最小作用量原理",
+    "domain": "经典力学 / 分析力学",
+    "latex": "\\delta S = \\delta \\int_{t_1}^{t_2} L(q, \\dot{q}, t) \\, dt = 0",
+    "inputs": [
+      "拉格朗日量 L",
+      "广义坐标 q",
+      "广义速度 \\dot{q}",
+      "时间 t"
+    ],
+    "outputs": [
+      "作用量 S 的变分为零"
+    ],
+    "causal_direction": [
+      [
+        "作用量泛函的变分",
+        "运动方程 (欧拉-拉格朗日方程)"
+      ]
+    ],
+    "confidence_tier": 1
+  }
+]

@@ -145,7 +145,8 @@ class InternalState:
 class AutonomousAgent:
     """自主智能体: 不依赖用户输入, 自己跑"""
 
-    STATE_FILE = os.path.expanduser("~/.hermes/physcausal_autonomous_state.json")
+    from data_paths import autonomous_state_path
+    STATE_FILE = autonomous_state_path()
 
     def __init__(self):
         self.internal = InternalState()
@@ -320,6 +321,18 @@ class AutonomousAgent:
         fruitful_domains = taste.get("fruitful_domains", {})
         fruitful_vars = taste.get("fruitful_variables", {})
 
+        # ── 聚焦偏置 ──
+        focus_vars = set()
+        focus_domains = set()
+        try:
+            from meta_cognition.research_directions import bias_by_focus
+            fb = bias_by_focus()
+            if fb.get("active"):
+                focus_vars = set(fb.get("key_variables", []))
+                focus_domains = set(fb.get("key_domains", []))
+        except Exception:
+            pass
+
         def taste_score(issue: Dict) -> float:
             base = 1.0
             # 领域加分
@@ -327,10 +340,14 @@ class AutonomousAgent:
                           issue.get("scale_a", ""), issue.get("scale_b", "")]:
                 if field in fruitful_domains:
                     base += 0.3 * fruitful_domains[field]
+                if field in focus_domains:
+                    base += 1.0  # 聚焦域强加分
             # 变量加分
             for var in issue.get("overlap", []):
                 if var in fruitful_vars:
                     base += 0.2 * fruitful_vars[var]
+                if var in focus_vars:
+                    base += 1.5  # 聚焦变量强加分
             return base
 
         scores = [taste_score(c) for c in candidates]
@@ -381,7 +398,24 @@ class AutonomousAgent:
 
         # 按类型加权: 尺度裂缝 > 稀疏区 > 断头路
         type_weights = {"scale_gap": 3.0, "sparse_zone": 2.0, "dead_end": 1.0}
-        scores = [f["score"] * type_weights.get(f["type"], 1.0) for f in top]
+
+        # 聚焦偏置: 涉及聚焦变量的前沿获得更高权重
+        focus_vars = set()
+        try:
+            from meta_cognition.research_directions import bias_by_focus
+            fb = bias_by_focus()
+            if fb.get("active"):
+                focus_vars = set(fb.get("key_variables", []))
+        except Exception:
+            pass
+
+        scores = []
+        for f in top:
+            s = f["score"] * type_weights.get(f["type"], 1.0)
+            var = f.get("variable", "")
+            if var in focus_vars:
+                s *= 3.0  # 聚焦变量前沿权重×3
+            scores.append(s)
         total_score = sum(scores)
         r = random.random() * total_score
         cumulative = 0

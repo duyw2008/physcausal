@@ -653,6 +653,8 @@ CMD_HELP = {
         "dissonance":          "detect cognitive dissonance (research questions)",
         "autonomous [n]":     "let agent think independently (n thoughts)",
         "chain <var> <change>": "counterfactual propagation (e.g. chain mass 减半)",
+        "research":           "完整研究循环 v2 (惊喜+优先级+鲁棒性+留一法+归档)",
+        "suggest":            "元认知 — 扫描状态, 告诉物理学家下一步该做什么",
         "meta":              "meta-learning summary (cross-env strategies)",
         "status":                "layer status",
     },
@@ -878,6 +880,107 @@ def run_interactive():
             if cmd == "research":
                 from creative.research_cycle import research_report_v2
                 print(research_report_v2()); continue
+
+            if cmd == "focus":
+                if not rest:
+                    from meta_cognition.research_directions import (
+                        RESEARCH_DIRECTIONS, get_current_focus, set_focus
+                    )
+                    current = get_current_focus()
+                    if current:
+                        print(f"▶ 当前聚焦: [{current['tag']}] {current['name']}")
+                        print(f"  {current['core_question']}")
+                        print()
+
+                    # 编号列表
+                    for i, d in enumerate(RESEARCH_DIRECTIONS):
+                        focused = " ▶" if current and current["id"] == d["id"] else "  "
+                        stars = "★" * d["difficulty"] + "·" * (5 - d["difficulty"])
+                        print(f"  {i+1:2d}. [{d['tag']}] {d['name']}")
+                        print(f"       难度{stars}  |  {d['core_question'][:70]}")
+
+                    print()
+                    print(f"  [1-{len(RESEARCH_DIRECTIONS)}] 选择方向 | [0] 取消聚焦 | [q] 退出")
+
+                    try:
+                        choice = input("  > ").strip().lower()
+                    except (EOFError, KeyboardInterrupt):
+                        continue
+
+                    if choice == "q":
+                        continue
+                    if choice == "0":
+                        import os
+                        from data_paths import focus_path; f = focus_path()
+                        if os.path.exists(f):
+                            os.remove(f)
+                        print("聚焦已取消。物理学家恢复自由探索。")
+                        continue
+
+                    try:
+                        idx = int(choice) - 1
+                        if 0 <= idx < len(RESEARCH_DIRECTIONS):
+                            d = RESEARCH_DIRECTIONS[idx]
+                            r = set_focus(d["id"])
+                            if r["success"]:
+                                print(f"\n▶ 聚焦方向: [{d['tag']}] {d['name']}")
+                                print(f"  核心问题: {d['core_question']}")
+                                print(f"  关键变量: {', '.join(d['key_variables'][:4])}")
+                                print(f"  开放问题:")
+                                for op in d["open_problems"][:3]:
+                                    print(f"    · {op}")
+                                print(f"\n  后续 suggest/innovate/speculate 将偏向此方向。")
+                            else:
+                                print(f"设置失败: {r.get('reason', '?')}")
+                        else:
+                            print(f"无效编号: 1-{len(RESEARCH_DIRECTIONS)}")
+                    except ValueError:
+                        print(f"无效输入")
+
+                elif rest == "none":
+                    from meta_cognition.research_directions import set_focus
+                    set_focus("")
+                    import os
+                    from data_paths import focus_path; f = focus_path()
+                    if os.path.exists(f):
+                        os.remove(f)
+                    print("聚焦已取消。物理学家恢复自由探索。")
+                else:
+                    from meta_cognition.research_directions import set_focus
+                    r = set_focus(rest)
+                    if r["success"]:
+                        d = r["direction"]
+                        print(f"▶ 聚焦方向: {d['tag']} {d['name']}")
+                        print(f"  核心问题: {d['core_question']}")
+                        print(f"  关键变量: {', '.join(d['key_variables'][:6])}")
+                    else:
+                        print(f"未知方向: {rest}。用 focus 查看可选方向。")
+                continue
+
+            if cmd == "speculate":
+                from creative.speculate import speculate_report, speculate_save
+                if rest == "--save":
+                    print(speculate_save())
+                else:
+                    print(speculate_report())
+                continue
+
+            if cmd == "paper":
+                from creative.paper_writer import write_paper
+                print(write_paper())
+                continue
+
+            if cmd == "suggest":
+                if rest == "--run-all":
+                    from meta_cognition.suggest_executor import execute_all_cross_validations
+                    print(execute_all_cross_validations())
+                elif rest == "--run":
+                    from meta_cognition.suggest_executor import execute_top_suggestion
+                    print(execute_top_suggestion())
+                else:
+                    from meta_cognition.suggest_executor import interactive_suggest
+                    interactive_suggest()
+                continue
 
             if cmd == "watch":
                 if rest == "stop":

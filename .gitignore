@@ -2,3 +2,10 @@ __pycache__/
 *.pyc
 *.pyo
 .hermes/
+reports/
+data/cv_summary.json
+data/focus.json
+data/completed_suggestions.json
+data/scores.json
+data/salience.json
+data/autonomous_state.json

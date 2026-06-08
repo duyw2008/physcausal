@@ -24,7 +24,8 @@ from typing import Dict, List, Optional
 class ValueSystem:
     """给实体打显著性标注的元认知层"""
 
-    STORE_PATH = os.path.expanduser("~/.hermes/physcausal_salience.json")
+    from data_paths import salience_path
+    STORE_PATH = salience_path()
 
     def __init__(self):
         self._data: Dict[str, dict] = self._load()

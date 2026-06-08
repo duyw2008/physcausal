@@ -19,7 +19,8 @@ from collections import defaultdict
 
 # ═══ 1. 惊喜检测 ═══
 
-_SCORE_HISTORY_FILE = os.path.expanduser("~/.hermes/physcausal_scores.json")
+from data_paths import scores_path
+_SCORE_HISTORY_FILE = scores_path()
 _ALERT_THRESHOLD = 0.3  # 分数下降超过30%触发警报
 
 
@@ -181,7 +182,7 @@ def leave_one_out_validation() -> Dict:
 
 # ═══ 5. 发现归档 ═══
 
-_REPORTS_DIR = os.path.expanduser("~/.hermes/physcausal_reports")
+_REPORTS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "reports")
 
 
 def archive_discovery(hypothesis: Dict, experiment: Dict, robustness: Dict) -> str:

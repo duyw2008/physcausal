@@ -74,6 +74,16 @@ def generate_candidates(n_candidates: int = 20) -> List[Dict]:
         for src, dst in law.causal_direction:
             existing_edges.add((src, dst))
 
+    # 聚焦偏置: 如果设定了研究方向, 提高相关变量的权重
+    focus_bias = set()
+    try:
+        from meta_cognition.research_directions import bias_by_focus
+        fb = bias_by_focus()
+        if fb.get("active"):
+            focus_bias = set(fb.get("key_variables", []))
+    except Exception:
+        pass
+
     vars_list = list(all_vars)
     candidates = []
     attempts = 0
@@ -95,10 +105,16 @@ def generate_candidates(n_candidates: int = 20) -> List[Dict]:
         domains_b = var_domains.get(b, set())
         cross_domain = not domains_a.intersection(domains_b)
 
-        # 加权: 基础变量 × 跨领域
+        # 加权: 基础变量 × 跨领域 × 聚焦偏置
         weight = _variable_ontology_weight(a) * _variable_ontology_weight(b)
         if cross_domain:
             weight *= 2.0
+        # 聚焦偏置: 如果变量在聚焦方向上, 权重翻倍
+        if focus_bias:
+            if a in focus_bias:
+                weight *= 3.0
+            if b in focus_bias:
+                weight *= 3.0
 
         # 加权采样
         if random.random() > min(weight / 6.0, 0.9):

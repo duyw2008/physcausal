@@ -215,7 +215,7 @@ def _save_auto_laws():
                 entry["_discovery_note"] = law._discovery_note
             auto_laws.append(entry)
     if auto_laws:
-        path = os.path.expanduser("~/.hermes/physcausal_auto_laws.json")
+        from data_paths import auto_laws_path; path = auto_laws_path()
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w") as f:
             json.dump(auto_laws, f, ensure_ascii=False, indent=2)

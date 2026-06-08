@@ -4,6 +4,42 @@
 
 ---
 
+## v0.3.11 (2026-06-08) — 研究循环 v2 + 元认知 + 研究方向 + 论文生成
+
+### 研究循环 v2 — 五短板补全 (creative/research_cycle.py)
+- 惊喜检测 `check_surprise()` — 验证分数异常波动警报 (阈值 30%)
+- 优先级排序 `prioritize_topics()` — 本体论权重 × 跨域 × 前沿得分
+- 鲁棒性检验 `robustness_test()` — 同假说 3 轮多变量验证
+- 留一法验证 `leave_one_out_validation()` — 移除定律检查因果图一致性
+- 发现归档 `archive_report()` — confirmed 假说 → 结构化报告
+
+### 元认知: suggest 命令 (meta_cognition/what_next.py + suggest_executor.py)
+- `suggest` — 交互式控制台: 扫描三条路径 (交叉验证/前沿探索/失调解析)
+- `suggest --run` — 一键执行 #1; `suggest --run-all` — 全交叉验证流水线
+- 量子评估: 当量子域未参与时诚实标注缺失桥梁
+- 完成追踪: 执行后自动标记, 下次不再出现
+
+### 大胆假设: speculate 命令 (creative/speculate.py)
+- 无约束假说生成 — 不检查 forbidden, 不要求公理链一致
+- 15 个物理直觉种子 (Penrose 坍缩/Kaluza-Klein/Berry phase...)
+- 全部标记 tier 4 探索编码; `speculate --save` 保存到 auto_laws
+
+### 研究方向: focus 命令 (meta_cognition/research_directions.py)
+- 9 个方向: QG/QM/EM/IB/GU/CD + CU/CB/KS (3 个 PhysCausal 特有)
+- `focus` — 交互式选择; `focus <tag>` — 快捷设置
+- 聚焦偏置: 影响 innovate (变量权重 ×3) / suggest (+2~3 分) / watch (taste_score +1~1.5)
+
+### 论文生成: paper 命令 (creative/paper_writer.py)
+- 自动生成结构化 Markdown 论文
+- Abstract(中英双语) / 引言 / 方法 / 发现 / 交叉验证表 / 讨论 / 参考文献
+- 每发现独立讨论; 包含量子评估和下一步研究
+
+### 统计
+- 79 定律, 11 透镜, 6 条 tier≤3 发现, 17 次交叉验证
+- 179 测试全绿
+
+---
+
 ## v0.3.10 (2026-06-07) — 因果规划 + 元学习 v2
 
 ### 因果规划
