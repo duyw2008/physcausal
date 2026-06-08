@@ -875,6 +875,10 @@ def run_interactive():
                 from creative.innovation_engine import innovation_report
                 print(innovation_report()); continue
 
+            if cmd == "research":
+                from creative.research_cycle import research_report
+                print(research_report()); continue
+
             if cmd == "watch":
                 if rest == "stop":
                     if hasattr(agent, '_watch_thread') and agent._watch_thread:
