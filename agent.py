@@ -633,10 +633,35 @@ class PhysCausalAgent:
 # ═══════════════════════════════════════════════════════════════
 
 CMD_HELP = {
+    "≡ Research": {
+        "focus":                "选择研究方向 (交互式, 9 个方向)",
+        "focus <tag>":          "快捷设置方向 (e.g. focus CB)",
+        "focus none":           "取消聚焦",
+        "speculate":            "无约束大胆假设 (tier 4 沙盒)",
+        "innovate":             "创新引擎报告",
+        "research":             "完整研究循环 v2 (惊喜+优先级+鲁棒性+留一法+归档)",
+    },
+    "≡ Validate": {
+        "suggest":              "交互式建议控制台 (1-9 执行)",
+        "suggest --run":        "一键执行最高优先级验证",
+        "suggest --run-all":    "全交叉验证流水线",
+        "paper":                "自动生成研究论文 (Abstract→Refs)",
+    },
     "≡ Causal": {
+        "chain <var> <change>": "counterfactual propagation (e.g. chain mass 减半)",
+        "plan <start> <target>": "反向规划最优路径",
+        "plan bridge <d1> <d2>": "领域桥接搜索",
         "ask <question>":       "LLM causal analysis (+ physics validation)",
         "learn <env|all> [e] [s]": "active discovery (7 envs)",
         "pipeline <csv> <T> <Y>": "full 4-layer pipeline",
+    },
+    "≡ Autonomous": {
+        "autonomous [n]":       "自主思考 (默认 15 轮, 0 token)",
+        "watch":                "定时后台 (每 30 分钟自主循环)",
+        "watch stop":           "停止后台",
+        "dissonance":           "认知失调报告",
+        "meta":                 "meta-learning summary",
+        "status":               "系统状态",
     },
     "≡ Creative": {
         "creative transfer <src> <vars> <types> <csv>": "cross-domain skeleton",
@@ -645,18 +670,12 @@ CMD_HELP = {
         "skeletons":             "skeleton library",
         "compose":               "auto-compose modules",
         "associate [module]":    "discover structural associations",
-        "explain <module1> <module2>": "explain why two modules are isomorphic",
+        "explain <m1> <m2>":     "explain isomorphic modules",
     },
     "≡ Meta-Physics": {
         "symmetry <v1,v2,...>":  "detect symmetries + conservation",
         "entropy <csv> <A> <B>": "entropy arrow direction",
-        "dissonance":          "detect cognitive dissonance (research questions)",
-        "autonomous [n]":     "let agent think independently (n thoughts)",
-        "chain <var> <change>": "counterfactual propagation (e.g. chain mass 减半)",
-        "research":           "完整研究循环 v2 (惊喜+优先级+鲁棒性+留一法+归档)",
-        "suggest":            "元认知 — 扫描状态, 告诉物理学家下一步该做什么",
-        "meta":              "meta-learning summary (cross-env strategies)",
-        "status":                "layer status",
+        "history [clear|sessions]": "manage command/session history",
     },
 }
 
@@ -675,7 +694,7 @@ def run_interactive():
     agent = PhysCausalAgent()
     print(bold("=" * 60))
     print(bold("  PhysCausal Agent — 物理为骨 · 因果为肌 · 感知为眼"))
-    print(bold("  v0.2.1  |  Type 'help' for commands, 'quit' to exit"))
+    print(bold("  v0.3.11  |  Type 'help' for commands, 'quit' to exit"))
     print(bold("=" * 60))
 
     while True:
