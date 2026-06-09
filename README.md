@@ -132,6 +132,7 @@ physcausal/
 | [GAP_ANALYSIS.md](docs/GAP_ANALYSIS.md) | 缺口分析 + 路线图 |
 | [CHANGELOG.md](CHANGELOG.md) | 版本变更记录 |
 | [SYMMETRY_BREAKING.md](docs/SYMMETRY_BREAKING.md) | 对称破缺的因果结构 |
+| [PHYSICAL_INTUITION.md](docs/PHYSICAL_INTUITION.md) | 物理直觉: 因果结构的共鸣 |
 | [DISSIPATIVE_SYSTEMS.md](docs/DISSIPATIVE_SYSTEMS.md) | 耗散系统: Rayleigh, 子系统边界 |
 
 ## 许可证
