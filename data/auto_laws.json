@@ -294,5 +294,125 @@
     ],
     "confidence_tier": 3,
     "_discovery_note": "量子涨落触发对称破缺: 真空期待值 ≠ 0 来自量子涨落的随机触发。Higgs机制的核心。tier 3 因为哪个方向被挑中是随机的，不是确定性的因果——但触发机制本身是确定的。"
+  },
+  {
+    "name": "DynamicPressure",
+    "domain": "fluids",
+    "latex": "q = \\frac{1}{2}\\rho v^2",
+    "inputs": [
+      "velocity"
+    ],
+    "outputs": [
+      "dynamic_pressure"
+    ],
+    "causal_direction": [
+      [
+        "velocity",
+        "dynamic_pressure"
+      ]
+    ],
+    "confidence_tier": 1,
+    "_discovery_note": "伯努利原理: 流速 → 动压。流体动力学的基本因果边。"
+  },
+  {
+    "name": "DragForce",
+    "domain": "fluids",
+    "latex": "F_D = \\frac{1}{2}\\rho v^2 C_D A",
+    "inputs": [
+      "dynamic_pressure",
+      "velocity"
+    ],
+    "outputs": [
+      "drag_force"
+    ],
+    "causal_direction": [
+      [
+        "dynamic_pressure",
+        "drag_force"
+      ]
+    ],
+    "confidence_tier": 1,
+    "_discovery_note": "阻力公式: 动压+速度 → 阻力。Rayleigh耗散的现象学基础。"
+  },
+  {
+    "name": "FrictionalEnergyLoss",
+    "domain": "thermodynamics",
+    "latex": "\\Delta E = F_D \\cdot \\Delta x",
+    "inputs": [
+      "drag_force"
+    ],
+    "outputs": [
+      "kinetic_energy_loss"
+    ],
+    "causal_direction": [
+      [
+        "drag_force",
+        "kinetic_energy_loss"
+      ]
+    ],
+    "confidence_tier": 1,
+    "_discovery_note": "摩擦做功: 阻力 × 位移 → 动能损失。耗散的能量转化。"
+  },
+  {
+    "name": "FrictionalHeating",
+    "domain": "thermodynamics",
+    "latex": "\\Delta S = \\Delta Q / T",
+    "inputs": [
+      "kinetic_energy_loss"
+    ],
+    "outputs": [
+      "entropy"
+    ],
+    "causal_direction": [
+      [
+        "kinetic_energy_loss",
+        "entropy"
+      ]
+    ],
+    "confidence_tier": 2,
+    "_discovery_note": "摩擦生热: 动能损失 → 热能 → 熵增。耗散的不可逆性来源。与DecoherenceEntropy同构: 都是子系统→环境的信息/能量逃逸。"
+  },
+  {
+    "name": "SubsystemEnergyTransfer",
+    "domain": "unification",
+    "latex": "\\Delta E_{\\mathrm{sub}} + \\Delta E_{\\mathrm{env}} = 0",
+    "inputs": [
+      "subsystem_boundary"
+    ],
+    "outputs": [
+      "energy_transfer"
+    ],
+    "causal_direction": [
+      [
+        "subsystem_boundary",
+        "energy_transfer"
+      ]
+    ],
+    "confidence_tier": 2,
+    "_discovery_note": "子系统能量转移: 从子系统视角看耗散, 从全系统视角看守恒。δS=0对全系统成立, 子系统边界产生表观不可逆。与Decoherence的environment_coupling同构。"
+  },
+  {
+    "name": "BoundaryLayerDrag",
+    "domain": "fluids",
+    "latex": "\\tau_w = \\mu \\left.\\frac{\\partial u}{\\partial y}\\right|_{y=0}",
+    "inputs": [
+      "velocity",
+      "subsystem_boundary"
+    ],
+    "outputs": [
+      "drag_force"
+    ],
+    "causal_direction": [
+      [
+        "velocity",
+        "drag_force"
+      ],
+      [
+        "subsystem_boundary",
+        "drag_force"
+      ]
+    ],
+    "confidence_tier": 1,
+    "_discovery_note": "边界层摩擦: 速度+表面 → 壁面剪应力 → 阻力。流体边界层是经典耗散的核心机制。"
   }
 ]
