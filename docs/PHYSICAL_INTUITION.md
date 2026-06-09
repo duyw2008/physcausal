@@ -29,21 +29,38 @@
 
 ## 发现的结构共鸣
 
-### 退相干 ≈ 经典耗散 (100%)
+### 耗散的三条路径 (统一的因果骨架)
+
+因果图验证了三条耗散路径汇聚于熵:
 
 ```
-退相干链: environment_coupling → phase_coherence → mixed_state → entropy
-耗散链:   velocity → dynamic_pressure → drag_force → kinetic_energy_loss → entropy
+              environment_coupling
+                     │
+        ┌────────────┼────────────┐
+        │            │            │
+        ▼            ▼            ▼
+  information    phase        kinetic
+    _loss      _coherence     _energy
+        │            │            │
+        │        mixed_state  drag_force
+        │            │            │
+        └────────────┼────────────┘
+                     │
+                     ▼
+                  entropy
 
-共享结构:
-  - 子系统 ↔ 环境边界
-  - "被耗散的变量" → 熵增: 相位 (量子) / 动能 (经典)
-  - 不可逆性来自子系统视角
+ 信息: 3步 (tier 1, Landauer 原理)
+ 相位: 7步 (tier 2, 量子退相干)  
+ 动能: 25步 (tier 1-2, 经典摩擦)
 ```
 
-物理含义: 量子退相干是相位信息的耗散——环境耦合先磨掉密度矩阵的非对角元 (相位), 再留下混合态。经典摩擦是动能的耗散——表面阻力先磨掉速度, 再转化为热。两者是同一种因果结构在不同尺度的投影。因果图已验证: `phase_coherence → kinetic_energy_loss` (DissipationAnalogy, tier 3)。
+共享骨架: **边界耦合 → 子系统丢失 → 熵增**
 
-更深层: 被耗散的"东西"本身不重要——相位、动能、信息——重要的是耗散的因果结构: 边界 → 衰减 → 终态。这个结构是普适的。
+被耗散的东西（动能、相位、信息）不重要——重要的是耗散的因果结构本身。这个结构是普适的。信息耗散是三者中最根本的表述: 动能和相位都可以重新定义为子系统状态信息, 它们的丢失 = 特定类型信息的不可逆转移。
+
+### 退相干是相位耗散
+
+退相干本质上是相位信息的耗散——环境耦合先磨掉密度矩阵的非对角元 (相位相干性), 再留下混合态。经典摩擦是动能的耗散——表面阻力先磨掉速度, 再转化为热。因果方向严格: `environment_coupling → information_loss → entropy` (InformationDissipation, tier 1), 不是"信息驱动耦合", 是"耦合导致信息丢失"。
 
 ### 波长 ≈ 规范场 (80%)
 

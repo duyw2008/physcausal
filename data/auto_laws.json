@@ -457,5 +457,29 @@
     ],
     "confidence_tier": 3,
     "_discovery_note": "耗散类比: 量子相位耗散 ↔ 经典动能耗散。两者都是子系统→环境的不可逆信息/能量逃逸。同一因果结构在两个尺度的投影。tier 3 因为是结构类比不是严格物理推导。"
+  },
+  {
+    "name": "InformationDissipation",
+    "domain": "unification",
+    "latex": "\\Delta I_{\\mathrm{sub}} + \\Delta S_{\\mathrm{env}} \\ge 0",
+    "inputs": [
+      "environment_coupling"
+    ],
+    "outputs": [
+      "information_loss",
+      "entropy"
+    ],
+    "causal_direction": [
+      [
+        "environment_coupling",
+        "information_loss"
+      ],
+      [
+        "information_loss",
+        "entropy"
+      ]
+    ],
+    "confidence_tier": 1,
+    "_discovery_note": "信息耗散: 环境耦合 → 子系统信息丢失 → 环境熵增。Landauer原理(信息擦除=熵增)和退相干(环境耦合→混合态)的统一表述。方向严格: 不是信息驱动耦合, 是耦合导致信息丢失。与动能耗散/相位耗散同构。"
   }
 ]
