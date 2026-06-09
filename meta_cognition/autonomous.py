@@ -211,7 +211,8 @@ class AutonomousAgent:
         drives = {
             "frontier":   s.novelty_drive * 1.5,      # 探索未知, 权重最高
             "dissonance": s.coherence_drive * 1.3,     # 解决矛盾
-            "associate":  min(s.curiosity_level, 0.7), # 跨域联想, 封顶
+            "analogy":    s.curiosity_level * 1.2,     # 因果链类比 (新)
+            "associate":  min(s.curiosity_level, 0.7), # 模块同构, 降权
             "structure":  s.novelty_drive * 0.6,       # 同构发现
             "reflect":    min(s.curiosity_level, 0.7) * 0.5,  # 反思回顾
         }
@@ -232,6 +233,8 @@ class AutonomousAgent:
             result = self._think_dissonance(verbose)
         elif chosen == "frontier":
             result = self._think_frontier(verbose)
+        elif chosen == "analogy":
+            result = self._think_associate(verbose)
         elif chosen == "structure":
             result = self._think_structure(verbose)
         elif chosen == "associate":
@@ -471,29 +474,23 @@ class AutonomousAgent:
     # ═══ 模块: 联想 ═══
 
     def _think_associate(self, verbose: bool) -> Dict:
-        """思考: 随机选两个模块, 看它们有没有关系"""
-        lib = ModuleLibrary()
-        all_mods = lib.list_all()
-        if len(all_mods) < 2:
-            return {"interesting": False, "dissonance_count": 0}
+        """思考: 因果链类比 — 发现跨域结构同构"""
+        from creative.causal_analogy import find_causal_analogies
 
-        m1, m2 = random.sample(all_mods, 2)
-        from creative.structure_discovery import _topology_signature
-        same = _topology_signature(m1.edges) == _topology_signature(m2.edges)
-        cross_domain = m1.domain != m2.domain
-
-        interesting = same and cross_domain
+        analogies = find_causal_analogies(max_chains=10, min_similarity=0.5)
+        interesting = len(analogies) > 0
 
         if verbose and interesting:
-            print(f"\n  🔗 {m1.name} ({m1.domain}) ↔ {m2.name} ({m2.domain})")
+            top = analogies[0]
+            print(f"\n  🔗 [{top['similarity']:.0%}] {top['chain_a_start']} ↔ {top['chain_b_start']}")
+            print(f"     {top['insight'][:100]}")
 
         return {
             "interesting": interesting,
             "dissonance_count": 0,
-            "type": "associate",
-            "modules": [m1.name, m2.name],
-            "cross_domain": cross_domain,
-            "isomorphic": same,
+            "type": "analogy",
+            "analogies": analogies[:3],
+            "count": len(analogies),
         }
 
     # ═══ 模块: 反思 ═══
@@ -696,11 +693,13 @@ class AutonomousAgent:
                 if verbose:
                     print(f"     [0 token] frontier explored, no new structure found")
 
-        elif rtype == "associate":
-            mods = result.get("modules", [])
-            if len(mods) == 2:
-                values.link(mods[0], mods[1])
-                learned.append(f"link:{mods[0]}↔{mods[1]}")
+        elif rtype in ("analogy", "associate"):
+            analogies = result.get("analogies", [])
+            if analogies:
+                for a in analogies[:3]:
+                    learned.append(f"analogy:{a['chain_a_start']}↔{a['chain_b_start']}({a['similarity']:.0%})")
+                    if verbose:
+                        print(f"     [analogy] {a['chain_a_start']} ↔ {a['chain_b_start']} ({a['similarity']:.0%})")
 
         elif rtype == "structure":
             learned.append(f"groups:{len(discovery.groups)}")

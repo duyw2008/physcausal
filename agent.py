@@ -989,6 +989,11 @@ def run_interactive():
                 print(write_paper())
                 continue
 
+            if cmd == "analogy":
+                from creative.causal_analogy import analogy_report
+                print(analogy_report())
+                continue
+
             if cmd == "suggest":
                 if rest == "--run-all":
                     from meta_cognition.suggest_executor import execute_all_cross_validations
