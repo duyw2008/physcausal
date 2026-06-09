@@ -32,16 +32,18 @@
 ### 退相干 ≈ 经典耗散 (100%)
 
 ```
-退相干链: environment_coupling → mixed_state → entropy → order_parameter
+退相干链: environment_coupling → phase_coherence → mixed_state → entropy
 耗散链:   velocity → dynamic_pressure → drag_force → kinetic_energy_loss → entropy
 
 共享结构:
   - 子系统 ↔ 环境边界
-  - 序参量变化 → 熵增
+  - "被耗散的变量" → 熵增: 相位 (量子) / 动能 (经典)
   - 不可逆性来自子系统视角
 ```
 
-物理含义: 量子退相干是经典摩擦在量子域的对应物。两者都是信息/能量从子系统逃逸到环境。
+物理含义: 量子退相干是相位信息的耗散——环境耦合先磨掉密度矩阵的非对角元 (相位), 再留下混合态。经典摩擦是动能的耗散——表面阻力先磨掉速度, 再转化为热。两者是同一种因果结构在不同尺度的投影。因果图已验证: `phase_coherence → kinetic_energy_loss` (DissipationAnalogy, tier 3)。
+
+更深层: 被耗散的"东西"本身不重要——相位、动能、信息——重要的是耗散的因果结构: 边界 → 衰减 → 终态。这个结构是普适的。
 
 ### 波长 ≈ 规范场 (80%)
 

@@ -414,5 +414,48 @@
     ],
     "confidence_tier": 1,
     "_discovery_note": "边界层摩擦: 速度+表面 → 壁面剪应力 → 阻力。流体边界层是经典耗散的核心机制。"
+  },
+  {
+    "name": "PhaseDecoherence",
+    "domain": "quantum",
+    "latex": "\\rho_{ij}(t) = \\rho_{ij}(0) e^{-\\gamma t}",
+    "inputs": [
+      "environment_coupling",
+      "phase_coherence"
+    ],
+    "outputs": [
+      "mixed_state"
+    ],
+    "causal_direction": [
+      [
+        "environment_coupling",
+        "phase_coherence"
+      ],
+      [
+        "phase_coherence",
+        "mixed_state"
+      ]
+    ],
+    "confidence_tier": 2,
+    "_discovery_note": "相位退相干: 环境耦合首先破坏相位相干性 → 密度矩阵非对角元指数衰减 → 混合态。这是退相干的核心机制——相位信息的耗散。与经典耗散同构: phase_coherence ≈ kinetic_energy, environment_coupling ≈ drag_force。"
+  },
+  {
+    "name": "DissipationAnalogy",
+    "domain": "unification",
+    "latex": "\\text{phase coherence} \\leftrightarrow \\text{kinetic energy}",
+    "inputs": [
+      "phase_coherence"
+    ],
+    "outputs": [
+      "kinetic_energy_loss"
+    ],
+    "causal_direction": [
+      [
+        "phase_coherence",
+        "kinetic_energy_loss"
+      ]
+    ],
+    "confidence_tier": 3,
+    "_discovery_note": "耗散类比: 量子相位耗散 ↔ 经典动能耗散。两者都是子系统→环境的不可逆信息/能量逃逸。同一因果结构在两个尺度的投影。tier 3 因为是结构类比不是严格物理推导。"
   }
 ]
