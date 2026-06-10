@@ -56,28 +56,65 @@ class InternalState:
             "fruitful_variables": {},  # variable → success count
         }
 
+        # ── 主动驱动力 (v2) ──
+        self.pattern_hunger = 0.0       # 发现重复结构 → 想找更多
+        self.frustration = 0.0          # 验证断裂 → 想打通
+        self.last_discovery_vars: List[str] = []  # 链式探索
+
     def update(self, thought_result: Dict):
-        """根据思考结果更新内部状态"""
-        if thought_result.get("interesting"):
+        """根据思考结果更新内部状态 (v2: 主动驱动力)"""
+        rtype = thought_result.get("type", "")
+        learned = thought_result.get("learned", [])
+        sig = thought_result.get("significance", 0)
+        interesting = thought_result.get("interesting", False)
+
+        # ── 好奇心 ──
+        if interesting:
             self.curiosity_level = min(1.0, self.curiosity_level + 0.1)
             self.last_discovery_time = time.time()
         else:
-            self.curiosity_level = max(0.1, self.curiosity_level - 0.02)
+            self.curiosity_level = max(0.05, self.curiosity_level - 0.02)
 
-        # 认知失调越多, 越想解决
+        # ── 精力: 发现时兴奋, 断裂时也有挫折燃料 ──
+        self.energy = max(0.05, self.energy - 0.05)
+        if learned and sig > 0:
+            self.energy = min(1.0, self.energy + 0.2)  # 兴奋恢复
+        elif interesting and not learned:
+            self.energy = min(1.0, self.energy + 0.05)  # 有趣但没产出
+        # 断裂的验证: 消耗但不沮丧 (挫折转为动力)
+
+        # ── 模式饥饿: 连续发现同类结构 → 想找更多 ──
+        if rtype == "analogy":
+            analogies = thought_result.get("analogies", [])
+            if analogies:
+                top_sim = max(a.get("similarity", 0) for a in analogies)
+                self.pattern_hunger = min(1.0, self.pattern_hunger + top_sim * 0.3)
+        # 没有类比时缓慢消退
+        self.pattern_hunger = max(0.0, self.pattern_hunger - 0.03)
+
+        # ── 沮丧 → 探索欲: 断裂越多越想打通 ──
+        if rtype in ("dissonance", "frontier") and not learned:
+            self.frustration = min(1.0, self.frustration + 0.1)
+        else:
+            self.frustration = max(0.0, self.frustration - 0.05)
+
+        # 认知失调
         dissonance_count = thought_result.get("dissonance_count", 0)
         self.coherence_drive = min(1.0, 0.3 + dissonance_count * 0.1)
 
-        # 长时间没发现 → 更渴望新颖性
+        # 新颖性: 饥饿+沮丧+时间 三重驱动
         hours_since = (time.time() - self.last_discovery_time) / 3600
-        self.novelty_drive = min(1.0, 0.3 + hours_since * 0.1)
+        self.novelty_drive = min(1.0, 0.3 + hours_since * 0.1
+                                 + self.pattern_hunger * 0.3
+                                 + self.frustration * 0.3)
 
-        self.energy = max(0.1, self.energy - 0.05)
+        # ── 链式探索: 记住上次发现的变量 ──
+        if learned and sig > 0:
+            self.last_discovery_vars = thought_result.get("variables_involved", [])[:5]
+
         self.thought_count += 1
 
-        # ── 更新品味: 成功的发现留下痕迹 ──
-        learned = thought_result.get("learned", [])
-        sig = thought_result.get("significance", 0)
+        # ── 更新品味 ──
         if learned and sig > 0:
             self.total_discoveries += 1
             # 更新领域品味
@@ -116,9 +153,11 @@ class InternalState:
         )[:3]
         return (
             f"curiosity={self.curiosity_level:.2f} "
+            f"energy={self.energy:.2f} "
             f"coherence={self.coherence_drive:.2f} "
             f"novelty={self.novelty_drive:.2f} "
-            f"energy={self.energy:.2f} "
+            f"hunger={self.pattern_hunger:.2f} "
+            f"frustration={self.frustration:.2f} "
             f"thoughts={self.thought_count} "
             f"discoveries={self.total_discoveries} "
             f"taste:domains={dict(top_domains)} "
@@ -169,6 +208,9 @@ class AutonomousAgent:
                 s.energy = data.get("energy", 1.0)
                 s.coherence_drive = data.get("coherence", 0.5)
                 s.novelty_drive = data.get("novelty", 0.7)
+                s.pattern_hunger = data.get("hunger", 0.0)
+                s.frustration = data.get("frustration", 0.0)
+                s.last_discovery_vars = data.get("last_discovery_vars", [])
         except (FileNotFoundError, json.JSONDecodeError):
             pass
 
@@ -182,10 +224,13 @@ class AutonomousAgent:
                 "discoveries": s.total_discoveries,
                 "failed_tensions": s.failed_tensions,
                 "taste_profile": s.taste_profile,
-                "discovery_history": s.discovery_history[-20:],  # 只存最近 20 条
+                "discovery_history": s.discovery_history[-20:],
                 "energy": s.energy,
                 "coherence": s.coherence_drive,
                 "novelty": s.novelty_drive,
+                "hunger": s.pattern_hunger,
+                "frustration": s.frustration,
+                "last_discovery_vars": s.last_discovery_vars,
                 "last_run": time.time(),
             }, f, ensure_ascii=False)
 
@@ -209,12 +254,12 @@ class AutonomousAgent:
         # 均衡权重: 前沿/失调/联想三分天下, 结构/反思辅助
         s = self.internal
         drives = {
-            "frontier":   s.novelty_drive * 1.5,      # 探索未知, 权重最高
-            "dissonance": s.coherence_drive * 1.3,     # 解决矛盾
-            "analogy":    s.curiosity_level * 1.2,     # 因果链类比 (新)
-            "associate":  min(s.curiosity_level, 0.7), # 模块同构, 降权
-            "structure":  s.novelty_drive * 0.6,       # 同构发现
-            "reflect":    min(s.curiosity_level, 0.7) * 0.5,  # 反思回顾
+            "frontier":   s.novelty_drive * 1.5,      # 探索未知
+            "analogy":    s.curiosity_level * 1.2 + s.pattern_hunger * 1.0,  # 模式饥饿
+            "dissonance": s.coherence_drive * 1.3 + s.frustration * 0.5,     # 沮丧驱动
+            "associate":  min(s.curiosity_level, 0.7),
+            "structure":  s.novelty_drive * 0.6,
+            "reflect":    min(s.curiosity_level, 0.7) * 0.5,
         }
 
         # 加权随机选择
