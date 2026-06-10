@@ -1025,16 +1025,16 @@ def run_interactive():
                 continue
 
             if cmd == "ingest":
-                from session.paper_ingest import ingest_topic
+                from session.paper_ingest import ingest_from_query
                 if not rest:
                     print(red("Usage: ingest <topic>  (e.g. ingest decoherence)"))
                 else:
                     print(f"🔍 搜索 arXiv: {rest}...")
-                    llm = agent.llm if hasattr(agent, 'llm') else None
-                    if not llm or not llm.is_available():
+                    llm_client = agent.llm.client if hasattr(agent, 'llm') and agent.llm.is_available() else None
+                    if not llm_client:
                         print("⚠ LLM 未连接, 只能显示搜索结果, 不能提取因果断言")
                     try:
-                        result = ingest_topic(rest, max_papers=3, llm_bridge=llm)
+                        result = ingest_from_query(rest, llm_client, max_papers=3)
                         if result.get("papers_found", 0) > 0:
                             print(f"\n  论文: {result['papers_found']} 篇")
                             print(f"  提取断言: {result.get('claims_extracted', 0)} 条")

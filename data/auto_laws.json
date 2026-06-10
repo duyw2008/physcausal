@@ -566,5 +566,552 @@
       ]
     ],
     "confidence_tier": 1
+  },
+  {
+    "name": "Decoherence from system-environment entanglement",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "system_environment_entanglement"
+    ],
+    "outputs": [
+      "non_markovian_decoherence_dynamics"
+    ],
+    "causal_direction": [
+      [
+        "system_environment_entanglement",
+        "non_markovian_decoherence_dynamics"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "Decoherence induced by QPC measurement",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "quantum_point_contact_measurement"
+    ],
+    "outputs": [
+      "charge_qubit_decoherence"
+    ],
+    "causal_direction": [
+      [
+        "quantum_point_contact_measurement",
+        "charge_qubit_decoherence"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "Bell_inequality_violation_requires_fine-tuning",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "nonsignalling_correlations",
+      "bell_inequality_violation"
+    ],
+    "outputs": [
+      "fine_tuning_of_causal_parameters"
+    ],
+    "causal_direction": [
+      [
+        "nonsignalling_correlations",
+        "fine_tuning_of_causal_parameters"
+      ],
+      [
+        "bell_inequality_violation",
+        "fine_tuning_of_causal_parameters"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "superluminal_influence_causes_bell_correlations",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "superluminal_causal_influence"
+    ],
+    "outputs": [
+      "bell_correlations"
+    ],
+    "causal_direction": [
+      [
+        "superluminal_causal_influence",
+        "bell_correlations"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "superdeterminism_causes_bell_correlations",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "denial_of_freedom_of_choice_of_settings"
+    ],
+    "outputs": [
+      "bell_correlations"
+    ],
+    "causal_direction": [
+      [
+        "denial_of_freedom_of_choice_of_settings",
+        "bell_correlations"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "retrocausal_influence_causes_bell_correlations",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "retrocausal_influence"
+    ],
+    "outputs": [
+      "bell_correlations"
+    ],
+    "causal_direction": [
+      [
+        "retrocausal_influence",
+        "bell_correlations"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "Landauer Principle: Information has mass",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "information"
+    ],
+    "outputs": [
+      "mass"
+    ],
+    "causal_direction": [
+      [
+        "information",
+        "mass"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "Gravitational radiation irreversibility from Landauer principle",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "gravitational_radiation_conveys_information",
+      "landauer_principle"
+    ],
+    "outputs": [
+      "gravitational_radiation_is_irreversible",
+      "dissipation"
+    ],
+    "causal_direction": [
+      [
+        "gravitational_radiation_conveys_information",
+        "gravitational_radiation_is_irreversible"
+      ],
+      [
+        "landauer_principle",
+        "gravitational_radiation_is_irreversible"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "Radiated energy part from radiated information",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "radiated_information"
+    ],
+    "outputs": [
+      "part_of_radiated_energy"
+    ],
+    "causal_direction": [
+      [
+        "radiated_information",
+        "part_of_radiated_energy"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "Bits erased linked to Bondi news function",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "bits_erased"
+    ],
+    "outputs": [
+      "bondi_news_function"
+    ],
+    "causal_direction": [
+      [
+        "bits_erased",
+        "bondi_news_function"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ChemicalPotentialNonmonotonicTemperatureDependence",
+    "domain": "thermodynamics",
+    "latex": "",
+    "inputs": [
+      "low_dimensionality",
+      "temperature"
+    ],
+    "outputs": [
+      "chemical_potential_nonmonotonic_dependence"
+    ],
+    "causal_direction": [
+      [
+        "low_dimensionality",
+        "chemical_potential_nonmonotonic_dependence"
+      ],
+      [
+        "temperature",
+        "chemical_potential_nonmonotonic_dependence"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ChemicalPotentialNonmonotonicityIndicatesThermodynamicRegime",
+    "domain": "thermodynamics",
+    "latex": "",
+    "inputs": [
+      "chemical_potential_nonmonotonic_dependence"
+    ],
+    "outputs": [
+      "thermodynamic_regime_with_large_fluctuations"
+    ],
+    "causal_direction": [
+      [
+        "chemical_potential_nonmonotonic_dependence",
+        "thermodynamic_regime_with_large_fluctuations"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ThermodynamicRegimeCausesLargeSusceptibilities",
+    "domain": "thermodynamics",
+    "latex": "",
+    "inputs": [
+      "thermodynamic_regime_with_large_fluctuations"
+    ],
+    "outputs": [
+      "large_isothermal_compressibility",
+      "large_specific_heat"
+    ],
+    "causal_direction": [
+      [
+        "thermodynamic_regime_with_large_fluctuations",
+        "large_isothermal_compressibility"
+      ],
+      [
+        "thermodynamic_regime_with_large_fluctuations",
+        "large_specific_heat"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "Information-Energy Relation in Neural Systems",
+    "domain": "thermodynamics",
+    "latex": "",
+    "inputs": [
+      "neural_activity",
+      "energy_cost"
+    ],
+    "outputs": [
+      "decoding_accuracy",
+      "information_thermodynamic_quantities"
+    ],
+    "causal_direction": [
+      [
+        "neural_activity",
+        "decoding_accuracy"
+      ],
+      [
+        "energy_cost",
+        "information_thermodynamic_quantities"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "Stochastic Thermodynamics of Neural Inference",
+    "domain": "thermodynamics",
+    "latex": "",
+    "inputs": [
+      "noisy_neural_network",
+      "brownian_particle_motion"
+    ],
+    "outputs": [
+      "probabilistic_motion_inference",
+      "energy_cost"
+    ],
+    "causal_direction": [
+      [
+        "noisy_neural_network",
+        "probabilistic_motion_inference"
+      ],
+      [
+        "brownian_particle_motion",
+        "probabilistic_motion_inference"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "Learning as Information Storage in Synapses",
+    "domain": "thermodynamics",
+    "latex": "",
+    "inputs": [
+      "neural_network_activity",
+      "particle_velocity"
+    ],
+    "outputs": [
+      "synaptic_weight_information",
+      "learning"
+    ],
+    "causal_direction": [
+      [
+        "neural_network_activity",
+        "synaptic_weight_information"
+      ],
+      [
+        "particle_velocity",
+        "learning"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MasterEquationDecoherence",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "system_reservoir_coupling",
+      "spectral_density",
+      "temperature",
+      "bias"
+    ],
+    "outputs": [
+      "decoherence_dynamics"
+    ],
+    "causal_direction": [
+      [
+        "system_reservoir_coupling",
+        "decoherence_dynamics"
+      ],
+      [
+        "spectral_density",
+        "decoherence_dynamics"
+      ],
+      [
+        "temperature",
+        "decoherence_dynamics"
+      ],
+      [
+        "bias",
+        "decoherence_dynamics"
+      ]
+    ],
+    "confidence_tier": 3,
+    "_discovery_note": "[arXiv] Exact Master Equation and Non-Markovian Decoherence for Quantum Dot Quantum Comp"
+  },
+  {
+    "name": "QuantumJumpsFromEngineeredCoupling",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "engineered_coupling_to_reservoir",
+      "harmonic_oscillator_mode_in_lc_circuit"
+    ],
+    "outputs": [
+      "quantum_jumps"
+    ],
+    "causal_direction": [
+      [
+        "engineered_coupling_to_reservoir",
+        "quantum_jumps"
+      ],
+      [
+        "harmonic_oscillator_mode_in_lc_circuit",
+        "quantum_jumps"
+      ]
+    ],
+    "confidence_tier": 3,
+    "_discovery_note": "[arXiv] Engineering Progressive Decoherence with Quantum Jumps in Charge Qubit"
+  },
+  {
+    "name": "DecoherenceFromEngineeredReservoir",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "coupling_to_engineered_reservoir"
+    ],
+    "outputs": [
+      "loss_of_quantum_coherence"
+    ],
+    "causal_direction": [
+      [
+        "coupling_to_engineered_reservoir",
+        "loss_of_quantum_coherence"
+      ]
+    ],
+    "confidence_tier": 3,
+    "_discovery_note": "[arXiv] Engineering Progressive Decoherence with Quantum Jumps in Charge Qubit"
+  },
+  {
+    "name": "Landauer Principle",
+    "domain": "thermodynamics",
+    "latex": "",
+    "inputs": [
+      "information_erasure"
+    ],
+    "outputs": [
+      "heat_dissipation"
+    ],
+    "causal_direction": [
+      [
+        "information_erasure",
+        "heat_dissipation"
+      ]
+    ],
+    "confidence_tier": 3,
+    "_discovery_note": "[arXiv] Landauer Principle and General Relativity"
+  },
+  {
+    "name": "Mass-Information Equivalence",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "information"
+    ],
+    "outputs": [
+      "mass"
+    ],
+    "causal_direction": [
+      [
+        "information",
+        "mass"
+      ]
+    ],
+    "confidence_tier": 3,
+    "_discovery_note": "[arXiv] Landauer Principle and General Relativity"
+  },
+  {
+    "name": "Landauer principle (Tsallis generalization)",
+    "domain": "thermodynamics",
+    "latex": "",
+    "inputs": [
+      "erasure_of_one_bit_of_information"
+    ],
+    "outputs": [
+      "lower_bound_of_dissipated_energy"
+    ],
+    "causal_direction": [
+      [
+        "erasure_of_one_bit_of_information",
+        "lower_bound_of_dissipated_energy"
+      ]
+    ],
+    "confidence_tier": 3,
+    "_discovery_note": "[arXiv] Modified Landauer principle according to Tsallis entropy"
+  },
+  {
+    "name": "Mass-energy equivalence for information (Tsallis modification)",
+    "domain": "thermodynamics",
+    "latex": "",
+    "inputs": [
+      "one_bit_of_information"
+    ],
+    "outputs": [
+      "mass_ascribed_to_one_bit_of_information"
+    ],
+    "causal_direction": [
+      [
+        "one_bit_of_information",
+        "mass_ascribed_to_one_bit_of_information"
+      ]
+    ],
+    "confidence_tier": 3,
+    "_discovery_note": "[arXiv] Modified Landauer principle according to Tsallis entropy"
+  },
+  {
+    "name": "Entanglement encodes gluing of quanta of space",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "link_entanglement",
+      "intertwiner_entanglement",
+      "boundary_spin_entanglement"
+    ],
+    "outputs": [
+      "gluing_of_quanta_of_space"
+    ],
+    "causal_direction": [
+      [
+        "link_entanglement",
+        "gluing_of_quanta_of_space"
+      ],
+      [
+        "intertwiner_entanglement",
+        "gluing_of_quanta_of_space"
+      ],
+      [
+        "boundary_spin_entanglement",
+        "gluing_of_quanta_of_space"
+      ]
+    ],
+    "confidence_tier": 3,
+    "_discovery_note": "[arXiv] Loop Quantum Gravity and Quantum Information"
+  },
+  {
+    "name": "Entanglement structures enable reconstruction of quantum geometry",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "network_of_entanglement_structures"
+    ],
+    "outputs": [
+      "reconstruction_of_quantum_geometry"
+    ],
+    "causal_direction": [
+      [
+        "network_of_entanglement_structures",
+        "reconstruction_of_quantum_geometry"
+      ]
+    ],
+    "confidence_tier": 3,
+    "_discovery_note": "[arXiv] Loop Quantum Gravity and Quantum Information"
+  },
+  {
+    "name": "Statistical_mechanics_random_ensemble_universality",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "random_ensemble_statistical_properties"
+    ],
+    "outputs": [
+      "simple_universal_laws"
+    ],
+    "causal_direction": [
+      [
+        "random_ensemble_statistical_properties",
+        "simple_universal_laws"
+      ]
+    ],
+    "confidence_tier": 3,
+    "_discovery_note": "[arXiv] Entanglement dynamics in hybrid quantum circuits"
   }
 ]
