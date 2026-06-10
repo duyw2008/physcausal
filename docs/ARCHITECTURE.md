@@ -374,19 +374,22 @@ pipeline.py             — 端到端四层流水线
 元物理: 1 生成原理 (δS=0) + 3 派生原则 (Noether, Locality, Entropy)
 变量本体论: 12 基础 + 9 几何 + 7 量子 + 91 派生
 负向约束: 全覆盖
-置信层级: 79 定律, 28 auto-laws
+置信层级: 79 定律, 54 auto-laws (含 arXiv 摄入)
 哲学透镜: 11 条 (3 层: 解释/引导/标注)
 自主循环: 6 驱动 (新增 analogy), cron 30min, 0 token
-arXiv 摄入: search + read + LLM 提取 (ingest 命令)
+元RL策略: UCB1 探索/利用优化 (strategy 命令)
+arXiv 摄入: search + read + LLM提取 + 信任分层 (ingest/trust 命令)
+论文信任: tier2(确立)/tier3(假说)/tier4(冲突) 自动分层
 因果规划: 反向搜索 + 路径评分 (plan 命令)
 创新引擎: 生成器 + 过滤器 (innovate 命令)
-类比引擎: 图嵌入 55 条跨域共鸣 (analogy 命令)
+类比引擎: 图嵌入 64 条跨域共鸣 (analogy 命令)
 学习优化: 11 对正样本训练特征权重 (learn 命令)
 可视化: ASCII 驱动面板 + 类比图 + 因果链 (viz 命令)
 持久记忆: 发现归档 + 跨session检索 (memory 命令)
 耗散统一: 动能/相位/信息 → entropy 同一因果骨架
-输入通道: ask (LLM) / data (CSV) / ingest (arXiv)
-输出通道: paper / talk / viz
+数据管道: CSV → 相关性 → 因果发现 → 定律比对 (data 命令)
+输入通道: ask (LLM/DeepSeek) / data (CSV) / ingest (arXiv)
+输出通道: paper / talk / viz / memory
 知识库: 12 篇文档
 测试: 179 全绿
 ```
