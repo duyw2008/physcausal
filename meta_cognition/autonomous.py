@@ -339,6 +339,22 @@ class AutonomousAgent:
             self.internal.summary()
             print(f"\n  Final state: {self.internal.summary()}")
 
+        # 记录到元RL
+        try:
+            from reinforcement.meta_rl import log_action
+            from meta_cognition.research_directions import get_current_focus
+            focus = get_current_focus()
+            tag = focus.get("tag", "?") if focus else "?"
+            analogies = sum(1 for d in discoveries if d.get("type") == "analogy")
+            log_action(f"autonomous_{tag}", {
+                "discoveries": len([d for d in discoveries if d.get("type") in ("dissonance","frontier")]),
+                "analogies": analogies,
+                "validations": sum(1 for d in discoveries if d.get("tiered_validation",0) > 0),
+                "thoughts": max_thoughts,
+            })
+        except Exception:
+            pass
+
         return discoveries
 
     # ═══ 模块: 认知失调思考 ═══

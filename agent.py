@@ -1025,6 +1025,11 @@ def run_interactive():
                     print(discover_from_data(path, target))
                 continue
 
+            if cmd == "strategy":
+                from reinforcement.meta_rl import strategy_report
+                print(strategy_report())
+                continue
+
             if cmd == "trust":
                 from session.paper_trust import paper_trust_report
                 print(paper_trust_report())
