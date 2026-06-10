@@ -898,7 +898,10 @@ def run_interactive():
 
             if cmd == "research":
                 from creative.research_cycle import research_report_v2
-                print(research_report_v2()); continue
+                print(research_report_v2())
+                from meta_cognition.talk import talk_report
+                print(talk_report())
+                continue
 
             if cmd == "focus":
                 if not rest:
@@ -989,9 +992,16 @@ def run_interactive():
                 print(write_paper())
                 continue
 
+            if cmd == "talk":
+                from meta_cognition.talk import talk_report
+                print(talk_report())
+                continue
+
             if cmd == "analogy":
                 from creative.causal_analogy import analogy_report
                 print(analogy_report())
+                from meta_cognition.talk import talk_report
+                print(talk_report())
                 continue
 
             if cmd == "suggest":
@@ -1004,6 +1014,9 @@ def run_interactive():
                 else:
                     from meta_cognition.suggest_executor import interactive_suggest
                     interactive_suggest()
+                # 发言
+                from meta_cognition.talk import talk_report
+                print(talk_report())
                 continue
 
             if cmd == "watch":
