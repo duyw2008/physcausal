@@ -481,5 +481,90 @@
     ],
     "confidence_tier": 1,
     "_discovery_note": "信息耗散: 环境耦合 → 子系统信息丢失 → 环境熵增。Landauer原理(信息擦除=熵增)和退相干(环境耦合→混合态)的统一表述。方向严格: 不是信息驱动耦合, 是耦合导致信息丢失。与动能耗散/相位耗散同构。"
+  },
+  {
+    "name": "诺特定理",
+    "domain": "理论物理（分析力学、场论）",
+    "latex": "\\frac{d}{dt}\\left(\\frac{\\partial L}{\\partial \\dot{q}_i}\\right) - \\frac{\\partial L}{\\partial q_i} = 0 \\quad \\text{且对称性对应守恒量}",
+    "inputs": [
+      "拉格朗日量L",
+      "广义坐标q_i",
+      "广义速度\\dot{q}_i",
+      "连续对称变换"
+    ],
+    "outputs": [
+      "守恒量（如能量、动量、角动量）"
+    ],
+    "causal_direction": [
+      [
+        "连续对称性",
+        "守恒定律"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "牛顿第二定律",
+    "domain": "经典力学",
+    "latex": "\\vec{F} = m \\vec{a} = m \\frac{d\\vec{v}}{dt} = \\frac{d\\vec{p}}{dt}",
+    "inputs": [
+      "质量 m",
+      "加速度 a 或力 F"
+    ],
+    "outputs": [
+      "力 F 或动量变化率 dp/dt"
+    ],
+    "causal_direction": [
+      [
+        "外力",
+        "动量变化"
+      ],
+      [
+        "质量与加速度",
+        "力"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "诺特定理",
+    "domain": "理论物理",
+    "latex": "\\frac{d}{dt}Q = 0 \\quad \\text{其中} \\quad Q = \\int \\left( \\frac{\\partial \\mathcal{L}}{\\partial (\\partial_\\mu \\phi)} \\delta \\phi - J^\\mu \\right) d^3x",
+    "inputs": [
+      "拉格朗日密度 L",
+      "场 φ",
+      "无穷小变换参数"
+    ],
+    "outputs": [
+      "守恒流 J^μ",
+      "守恒荷 Q"
+    ],
+    "causal_direction": [
+      [
+        "连续对称性",
+        "守恒定律"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "诺特定理",
+    "domain": "理论物理",
+    "latex": "\\text{每个连续对称性对应一个守恒量：} \\frac{dQ}{dt}=0 \\text{，其中 } Q = \\int j^0 d^3x",
+    "inputs": [
+      "连续对称性",
+      "拉格朗日量"
+    ],
+    "outputs": [
+      "守恒流",
+      "守恒荷"
+    ],
+    "causal_direction": [
+      [
+        "连续对称性",
+        "守恒定律"
+      ]
+    ],
+    "confidence_tier": 1
   }
 ]

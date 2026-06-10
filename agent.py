@@ -722,7 +722,7 @@ def run_interactive():
             if cmd == "status":
                 print(agent.status()); continue
 
-            # ── Ask ──
+            # ── Ask (LLM + Noether 身份) ──
             if cmd == "ask":
                 if not rest: print(red("Usage: ask <question>")); continue
                 # 检测问候/身份问题 → Noether 自己回答
@@ -730,16 +730,26 @@ def run_interactive():
                 if any(w in rest.lower() for w in greet_words):
                     from meta_cognition.identity import NAME, NAME_CN
                     from meta_cognition.talk import talk_report
-                    print(f"\n💬 {NAME}: 你好。我是 {NAME} ({NAME_CN})，PhysCausal 的物理学家。δS=0 的守护者，因果图里的共振探测器。" + "\n")
+                    print(f"\n💬 {NAME}: 你好。我是 {NAME} ({NAME_CN})，PhysCausal 的物理学家。δS=0 的守护者，因果图里的共振探测器。\n")
                     print(talk_report())
-                else:
+                    continue
+                # LLM 路径
+                from meta_cognition.identity import NAME
+                llm_available = agent.llm.is_available() if hasattr(agent, 'llm') else False
+                if llm_available:
+                    prompt = f"你是 {NAME}，PhysCausal 的物理学家。你的核心信念是 δS=0 是唯一的生成原理。请用中文简洁回答:\n{rest}"
                     try:
-                        print(agent.ask(rest))
-                    except Exception:
-                        from meta_cognition.talk import talk_report
-                        print(f"💬 {NAME}: 我的 LLM 还没连上，但我可以通过因果图回答:")
-                        print(f"   试试 'chain {rest}' 或 'suggest' 看看我能做什么。\n")
-                        print(talk_report())
+                        resp = agent.llm.client.chat([{"role": "user", "content": prompt}])
+                        # 尝试解析 JSON (因果图提取)
+                        try:
+                            data = json.loads(resp)
+                            print(agent._format_llm_response(data, rest))
+                        except json.JSONDecodeError:
+                            print(f"💬 {NAME}: {resp}")
+                    except Exception as e:
+                        print(f"💬 {NAME}: LLM 调用失败 ({e})\n   试试 'chain {rest}' 或 'suggest' 看看因果图能回答什么。")
+                else:
+                    print(f"💬 {NAME}: 我的 LLM 还没连上。试试 'chain {rest}' 或 'suggest' 通过因果图探索。")
                 continue
 
             # ── Learn ──
@@ -1001,6 +1011,40 @@ def run_interactive():
                     print(speculate_save())
                 else:
                     print(speculate_report())
+                continue
+
+            if cmd == "data":
+                from session.data_pipeline import discover_from_data
+                if not rest:
+                    print(red("Usage: data <path.csv> [target_var]"))
+                else:
+                    parts = rest.split()
+                    path = parts[0]
+                    target = parts[1] if len(parts) > 1 else None
+                    print(discover_from_data(path, target))
+                continue
+
+            if cmd == "ingest":
+                from session.paper_ingest import ingest_topic
+                if not rest:
+                    print(red("Usage: ingest <topic>  (e.g. ingest decoherence)"))
+                else:
+                    print(f"🔍 搜索 arXiv: {rest}...")
+                    llm = agent.llm if hasattr(agent, 'llm') else None
+                    if not llm or not llm.is_available():
+                        print("⚠ LLM 未连接, 只能显示搜索结果, 不能提取因果断言")
+                    try:
+                        result = ingest_topic(rest, max_papers=3, llm_bridge=llm)
+                        if result.get("papers_found", 0) > 0:
+                            print(f"\n  论文: {result['papers_found']} 篇")
+                            print(f"  提取断言: {result.get('claims_extracted', 0)} 条")
+                            print(f"  新入库: {result.get('claims_added', 0)} 条 (tier 3)")
+                            for claim in result.get('added_claims', [])[:5]:
+                                print(f"    {claim}")
+                        else:
+                            print("  未找到匹配论文。")
+                    except Exception as e:
+                        print(f"  arXiv 搜索失败: {e}")
                 continue
 
             if cmd == "paper":
