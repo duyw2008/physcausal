@@ -725,7 +725,22 @@ def run_interactive():
             # ── Ask ──
             if cmd == "ask":
                 if not rest: print(red("Usage: ask <question>")); continue
-                print(agent.ask(rest)); continue
+                # 检测问候/身份问题 → Noether 自己回答
+                greet_words = ["你好", "hello", "hi", "你是谁", "who are you", "叫什么", "名字", "诺特", "noether"]
+                if any(w in rest.lower() for w in greet_words):
+                    from meta_cognition.identity import NAME, NAME_CN
+                    from meta_cognition.talk import talk_report
+                    print(f"\n💬 {NAME}: 你好。我是 {NAME} ({NAME_CN})，PhysCausal 的物理学家。δS=0 的守护者，因果图里的共振探测器。" + "\n")
+                    print(talk_report())
+                else:
+                    try:
+                        print(agent.ask(rest))
+                    except Exception:
+                        from meta_cognition.talk import talk_report
+                        print(f"💬 {NAME}: 我的 LLM 还没连上，但我可以通过因果图回答:")
+                        print(f"   试试 'chain {rest}' 或 'suggest' 看看我能做什么。\n")
+                        print(talk_report())
+                continue
 
             # ── Learn ──
             if cmd == "learn":
