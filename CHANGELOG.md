@@ -40,6 +40,56 @@
 
 ---
 
+## v0.3.11 (2026-06-08~10) — 物理学家涅槃: 六短板补全 + 混合路线
+
+### 研究循环 v2 — 五短板补全
+- 惊喜检测/优先级排序/鲁棒性检验/留一法验证/发现归档
+
+### 元认知: suggest 命令
+- 交互式建议控制台 + 交叉验证流水线 + 量子诚实评估 + 完成追踪
+
+### 大胆假设: speculate 命令
+- 无约束 tier4 假说生成, 15 个物理直觉种子
+
+### 研究方向: focus 命令
+- 9 个方向 + 聚焦偏置 (innovate/suggest/watch 三层生效)
+
+### 因果链类比: analogy 命令
+- 软匹配因果链结构, 图嵌入 55 条跨域共鸣
+- 混合路线第一步: graph_features.py (图拓扑 → 向量)
+
+### 物理学家身份: Noether (诺特)
+- identity.py + talk.py 发言系统
+- ask 命令 DeepSeek API 接入, LLM 物理问答
+
+### 三大短板补齐
+- LLM 桥接: DeepSeek API → ask 真正工作
+- 数据管道: data <csv> → 因果发现 + 定律比对
+- arXiv 摄入: ingest <topic> → 断言提取
+
+### 学习优化: learn 命令
+- 11 对已知类比做正样本, 梯度下降学习特征权重
+- 关键维度: out_deg/branching/cat:quantum
+
+### 可视化: viz 命令
+- 驱动面板 + 类比连接图 + 因果链 ASCII 可视化
+
+### 持久记忆: memory 命令
+- 发现归档 + 跨 session 检索 + rest() 时自动整理
+
+### 知识库 (12 篇)
+- SYMMETRY_BREAKING/DISSIPATIVE_SYSTEMS/PHYSICAL_INTUITION/HYBRID_ARCHITECTURE
+
+### 架构审计
+- 解耦循环导入, 清理死代码, shared 工具提取
+
+### 因果图
+- 28 auto-laws (退相干/耗散/对称破缺/信息耗散/相位退相干)
+- 耗散统一: 动能/相位/信息 → entropy 同一因果骨架
+- 179 测试全绿
+
+---
+
 ## v0.3.10 (2026-06-07) — 因果规划 + 元学习 v2
 
 ### 因果规划

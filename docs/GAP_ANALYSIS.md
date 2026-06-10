@@ -1,8 +1,9 @@
 # PhysCausal — 缺口分析与后续方向
 
-> 版本: 2026-06-07 | 定位: 从当前架构到通用智能体的路线图
-> 当前状态: 179 tests | δS=0 唯一生成原理 | 71 定律 11 领域 | 11 透镜 | 自主循环(0 token) 
-> 几何化: mass → interference 完整链 | QM↔GR 五条桥 | arXiv 摄入管线
+> 版本: 2026-06-10 | 定位: 从当前架构到通用智能体的路线图
+> 当前状态: 179 tests | δS=0 唯一生成原理 | 79 定律 11 领域 | 11 透镜 | 自主循环(0 token)
+> 28 auto-laws | 55 跨域类比 | 图嵌入学习 | 耗散统一 | Noether 身份
+> LLM桥接(ask) | 数据管道(data) | arXiv摄入(ingest) | 可视化(viz) | 持久记忆(memory)
 
 ---
 
@@ -22,6 +23,16 @@ arXiv摄入  搜索+阅读+LLM提取 ✅   paper 命令
 群论分类   SU(2)/U(1)/SO(3)/SO(3,1)/Discrete ✅
 几何化     mass→interference 12变量链 ✅
 QM↔GR桥   Hawking+ER_EPR+LQG+AdS/CFT+PathIntegral ✅
+研究循环v2 惊喜检测+优先级+鲁棒性+留一法+归档 ✅
+因果链类比 图嵌入55条跨域共鸣 ✅
+学习优化   11对正样本训练特征权重 ✅
+耗散统一   动能/相位/信息→entropy同一骨架 ✅
+LLM桥接    DeepSeek API → ask 命令 ✅
+数据管道   data <csv> → 因果发现+定律比对 ✅
+arXiv摄入  ingest <topic> → 断言提取 ✅
+可视化     ASCII驱动面板+类比图+因果链 ✅
+持久记忆   发现归档+跨session检索 ✅
+物理学家    Noether (诺特) — δS=0 的守护者 ✅
 ```
 仿真环境   7 环境 ✅         pendulum/collision/circuit/spring/faraday/snell/doppler
 ```
