@@ -53,38 +53,27 @@ def _chain_profile(chain: List[Dict]) -> Dict:
 
 
 def _chain_similarity(pa: Dict, pb: Dict) -> float:
-    """计算两条因果链的结构相似度 (0-1)"""
-    score = 0.0
-
-    # 长度接近 (0-0.3)
-    len_diff = abs(pa["length"] - pb["length"])
-    if len_diff == 0:
-        score += 0.3
-    elif len_diff == 1:
-        score += 0.2
-    elif len_diff <= 2:
-        score += 0.1
-
-    # 深度接近 (0-0.2)
-    dep_diff = abs(pa["depth"] - pb["depth"])
-    if dep_diff <= 1:
-        score += 0.2
-    elif dep_diff <= 2:
-        score += 0.1
-
-    # 终点类型重叠 (0-0.3)
-    shared_types = pa["end_types"] & pb["end_types"]
-    if shared_types:
-        score += 0.3 * len(shared_types) / max(len(pa["end_types"] | pb["end_types"]), 1)
-
-    # 跨域加分 (0-0.2)
-    domain_overlap = pa["domains"] & pb["domains"]
-    if not domain_overlap:
-        score += 0.2  # 完全跨域, 最有趣
-    elif len(domain_overlap) <= 1:
-        score += 0.1
-
-    return min(score, 1.0)
+    """计算两条因果链的结构相似度 (图嵌入版)"""
+    try:
+        from creative.graph_features import analogy_similarity
+        # 用图嵌入计算 — 从因果图拓扑学到的相似度
+        sim = analogy_similarity(pa.get("start_var", ""), pb.get("start_var", ""))
+        return sim
+    except Exception:
+        # 回退: 终点类型快速匹配
+        score = 0.0
+        len_diff = abs(pa["length"] - pb["length"])
+        if len_diff == 0:
+            score += 0.3
+        elif len_diff <= 1:
+            score += 0.2
+        shared_types = pa["end_types"] & pb["end_types"]
+        if shared_types:
+            score += 0.3 * len(shared_types) / max(len(pa["end_types"] | pb["end_types"]), 1)
+        domain_overlap = pa["domains"] & pb["domains"]
+        if not domain_overlap:
+            score += 0.2
+        return min(score, 1.0)
 
 
 def _extract_path_variables(chain: List[Dict]) -> List[str]:
