@@ -1057,6 +1057,21 @@ def run_interactive():
                 print(talk_report())
                 continue
 
+            if cmd == "viz":
+                from meta_cognition.viz import viz_report
+                print(viz_report())
+                continue
+
+            if cmd == "learn":
+                from creative.learn_optimizer import train_and_report
+                print(train_and_report())
+                continue
+
+            if cmd == "memory":
+                from meta_cognition.memory import memory_report
+                print(memory_report())
+                continue
+
             if cmd == "analogy":
                 from creative.causal_analogy import analogy_report
                 print(analogy_report())

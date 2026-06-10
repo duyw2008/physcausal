@@ -413,6 +413,14 @@ def execute_all_cross_validations() -> str:
         from data_paths import save_cv_summary
         save_cv_summary(report)
         mark_completed(suggestion)
+        # 持久记忆
+        try:
+            from meta_cognition.memory import remember
+            verdict = report.get("verdict_cn", "?")[:60]
+            remember("cross_validation", f"{name} @ {domain}: {verdict}",
+                     ["cv", domain])
+        except Exception:
+            pass
 
         converged = report.get("convergence_preserved")
         q_involved = report.get("quantum_involved", False)

@@ -141,6 +141,15 @@ class InternalState:
         self.energy = min(1.0, self.energy + 0.3)
         # 睡眠时巩固: 将今天的发现与已有知识对比
         discovery.scan()  # 更新结构联想
+        # 持久记忆: 保存最近的发现
+        try:
+            from meta_cognition.memory import consolidate_memory, remember
+            consolidate_memory()
+            if self.total_discoveries > 0:
+                remember("session", f"Noether ran {self.thought_count} thoughts, found {self.total_discoveries} discoveries",
+                         ["autonomous", "rest"])
+        except Exception:
+            pass
 
     def summary(self) -> str:
         top_domains = sorted(
