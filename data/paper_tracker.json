@@ -1,0 +1,336 @@
+{
+  "papers": [
+    {
+      "arxiv_id": "2401.12345",
+      "title": "Master Equation Decoherence",
+      "claims_count": 1,
+      "ingested_at": 1781097217.8096297
+    },
+    {
+      "arxiv_id": "2401.12346",
+      "title": "Quantum Jumps from Engineered Coupling",
+      "claims_count": 1,
+      "ingested_at": 1781097217.8100753
+    },
+    {
+      "arxiv_id": "2401.12347",
+      "title": "Decoherence from Engineered Reservoir",
+      "claims_count": 1,
+      "ingested_at": 1781097217.810465
+    },
+    {
+      "arxiv_id": "2301.12348",
+      "title": "Landauer Principle",
+      "claims_count": 1,
+      "ingested_at": 1781097217.811759
+    },
+    {
+      "arxiv_id": "2301.12349",
+      "title": "Mass-Information Equivalence",
+      "claims_count": 1,
+      "ingested_at": 1781097217.8122838
+    },
+    {
+      "arxiv_id": "2301.12350",
+      "title": "Tsallis Landauer",
+      "claims_count": 1,
+      "ingested_at": 1781097217.812829
+    },
+    {
+      "arxiv_id": "2301.12351",
+      "title": "Tsallis Mass-Energy",
+      "claims_count": 1,
+      "ingested_at": 1781097217.8135452
+    },
+    {
+      "arxiv_id": "2201.12352",
+      "title": "Entanglement Encodes Geometry (LQG)",
+      "claims_count": 1,
+      "ingested_at": 1781097217.8142815
+    },
+    {
+      "arxiv_id": "2201.12353",
+      "title": "Entanglement Reconstructs Geometry",
+      "claims_count": 1,
+      "ingested_at": 1781097217.8150368
+    },
+    {
+      "arxiv_id": "2201.12354",
+      "title": "Statistical Universality",
+      "claims_count": 1,
+      "ingested_at": 1781097217.8158436
+    }
+  ],
+  "claims": [
+    {
+      "arxiv_id": "2401.12345",
+      "title": "Master Equation Decoherence",
+      "authors": [
+        "Unknown"
+      ],
+      "published": false,
+      "citations": 0,
+      "ingested_at": 1781097217.8096275,
+      "claim": {
+        "name": "Master Equation Decoherence",
+        "domain": "quantum",
+        "inputs": [
+          "system_reservoir_coupling"
+        ],
+        "outputs": [
+          "decoherence_dynamics"
+        ],
+        "causal_direction": [
+          [
+            "system_reservoir_coupling",
+            "decoherence_dynamics"
+          ]
+        ]
+      },
+      "trust_tier": 3
+    },
+    {
+      "arxiv_id": "2401.12346",
+      "title": "Quantum Jumps from Engineered Coupling",
+      "authors": [
+        "Unknown"
+      ],
+      "published": false,
+      "citations": 0,
+      "ingested_at": 1781097217.8100734,
+      "claim": {
+        "name": "Quantum Jumps from Engineered Coupling",
+        "domain": "quantum",
+        "inputs": [
+          "engineered_coupling"
+        ],
+        "outputs": [
+          "quantum_jumps"
+        ],
+        "causal_direction": [
+          [
+            "engineered_coupling",
+            "quantum_jumps"
+          ]
+        ]
+      },
+      "trust_tier": 3
+    },
+    {
+      "arxiv_id": "2401.12347",
+      "title": "Decoherence from Engineered Reservoir",
+      "authors": [
+        "Unknown"
+      ],
+      "published": false,
+      "citations": 0,
+      "ingested_at": 1781097217.8104637,
+      "claim": {
+        "name": "Decoherence from Engineered Reservoir",
+        "domain": "quantum",
+        "inputs": [
+          "coupling_to_reservoir"
+        ],
+        "outputs": [
+          "loss_of_coherence"
+        ],
+        "causal_direction": [
+          [
+            "coupling_to_reservoir",
+            "loss_of_coherence"
+          ]
+        ]
+      },
+      "trust_tier": 3
+    },
+    {
+      "arxiv_id": "2301.12348",
+      "title": "Landauer Principle",
+      "authors": [
+        "Unknown"
+      ],
+      "published": false,
+      "citations": 0,
+      "ingested_at": 1781097217.811758,
+      "claim": {
+        "name": "Landauer Principle",
+        "domain": "quantum",
+        "inputs": [
+          "information_erasure"
+        ],
+        "outputs": [
+          "heat_dissipation"
+        ],
+        "causal_direction": [
+          [
+            "information_erasure",
+            "heat_dissipation"
+          ]
+        ]
+      },
+      "trust_tier": 3
+    },
+    {
+      "arxiv_id": "2301.12349",
+      "title": "Mass-Information Equivalence",
+      "authors": [
+        "Unknown"
+      ],
+      "published": false,
+      "citations": 0,
+      "ingested_at": 1781097217.8122823,
+      "claim": {
+        "name": "Mass-Information Equivalence",
+        "domain": "quantum",
+        "inputs": [
+          "information_content"
+        ],
+        "outputs": [
+          "mass"
+        ],
+        "causal_direction": [
+          [
+            "information_content",
+            "mass"
+          ]
+        ]
+      },
+      "trust_tier": 3
+    },
+    {
+      "arxiv_id": "2301.12350",
+      "title": "Tsallis Landauer",
+      "authors": [
+        "Unknown"
+      ],
+      "published": false,
+      "citations": 0,
+      "ingested_at": 1781097217.8128276,
+      "claim": {
+        "name": "Tsallis Landauer",
+        "domain": "quantum",
+        "inputs": [
+          "one_bit_erasure"
+        ],
+        "outputs": [
+          "dissipated_energy"
+        ],
+        "causal_direction": [
+          [
+            "one_bit_erasure",
+            "dissipated_energy"
+          ]
+        ]
+      },
+      "trust_tier": 3
+    },
+    {
+      "arxiv_id": "2301.12351",
+      "title": "Tsallis Mass-Energy",
+      "authors": [
+        "Unknown"
+      ],
+      "published": false,
+      "citations": 0,
+      "ingested_at": 1781097217.8135443,
+      "claim": {
+        "name": "Tsallis Mass-Energy",
+        "domain": "quantum",
+        "inputs": [
+          "one_bit_info"
+        ],
+        "outputs": [
+          "mass_of_bit"
+        ],
+        "causal_direction": [
+          [
+            "one_bit_info",
+            "mass_of_bit"
+          ]
+        ]
+      },
+      "trust_tier": 3
+    },
+    {
+      "arxiv_id": "2201.12352",
+      "title": "Entanglement Encodes Geometry (LQG)",
+      "authors": [
+        "Unknown"
+      ],
+      "published": false,
+      "citations": 0,
+      "ingested_at": 1781097217.8142805,
+      "claim": {
+        "name": "Entanglement Encodes Geometry (LQG)",
+        "domain": "quantum",
+        "inputs": [
+          "entanglement"
+        ],
+        "outputs": [
+          "quantum_geometry"
+        ],
+        "causal_direction": [
+          [
+            "entanglement",
+            "quantum_geometry"
+          ]
+        ]
+      },
+      "trust_tier": 3
+    },
+    {
+      "arxiv_id": "2201.12353",
+      "title": "Entanglement Reconstructs Geometry",
+      "authors": [
+        "Unknown"
+      ],
+      "published": false,
+      "citations": 0,
+      "ingested_at": 1781097217.8150356,
+      "claim": {
+        "name": "Entanglement Reconstructs Geometry",
+        "domain": "quantum",
+        "inputs": [
+          "entanglement_network"
+        ],
+        "outputs": [
+          "quantum_geometry"
+        ],
+        "causal_direction": [
+          [
+            "entanglement_network",
+            "quantum_geometry"
+          ]
+        ]
+      },
+      "trust_tier": 3
+    },
+    {
+      "arxiv_id": "2201.12354",
+      "title": "Statistical Universality",
+      "authors": [
+        "Unknown"
+      ],
+      "published": false,
+      "citations": 0,
+      "ingested_at": 1781097217.8158426,
+      "claim": {
+        "name": "Statistical Universality",
+        "domain": "quantum",
+        "inputs": [
+          "random_ensemble"
+        ],
+        "outputs": [
+          "universal_behavior"
+        ],
+        "causal_direction": [
+          [
+            "random_ensemble",
+            "universal_behavior"
+          ]
+        ]
+      },
+      "trust_tier": 3
+    }
+  ]
+}

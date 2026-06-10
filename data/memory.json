@@ -11,5 +11,15 @@
       "landauer",
       "entanglement"
     ]
+  },
+  {
+    "time": 1781097217.8165905,
+    "date": "2026-06-10 21:13",
+    "category": "ingest",
+    "content": "10 arXiv claims tracked with trust tiers",
+    "tags": [
+      "arxiv",
+      "trust"
+    ]
   }
 ]
