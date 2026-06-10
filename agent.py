@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python3
 """
 PhysCausal Agent — 物理为骨 · 因果为肌 · 感知为眼

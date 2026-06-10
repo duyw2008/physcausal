@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Noether — PhysCausal 物理学家
 
