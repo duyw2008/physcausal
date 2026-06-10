@@ -693,7 +693,8 @@ def _parse_options(rest, n_min, n_max=99):
 def run_interactive():
     agent = PhysCausalAgent()
     print(bold("=" * 60))
-    print(bold("  PhysCausal Agent — 物理为骨 · 因果为肌 · 感知为眼"))
+    from meta_cognition.identity import NAME, NAME_CN
+    print(bold(f"  PhysCausal Agent — {NAME} ({NAME_CN}) · δS=0 的守护者"))
     print(bold("  v0.3.11  |  Type 'help' for commands, 'quit' to exit"))
     print(bold("=" * 60))
 

@@ -215,22 +215,38 @@ def compare_analogies(n_pairs: int = 10) -> str:
     对比手工相似度 vs 图嵌入相似度
 
     用于评估混合路线的第一步效果。
+    注意: 这是可选工具, 不导入 causal_analogy 避免循环依赖。
+    直接使用 graph_features 自己的相似度。
     """
-    from creative.causal_analogy import find_causal_analogies
+    # 延迟导入避免循环
+    from inference.counterfactual_chain import propagate
+    from physics.laws import library, classify_variable
+    
+    # 直接用 graph_features 的嵌入计算类比
+    features = extract_graph_features()
+    
+    # 选一些跨域变量对
+    start_vars = []
+    for law in library.list_all():
+        for v in law.inputs:
+            cat = classify_variable(v)
+            if cat in ("fundamental", "geometric", "quantum"):
+                start_vars.append(v)
+    start_vars = list(set(start_vars))[:n_pairs]
+    
+    # 计算 pairwise 相似度
+    pairs = []
+    for i, va in enumerate(start_vars):
+        for vb in start_vars[i+1:]:
+            sim = analogy_similarity(va, vb)
+            if sim >= 0.5:
+                pairs.append((va, vb, sim))
+    pairs.sort(key=lambda x: x[2], reverse=True)
 
-    print("=== 类比相似度对比: 手工 vs 图嵌入 ===\n")
+    print("=== 图嵌入类比发现 (纯图拓扑) ===\n")
 
-    analogies = find_causal_analogies(max_chains=n_pairs, min_similarity=0.4)
-
-    for i, a in enumerate(analogies[:8]):
-        va = a["chain_a_start"]
-        vb = a["chain_b_start"]
-        manual_sim = a["similarity"]
-        embed_sim = analogy_similarity(va, vb)
-
-        agree = "✓" if abs(manual_sim - embed_sim) < 0.3 else "?" if abs(manual_sim - embed_sim) < 0.5 else "✗"
-        print(f"  {i+1}. {va} ↔ {vb}")
-        print(f"     手工: {manual_sim:.0%}  嵌入: {embed_sim:.0%}  {agree}")
+    for i, (va, vb, sim) in enumerate(pairs[:8]):
+        print(f"  {i+1}. {va} ↔ {vb}: {sim:.0%}")
         print()
 
     return ""

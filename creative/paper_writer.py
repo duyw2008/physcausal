@@ -21,26 +21,9 @@ from collections import defaultdict
 
 
 def _load_cross_validation_reports() -> List[Dict]:
-    """加载交叉验证汇总 (单一文件, 不是散落的 JSON)"""
-    from data_paths import cv_summary_path; cv_path = cv_summary_path()
-    try:
-        with open(cv_path) as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return []
-
-
-def _save_cv_summary(report: Dict):
-    """追加一条交叉验证结果到汇总文件"""
-    from data_paths import cv_summary_path; cv_path = cv_summary_path()
-    existing = _load_cross_validation_reports()
-    # 去重: 同(discovery, domain)只保留最新
-    key = (report.get("discovery", ""), report.get("target_domain", ""))
-    existing = [r for r in existing
-                if (r.get("discovery", ""), r.get("target_domain", "")) != key]
-    existing.append(report)
-    with open(cv_path, "w") as f:
-        json.dump(existing, f, ensure_ascii=False, indent=2)
+    """加载交叉验证汇总"""
+    from data_paths import load_cv_summary
+    return load_cv_summary()
 
 
 def _load_discoveries() -> List[Dict]:

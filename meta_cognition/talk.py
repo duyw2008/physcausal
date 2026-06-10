@@ -48,8 +48,8 @@ def _state_snapshot() -> Dict:
 def _cv_summary() -> Dict:
     """交叉验证汇总"""
     try:
-        from creative.paper_writer import _load_cross_validation_reports
-        reports = _load_cross_validation_reports()
+        from data_paths import load_cv_summary
+        reports = load_cv_summary()
         passed = sum(1 for r in reports if r.get("convergence_preserved") is True)
         broken = sum(1 for r in reports if r.get("convergence_preserved") is False)
         return {"total": len(reports), "passed": passed, "broken": broken}
@@ -158,5 +158,6 @@ def physicist_talk() -> str:
 
 def talk_report() -> str:
     """格式化的发言报告"""
+    from meta_cognition.identity import NAME
     talk = physicist_talk()
-    return f"\n💬 物理学家说:\n\n  {talk}\n"
+    return f"\n💬 {NAME}:\n\n  {talk}\n"

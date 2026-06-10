@@ -244,8 +244,8 @@ def execute_top_suggestion() -> str:
         lines.append(format_cross_validation_report(report))
 
         # 保存到汇总 (单一文件)
-        from creative.paper_writer import _save_cv_summary
-        _save_cv_summary(report)
+        from data_paths import save_cv_summary
+        save_cv_summary(report)
         # 标记完成
         from meta_cognition.what_next import mark_completed
         mark_completed(top)
@@ -410,8 +410,8 @@ def execute_all_cross_validations() -> str:
         verdict = report.get("verdict_cn", "?")[:80]
 
         # 保存汇总 + 标记完成
-        from creative.paper_writer import _save_cv_summary
-        _save_cv_summary(report)
+        from data_paths import save_cv_summary
+        save_cv_summary(report)
         mark_completed(suggestion)
 
         converged = report.get("convergence_preserved")
