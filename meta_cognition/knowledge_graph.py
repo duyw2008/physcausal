@@ -149,23 +149,33 @@ class KnowledgeGraph:
         dfs(node_id, [node_id], 1)
         return paths
 
-    def connect(self, node_a: str, node_b: str, max_depth: int = 3) -> List[List[str]]:
-        """查找两个节点之间的所有路径"""
+    def connect(self, node_a: str, node_b: str, max_depth: int = 6) -> List[List[str]]:
+        """查找两个节点之间的所有路径 (BFS 跨类型)"""
+        adj = {}
+        for src, dst, _ in self.edges:
+            adj.setdefault(src, set()).add(dst)
+            adj.setdefault(dst, set()).add(src)
+
+        if node_a not in adj or node_b not in adj:
+            return []
+
+        # BFS 找最短路径 (双向)
+        from collections import deque
+        queue = deque([(node_a, [node_a])])
+        visited = {node_a}
         paths = []
 
-        def dfs(current, path, depth):
-            if depth > max_depth:
-                return
-            if current == node_b and len(path) > 1:
-                paths.append(path[:])
-                return
-            for src, dst, _ in self.edges:
-                if src == current and dst not in path:
-                    dfs(dst, path + [dst], depth + 1)
-                if dst == current and src not in path:  # 也走反向
-                    dfs(src, path + [src], depth + 1)
+        while queue and len(paths) < 20:
+            current, path = queue.popleft()
+            if len(path) > max_depth:
+                continue
+            for neighbor in adj.get(current, set()):
+                if neighbor == node_b:
+                    paths.append(path + [node_b])
+                elif neighbor not in visited and len(path) < max_depth:
+                    visited.add(neighbor)
+                    queue.append((neighbor, path + [neighbor]))
 
-        dfs(node_a, [node_a], 1)
         return paths
 
     # ── 层5: 矛盾检测 ──
