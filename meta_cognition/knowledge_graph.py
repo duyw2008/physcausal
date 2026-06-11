@@ -227,6 +227,145 @@ class KnowledgeGraph:
 
         return contradictions
 
+    # ── 层6: 概念涌现 — 变量聚类 ──
+
+    def emerge_concepts(self, min_cooccur: int = 2) -> List[Dict]:
+        """从变量共现中涌现概念簇"""
+        from collections import defaultdict
+
+        # 统计变量在定律中的共现
+        cooccur = defaultdict(set)
+        var_laws = defaultdict(set)
+
+        for nid, nd in self.nodes.items():
+            if nd["type"] == "law":
+                law_inputs = nd["data"].get("inputs", [])
+                law_outputs = nd["data"].get("outputs", [])
+                all_vars = law_inputs + law_outputs
+                for v in all_vars:
+                    var_laws[v].add(nid)
+                for i, v1 in enumerate(all_vars):
+                    for v2 in all_vars[i+1:]:
+                        cooccur[frozenset([v1, v2])].add(nid)
+
+        # 统计类比中共现
+        for src, dst, etype in self.edges:
+            if etype == "analogous_to":
+                v1 = src.replace("var:", "")
+                v2 = dst.replace("var:", "")
+                cooccur[frozenset([v1, v2])].add("analogy")
+
+        # 构建图: 变量 → 变量 (共现边)
+        edges = []
+        for pair, sources in cooccur.items():
+            vs = list(pair)
+            if len(vs) == 2 and len(sources) >= min_cooccur:
+                edges.append((vs[0], vs[1], len(sources)))
+
+        # 联通分量聚类
+        adj = defaultdict(set)
+        for v1, v2, w in edges:
+            adj[v1].add(v2)
+            adj[v2].add(v1)
+
+        visited = set()
+        clusters = []
+        for v in adj:
+            if v not in visited:
+                component = set()
+                stack = [v]
+                while stack:
+                    node = stack.pop()
+                    if node not in visited:
+                        visited.add(node)
+                        component.add(node)
+                        stack.extend(adj[node] - visited)
+                if len(component) >= 3:
+                    clusters.append(sorted(component))
+
+        # 自动命名
+        named = []
+        for i, cluster in enumerate(clusters):
+            # 找簇中出现频率最高的域
+            domains = defaultdict(int)
+            for v in cluster:
+                for nid, nd in self.nodes.items():
+                    if nd["type"] == "variable" and nd["data"].get("name") == v:
+                        pass
+                # 搜索变量所属定律的域
+                for nid, nd in self.nodes.items():
+                    if nd["type"] == "law":
+                        all_vars = nd["data"].get("inputs", []) + nd["data"].get("outputs", [])
+                        if v in all_vars:
+                            domains[nd["data"].get("domain", "?")] += 1
+
+            top_domain = max(domains, key=domains.get) if domains else "unknown"
+
+            # 簇的核心变量 (共现最多的)
+            core = sorted(cluster, key=lambda x: len(var_laws.get(x, set())), reverse=True)[:3]
+
+            named.append({
+                "name": f"概念{i+1}: {', '.join(core)}",
+                "domain": top_domain,
+                "variables": cluster,
+                "size": len(cluster),
+                "core": core,
+            })
+
+        return named
+
+    # ── 层7: 溯源 — tier 升级路径 ──
+
+    def trace_tier(self, law_name: str) -> Dict:
+        """回溯一条定律的置信层级证据链"""
+        law_id = f"law:{law_name}"
+        law_node = self.get_node(law_id)
+        if not law_node:
+            return {"error": f"定律 {law_name} 不存在"}
+
+        tier = law_node["data"].get("tier", "?")
+        note = law_node["data"].get("note", "")
+
+        # 交叉验证证据
+        cv_evidence = []
+        for src, dst, etype in self.edges:
+            if etype == "validated_in" and src == law_id:
+                cv_node = self.get_node(dst)
+                if cv_node:
+                    cv_evidence.append({
+                        "domain": cv_node["data"].get("domain", "?"),
+                        "passed": cv_node["data"].get("passed", False),
+                    })
+
+        # 论文证据
+        paper_evidence = []
+        for src, dst, etype in self.edges:
+            if etype == "discovered_in" and dst == law_id:
+                paper_node = self.get_node(src)
+                if paper_node:
+                    paper_evidence.append(paper_node["data"].get("title", "")[:80])
+
+        # 类比支持
+        analogy_count = 0
+        for src, dst, etype in self.edges:
+            if etype == "analogous_to":
+                v1 = src.replace("var:", "")
+                v2 = dst.replace("var:", "")
+                inputs = law_node["data"].get("inputs", [])
+                outputs = law_node["data"].get("outputs", [])
+                if v1 in inputs + outputs or v2 in inputs + outputs:
+                    analogy_count += 1
+
+        return {
+            "law": law_name,
+            "tier": tier,
+            "note": note[:120] if note else "",
+            "cross_validations": cv_evidence,
+            "papers": paper_evidence,
+            "analogy_support": analogy_count,
+            "upgrade_path": f"tier {tier} ← {len(cv_evidence)} CVs + {len(paper_evidence)} papers + {analogy_count} analogies",
+        }
+
 
 # ── 全局单例 ──
 

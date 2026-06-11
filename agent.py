@@ -1039,7 +1039,34 @@ def run_interactive():
 
             if cmd == "kg":
                 from meta_cognition.kg_migration import kg_stats_report, kg_query
-                if rest == "contra":
+                if rest == "concept":
+                    from meta_cognition.knowledge_graph import kg
+                    concepts = kg.emerge_concepts()
+                    print(f"═══ 概念涌现 ({len(concepts)} 个簇) ═══")
+                    for c in concepts:
+                        print(f"  [{c['domain']}] {c['name']} ({c['size']} vars)")
+                        print(f"    核心: {', '.join(c['core'])}")
+                elif rest.startswith("trace "):
+                    from meta_cognition.knowledge_graph import kg
+                    law_name = rest[6:]
+                    result = kg.trace_tier(law_name)
+                    if "error" in result:
+                        print(result["error"])
+                    else:
+                        print(f"═══ {law_name} 溯源 ═══")
+                        print(f"  层级: tier {result['tier']}")
+                        print(f"  路径: {result['upgrade_path']}")
+                        if result['cross_validations']:
+                            print(f"  验证: {len(result['cross_validations'])} 次")
+                            for cv in result['cross_validations']:
+                                icon = "✓" if cv['passed'] else "✗"
+                                print(f"    {icon} {cv['domain']}")
+                        if result['papers']:
+                            print(f"  论文: {len(result['papers'])} 篇")
+                            for p in result['papers']:
+                                print(f"    · {p}")
+                        print(f"  类比: {result['analogy_support']} 条")
+                elif rest == "contra":
                     from meta_cognition.knowledge_graph import kg
                     contras = kg.detect_contradictions()
                     if contras:
