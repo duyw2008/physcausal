@@ -1113,5 +1113,24 @@
     ],
     "confidence_tier": 3,
     "_discovery_note": "[arXiv] Entanglement dynamics in hybrid quantum circuits"
+  },
+  {
+    "name": "Noether's theorem",
+    "domain": "mechanics",
+    "latex": "",
+    "inputs": [
+      "symmetry"
+    ],
+    "outputs": [
+      "conservation_law"
+    ],
+    "causal_direction": [
+      [
+        "symmetry",
+        "conservation_law"
+      ]
+    ],
+    "confidence_tier": 3,
+    "_discovery_note": "[arXiv] ?"
   }
 ]

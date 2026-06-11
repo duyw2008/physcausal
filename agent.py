@@ -751,11 +751,11 @@ def run_interactive():
                 if any(w in rest.lower() for w in ["诺特", "noether"]):
                     rest = rest.replace("诺特", "").replace("noether", "").replace("Noether", "").strip(" ,，")
 
-                # 自然语言知识网络查询 (优先, 不走 LLM)
-                from meta_cognition.nl_router import execute_nl_query
-                kg_result = execute_nl_query(rest)
-                if kg_result:
-                    print(kg_result)
+                # 自然语言路由 (优先, 不走 LLM) — 覆盖所有命令
+                from meta_cognition.agent_router import execute_agent_command
+                cmd_result = execute_agent_command(rest)
+                if cmd_result:
+                    print(cmd_result)
                     continue
 
                 # LLM 路径
