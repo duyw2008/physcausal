@@ -746,6 +746,13 @@ def run_interactive():
                     print(f"\n💬 {NAME}: 你好。我是 {NAME} ({NAME_CN})，PhysCausal 的物理学家。δS=0 的守护者，因果图里的共振探测器。\n")
                     print(talk_report())
                     continue
+                # 自然语言知识网络查询 (优先, 不走 LLM)
+                from meta_cognition.nl_router import execute_nl_query
+                kg_result = execute_nl_query(rest)
+                if kg_result:
+                    print(kg_result)
+                    continue
+
                 # LLM 路径
                 from meta_cognition.identity import NAME
                 llm_available = agent.llm.is_available() if hasattr(agent, 'llm') else False
