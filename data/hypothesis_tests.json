@@ -1,0 +1,18 @@
+{
+  "Convergence_geodesic_path": {
+    "discovery": "Convergence_geodesic_path",
+    "bayes_factor": 2.85,
+    "log_bf": 1.05,
+    "verdict": "maintain",
+    "tier_delta": 0,
+    "evidence": {
+      "chain_score": 0.5,
+      "cv_passed": "2/2",
+      "cv_score": 1.0,
+      "analogy_support": 0,
+      "forbidden": 0.5
+    },
+    "aggregated_score": 0.55,
+    "recommendation": "需更多交叉验证 (当前 n<3)"
+  }
+}

@@ -1047,6 +1047,11 @@ def run_interactive():
                 print(paper_trust_report())
                 continue
 
+            if cmd == "hypothesis":
+                from inference.hypothesis_test import hypothesis_report
+                print(hypothesis_report())
+                continue
+
             if cmd == "experiment":
                 from meta_cognition.experiment_design import experiment_plan_report
                 print(experiment_plan_report())

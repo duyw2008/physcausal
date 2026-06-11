@@ -654,9 +654,18 @@ class AutonomousAgent:
                                 result["tiered_validation"] = score
                                 result["tiered_convergences"] = [c["variable"] for c in convs]
 
-                            # ── 升级检查: 连续高分 → 提升置信层级 ──
-                            if score >= 0.7:
-                                self._maybe_upgrade_tier(blocked, score)
+                            # ── 形式化假设检验 ──
+                            if score >= 0.5:
+                                try:
+                                    from inference.hypothesis_test import test_hypothesis
+                                    for b in blocked:
+                                        bname = str(b).split(":")[0] if ":" in str(b) else str(b)
+                                        result = test_hypothesis(bname)
+                                        if result["verdict"] == "upgrade" and result["bayes_factor"] > 3:
+                                            self._maybe_upgrade_tier(blocked, result["aggregated_score"])
+                                except Exception:
+                                    if score >= 0.7:
+                                        self._maybe_upgrade_tier(blocked, score)
                     else:
                         all_failed_vars.append(var)
 
