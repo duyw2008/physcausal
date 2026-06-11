@@ -169,7 +169,21 @@ def parse_agent_command(text: str) -> Optional[Tuple]:
     # 回退到知识网络查询
     kg_result = parse_nl_query(text)
     if kg_result:
-        return ("kg", kg_result)
+        cmd = kg_result[0]
+        # 概念问题 → 不返KG, 交给LLM
+        concept_words = ["最大", "最小", "原理", "定义", "区别", "本质", "为什么"]
+        if cmd == "query" and any(w in text for w in concept_words):
+            return None  # fall to LLM
+        # 短查询 (<3字) → KG
+        if len(text) <= 6:
+            return ("kg", kg_result)
+        # 连接查询 → 只有找到2个变量才返KG
+        if cmd == "connect" and len(kg_result) >= 3:
+            return ("kg", kg_result)
+        if cmd in ("upstream", "downstream", "concept", "contra", "trace"):
+            return ("kg", kg_result)
+        # 其余 → LLM 更好
+        return None
     
     return None
 
