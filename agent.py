@@ -1049,6 +1049,11 @@ def run_interactive():
                     print(discover_from_data(path, target))
                 continue
 
+            if cmd == "kgviz":
+                from meta_cognition.kg_viz import open_viz
+                print(open_viz())
+                continue
+
             if cmd == "kg":
                 from meta_cognition.kg_migration import kg_stats_report, kg_query
                 if rest == "concept":

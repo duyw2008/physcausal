@@ -15,28 +15,28 @@
         ],
         "note": "Promoted from tier 4 after 3 validations (score=0.82). Convergence of kinetic_energy and energy on geodesic_path confirmed consistent with axiom chain."
       },
-      "added": 1781181415.8322272
+      "added": 1781182654.0394175
     },
     "var:kinetic_energy": {
       "type": "variable",
       "data": {
         "name": "kinetic_energy"
       },
-      "added": 1781181415.8322334
+      "added": 1781182654.0394216
     },
     "var:energy": {
       "type": "variable",
       "data": {
         "name": "energy"
       },
-      "added": 1781181415.8322492
+      "added": 1781182654.0394385
     },
     "var:geodesic_path": {
       "type": "variable",
       "data": {
         "name": "geodesic_path"
       },
-      "added": 1781181415.8322601
+      "added": 1781182654.0394497
     },
     "law:测地线方程": {
       "type": "law",
@@ -54,35 +54,35 @@
         ],
         "note": ""
       },
-      "added": 1781181415.832273
+      "added": 1781182654.0394616
     },
     "var:x^\\mu (坐标)": {
       "type": "variable",
       "data": {
         "name": "x^\\mu (坐标)"
       },
-      "added": 1781181415.8322756
+      "added": 1781182654.0394635
     },
     "var:\\lambda (仿射参数)": {
       "type": "variable",
       "data": {
         "name": "\\lambda (仿射参数)"
       },
-      "added": 1781181415.8322845
+      "added": 1781182654.039473
     },
     "var:\\Gamma^\\mu_{\\alpha \\beta} (克里斯托费尔符号)": {
       "type": "variable",
       "data": {
         "name": "\\Gamma^\\mu_{\\alpha \\beta} (克里斯托费尔符号)"
       },
-      "added": 1781181415.832293
+      "added": 1781182654.0394828
     },
     "var:测地线轨迹": {
       "type": "variable",
       "data": {
         "name": "测地线轨迹"
       },
-      "added": 1781181415.832302
+      "added": 1781182654.0394926
     },
     "law:牛顿第二定律": {
       "type": "law",
@@ -99,49 +99,49 @@
         ],
         "note": ""
       },
-      "added": 1781181415.8329341
+      "added": 1781182654.0401483
     },
     "var:m": {
       "type": "variable",
       "data": {
         "name": "m"
       },
-      "added": 1781181415.8323147
+      "added": 1781182654.0395045
     },
     "var:a": {
       "type": "variable",
       "data": {
         "name": "a"
       },
-      "added": 1781181415.832323
+      "added": 1781182654.0395143
     },
     "var:F": {
       "type": "variable",
       "data": {
         "name": "F"
       },
-      "added": 1781181415.8323314
+      "added": 1781182654.0395236
     },
     "var:质量 m": {
       "type": "variable",
       "data": {
         "name": "质量 m"
       },
-      "added": 1781181415.8329353
+      "added": 1781182654.040149
     },
     "var:加速度 a": {
       "type": "variable",
       "data": {
         "name": "加速度 a"
       },
-      "added": 1781181415.8323529
+      "added": 1781182654.0395458
     },
     "var:力 F": {
       "type": "variable",
       "data": {
         "name": "力 F"
       },
-      "added": 1781181415.8323615
+      "added": 1781182654.0395555
     },
     "law:未在给定定律": {
       "type": "law",
@@ -153,28 +153,28 @@
         "outputs": [],
         "note": ""
       },
-      "added": 1781181415.8323712
+      "added": 1781182654.0395658
     },
     "var:m (质量)": {
       "type": "variable",
       "data": {
         "name": "m (质量)"
       },
-      "added": 1781181415.8323753
+      "added": 1781182654.0395684
     },
     "var:a (加速度)": {
       "type": "variable",
       "data": {
         "name": "a (加速度)"
       },
-      "added": 1781181415.8323836
+      "added": 1781182654.0395863
     },
     "var:F (力)": {
       "type": "variable",
       "data": {
         "name": "F (力)"
       },
-      "added": 1781181415.8323925
+      "added": 1781182654.0395958
     },
     "law:等效原理": {
       "type": "law",
@@ -191,28 +191,28 @@
         ],
         "note": ""
       },
-      "added": 1781181415.832402
+      "added": 1781182654.039606
     },
     "var:惯性质量 m_i": {
       "type": "variable",
       "data": {
         "name": "惯性质量 m_i"
       },
-      "added": 1781181415.8324037
+      "added": 1781182654.039607
     },
     "var:引力质量 m_g": {
       "type": "variable",
       "data": {
         "name": "引力质量 m_g"
       },
-      "added": 1781181415.8324122
+      "added": 1781182654.0396168
     },
     "var:等效质量": {
       "type": "variable",
       "data": {
         "name": "等效质量"
       },
-      "added": 1781181415.8324208
+      "added": 1781182654.0396261
     },
     "law:不确定性原理": {
       "type": "law",
@@ -229,28 +229,28 @@
         ],
         "note": ""
       },
-      "added": 1781181415.8324301
+      "added": 1781182654.0396369
     },
     "var:位置不确定度Δx": {
       "type": "variable",
       "data": {
         "name": "位置不确定度Δx"
       },
-      "added": 1781181415.8324316
+      "added": 1781182654.0396376
     },
     "var:动量不确定度Δp": {
       "type": "variable",
       "data": {
         "name": "动量不确定度Δp"
       },
-      "added": 1781181415.8324404
+      "added": 1781182654.0396469
     },
     "var:乘积下限": {
       "type": "variable",
       "data": {
         "name": "乘积下限"
       },
-      "added": 1781181415.8324487
+      "added": 1781182654.0396564
     },
     "law:最小作用量原理": {
       "type": "law",
@@ -269,42 +269,42 @@
         ],
         "note": ""
       },
-      "added": 1781181415.8324585
+      "added": 1781182654.0396667
     },
     "var:拉格朗日量 L": {
       "type": "variable",
       "data": {
         "name": "拉格朗日量 L"
       },
-      "added": 1781181415.83246
+      "added": 1781182654.0396676
     },
     "var:广义坐标 q": {
       "type": "variable",
       "data": {
         "name": "广义坐标 q"
       },
-      "added": 1781181415.8324685
+      "added": 1781182654.0396774
     },
     "var:广义速度 \\dot{q}": {
       "type": "variable",
       "data": {
         "name": "广义速度 \\dot{q}"
       },
-      "added": 1781181415.832477
+      "added": 1781182654.0396895
     },
     "var:时间 t": {
       "type": "variable",
       "data": {
         "name": "时间 t"
       },
-      "added": 1781181415.832486
+      "added": 1781182654.0396996
     },
     "var:作用量 S 的变分为零": {
       "type": "variable",
       "data": {
         "name": "作用量 S 的变分为零"
       },
-      "added": 1781181415.8324943
+      "added": 1781182654.0397089
     },
     "law:ThermalDecoherence": {
       "type": "law",
@@ -320,21 +320,21 @@
         ],
         "note": "热退相干: 温度决定环境耦合强度。声子/光子热涨落 → 退相干速率 ∝ T。Landauer 和 Decoherence 之间的桥梁。"
       },
-      "added": 1781181415.8325045
+      "added": 1781182654.0397193
     },
     "var:temperature": {
       "type": "variable",
       "data": {
         "name": "temperature"
       },
-      "added": 1781181415.8336146
+      "added": 1781182654.0408053
     },
     "var:environment_coupling": {
       "type": "variable",
       "data": {
         "name": "environment_coupling"
       },
-      "added": 1781181415.8328507
+      "added": 1781182654.0400627
     },
     "law:DecoherenceEntropy": {
       "type": "law",
@@ -350,21 +350,21 @@
         ],
         "note": "退相干熵产生: 量子系统退相干 → 信息流入环境 → 熵增。von Neumann 熵 S = -Tr(ρ ln ρ), Landauer 原理的信息-熵等价。"
       },
-      "added": 1781181415.8325253
+      "added": 1781182654.039741
     },
     "var:mixed_state": {
       "type": "variable",
       "data": {
         "name": "mixed_state"
       },
-      "added": 1781181415.832814
+      "added": 1781182654.0400286
     },
     "var:entropy": {
       "type": "variable",
       "data": {
         "name": "entropy"
       },
-      "added": 1781181415.8328705
+      "added": 1781182654.0400832
     },
     "law:DecoherenceCollapse": {
       "type": "law",
@@ -380,14 +380,14 @@
         ],
         "note": "退相干-坍缩桥接: 混合态的纯度 Tr(ρ^2) 决定有效坍缩概率。这是量子达尔文主义/退相干程序的核心假设，但\"坍缩是否完全由退相干解释\"仍是开放问题。标记 tier 3。"
       },
-      "added": 1781181415.8325465
+      "added": 1781182654.0397618
     },
     "var:collapse_probability": {
       "type": "variable",
       "data": {
         "name": "collapse_probability"
       },
-      "added": 1781181415.8325572
+      "added": 1781182654.0397725
     },
     "law:ThermalSymmetryBreaking": {
       "type": "law",
@@ -403,14 +403,14 @@
         ],
         "note": "热力学对称破缺: 温度低于临界温度 → 对称性丢失。铁磁、超导、超流等相变的统一因果机制。"
       },
-      "added": 1781181415.8325667
+      "added": 1781182654.0397828
     },
     "var:broken_symmetry": {
       "type": "variable",
       "data": {
         "name": "broken_symmetry"
       },
-      "added": 1781181415.832638
+      "added": 1781182654.0398357
     },
     "law:ExternalSymmetryBreaking": {
       "type": "law",
@@ -426,14 +426,14 @@
         ],
         "note": "显式对称破缺: 外场/外扰动直接打破系统对称性。Zeeman效应、Stark效应的因果机制。"
       },
-      "added": 1781181415.8326035
+      "added": 1781182654.0398035
     },
     "var:external_perturbation": {
       "type": "variable",
       "data": {
         "name": "external_perturbation"
       },
-      "added": 1781181415.8326063
+      "added": 1781182654.0398045
     },
     "law:QuantumFluctuationSymmetryBreaking": {
       "type": "law",
@@ -449,14 +449,14 @@
         ],
         "note": "量子涨落触发对称破缺: 真空期待值 ≠ 0 来自量子涨落的随机触发。Higgs机制的核心。tier 3 因为哪个方向被挑中是随机的，不是确定性的因果——但触发机制本身是确定的。"
       },
-      "added": 1781181415.8326273
+      "added": 1781182654.0398247
     },
     "var:quantum_fluctuation": {
       "type": "variable",
       "data": {
         "name": "quantum_fluctuation"
       },
-      "added": 1781181415.8326287
+      "added": 1781182654.0398257
     },
     "law:DynamicPressure": {
       "type": "law",
@@ -472,21 +472,21 @@
         ],
         "note": "伯努利原理: 流速 → 动压。流体动力学的基本因果边。"
       },
-      "added": 1781181415.832648
+      "added": 1781182654.039846
     },
     "var:velocity": {
       "type": "variable",
       "data": {
         "name": "velocity"
       },
-      "added": 1781181415.8327641
+      "added": 1781182654.0399637
     },
     "var:dynamic_pressure": {
       "type": "variable",
       "data": {
         "name": "dynamic_pressure"
       },
-      "added": 1781181415.8326707
+      "added": 1781182654.039868
     },
     "law:DragForce": {
       "type": "law",
@@ -503,14 +503,14 @@
         ],
         "note": "阻力公式: 动压+速度 → 阻力。Rayleigh耗散的现象学基础。"
       },
-      "added": 1781181415.832669
+      "added": 1781182654.0398672
     },
     "var:drag_force": {
       "type": "variable",
       "data": {
         "name": "drag_force"
       },
-      "added": 1781181415.8327832
+      "added": 1781182654.0399852
     },
     "law:FrictionalEnergyLoss": {
       "type": "law",
@@ -526,14 +526,14 @@
         ],
         "note": "摩擦做功: 阻力 × 位移 → 动能损失。耗散的能量转化。"
       },
-      "added": 1781181415.832699
+      "added": 1781182654.0398986
     },
     "var:kinetic_energy_loss": {
       "type": "variable",
       "data": {
         "name": "kinetic_energy_loss"
       },
-      "added": 1781181415.8328388
+      "added": 1781182654.040051
     },
     "law:FrictionalHeating": {
       "type": "law",
@@ -549,7 +549,7 @@
         ],
         "note": "摩擦生热: 动能损失 → 热能 → 熵增。耗散的不可逆性来源。与DecoherenceEntropy同构: 都是子系统→环境的信息/能量逃逸。"
       },
-      "added": 1781181415.8327198
+      "added": 1781182654.0399199
     },
     "law:SubsystemEnergyTransfer": {
       "type": "law",
@@ -565,21 +565,21 @@
         ],
         "note": "子系统能量转移: 从子系统视角看耗散, 从全系统视角看守恒。δS=0对全系统成立, 子系统边界产生表观不可逆。与Decoherence的environment_coupling同构。"
       },
-      "added": 1781181415.832741
+      "added": 1781182654.0399415
     },
     "var:subsystem_boundary": {
       "type": "variable",
       "data": {
         "name": "subsystem_boundary"
       },
-      "added": 1781181415.8327737
+      "added": 1781182654.039975
     },
     "var:energy_transfer": {
       "type": "variable",
       "data": {
         "name": "energy_transfer"
       },
-      "added": 1781181415.8327522
+      "added": 1781182654.0399523
     },
     "law:BoundaryLayerDrag": {
       "type": "law",
@@ -596,7 +596,7 @@
         ],
         "note": "边界层摩擦: 速度+表面 → 壁面剪应力 → 阻力。流体边界层是经典耗散的核心机制。"
       },
-      "added": 1781181415.8327625
+      "added": 1781182654.0399628
     },
     "law:PhaseDecoherence": {
       "type": "law",
@@ -613,14 +613,14 @@
         ],
         "note": "相位退相干: 环境耦合首先破坏相位相干性 → 密度矩阵非对角元指数衰减 → 混合态。这是退相干的核心机制——相位信息的耗散。与经典耗散同构: phase_coherence ≈ kinetic_energy, environment_coupling ≈ drag_force。"
       },
-      "added": 1781181415.8327932
+      "added": 1781182654.039997
     },
     "var:phase_coherence": {
       "type": "variable",
       "data": {
         "name": "phase_coherence"
       },
-      "added": 1781181415.8328292
+      "added": 1781182654.0400407
     },
     "law:DissipationAnalogy": {
       "type": "law",
@@ -636,7 +636,7 @@
         ],
         "note": "耗散类比: 量子相位耗散 ↔ 经典动能耗散。两者都是子系统→环境的不可逆信息/能量逃逸。同一因果结构在两个尺度的投影。tier 3 因为是结构类比不是严格物理推导。"
       },
-      "added": 1781181415.8328273
+      "added": 1781182654.0400398
     },
     "law:InformationDissipation": {
       "type": "law",
@@ -653,14 +653,14 @@
         ],
         "note": "信息耗散: 环境耦合 → 子系统信息丢失 → 环境熵增。Landauer原理(信息擦除=熵增)和退相干(环境耦合→混合态)的统一表述。方向严格: 不是信息驱动耦合, 是耦合导致信息丢失。与动能耗散/相位耗散同构。"
       },
-      "added": 1781181415.8328493
+      "added": 1781182654.0400617
     },
     "var:information_loss": {
       "type": "variable",
       "data": {
         "name": "information_loss"
       },
-      "added": 1781181415.8328605
+      "added": 1781182654.040073
     },
     "law:诺特定理": {
       "type": "law",
@@ -678,119 +678,119 @@
         ],
         "note": ""
       },
-      "added": 1781181415.833019
+      "added": 1781182654.040235
     },
     "var:拉格朗日量L": {
       "type": "variable",
       "data": {
         "name": "拉格朗日量L"
       },
-      "added": 1781181415.832883
+      "added": 1781182654.0400953
     },
     "var:广义坐标q_i": {
       "type": "variable",
       "data": {
         "name": "广义坐标q_i"
       },
-      "added": 1781181415.8328934
+      "added": 1781182654.0401058
     },
     "var:广义速度\\dot{q}_i": {
       "type": "variable",
       "data": {
         "name": "广义速度\\dot{q}_i"
       },
-      "added": 1781181415.8329031
+      "added": 1781182654.040116
     },
     "var:连续对称变换": {
       "type": "variable",
       "data": {
         "name": "连续对称变换"
       },
-      "added": 1781181415.8329134
+      "added": 1781182654.0401268
     },
     "var:守恒量（如能量、动量、角动量）": {
       "type": "variable",
       "data": {
         "name": "守恒量（如能量、动量、角动量）"
       },
-      "added": 1781181415.8329234
+      "added": 1781182654.040137
     },
     "var:加速度 a 或力 F": {
       "type": "variable",
       "data": {
         "name": "加速度 a 或力 F"
       },
-      "added": 1781181415.8329444
+      "added": 1781182654.0401587
     },
     "var:力 F 或动量变化率 dp/dt": {
       "type": "variable",
       "data": {
         "name": "力 F 或动量变化率 dp/dt"
       },
-      "added": 1781181415.8329544
+      "added": 1781182654.0401692
     },
     "var:拉格朗日密度 L": {
       "type": "variable",
       "data": {
         "name": "拉格朗日密度 L"
       },
-      "added": 1781181415.8329675
+      "added": 1781182654.0401814
     },
     "var:场 φ": {
       "type": "variable",
       "data": {
         "name": "场 φ"
       },
-      "added": 1781181415.8329778
+      "added": 1781182654.040192
     },
     "var:无穷小变换参数": {
       "type": "variable",
       "data": {
         "name": "无穷小变换参数"
       },
-      "added": 1781181415.8329875
+      "added": 1781182654.0402024
     },
     "var:守恒流 J^μ": {
       "type": "variable",
       "data": {
         "name": "守恒流 J^μ"
       },
-      "added": 1781181415.8329976
+      "added": 1781182654.0402133
     },
     "var:守恒荷 Q": {
       "type": "variable",
       "data": {
         "name": "守恒荷 Q"
       },
-      "added": 1781181415.8330078
+      "added": 1781182654.0402238
     },
     "var:连续对称性": {
       "type": "variable",
       "data": {
         "name": "连续对称性"
       },
-      "added": 1781181415.8330202
+      "added": 1781182654.0402355
     },
     "var:拉格朗日量": {
       "type": "variable",
       "data": {
         "name": "拉格朗日量"
       },
-      "added": 1781181415.8330312
+      "added": 1781182654.040246
     },
     "var:守恒流": {
       "type": "variable",
       "data": {
         "name": "守恒流"
       },
-      "added": 1781181415.8330414
+      "added": 1781182654.0402567
     },
     "var:守恒荷": {
       "type": "variable",
       "data": {
         "name": "守恒荷"
       },
-      "added": 1781181415.8330517
+      "added": 1781182654.0402675
     },
     "law:Decoherence from system-environment entanglement": {
       "type": "law",
@@ -806,21 +806,21 @@
         ],
         "note": ""
       },
-      "added": 1781181415.8330631
+      "added": 1781182654.0402784
     },
     "var:system_environment_entanglement": {
       "type": "variable",
       "data": {
         "name": "system_environment_entanglement"
       },
-      "added": 1781181415.833065
+      "added": 1781182654.0402796
     },
     "var:non_markovian_decoherence_dynamics": {
       "type": "variable",
       "data": {
         "name": "non_markovian_decoherence_dynamics"
       },
-      "added": 1781181415.8330755
+      "added": 1781182654.0402904
     },
     "law:Decoherence induced by QPC measurement": {
       "type": "law",
@@ -836,21 +836,21 @@
         ],
         "note": ""
       },
-      "added": 1781181415.8330867
+      "added": 1781182654.0403016
     },
     "var:quantum_point_contact_measurement": {
       "type": "variable",
       "data": {
         "name": "quantum_point_contact_measurement"
       },
-      "added": 1781181415.8330884
+      "added": 1781182654.0403025
     },
     "var:charge_qubit_decoherence": {
       "type": "variable",
       "data": {
         "name": "charge_qubit_decoherence"
       },
-      "added": 1781181415.8330986
+      "added": 1781182654.040313
     },
     "law:Bell_inequality_violation_requires_fine-tuning": {
       "type": "law",
@@ -867,28 +867,28 @@
         ],
         "note": ""
       },
-      "added": 1781181415.8331099
+      "added": 1781182654.0403242
     },
     "var:nonsignalling_correlations": {
       "type": "variable",
       "data": {
         "name": "nonsignalling_correlations"
       },
-      "added": 1781181415.833111
+      "added": 1781182654.0403252
     },
     "var:bell_inequality_violation": {
       "type": "variable",
       "data": {
         "name": "bell_inequality_violation"
       },
-      "added": 1781181415.8331213
+      "added": 1781182654.0403357
     },
     "var:fine_tuning_of_causal_parameters": {
       "type": "variable",
       "data": {
         "name": "fine_tuning_of_causal_parameters"
       },
-      "added": 1781181415.8331316
+      "added": 1781182654.0403461
     },
     "law:superluminal_influence_causes_bell_correlations": {
       "type": "law",
@@ -904,21 +904,21 @@
         ],
         "note": ""
       },
-      "added": 1781181415.8331451
+      "added": 1781182654.0403574
     },
     "var:superluminal_causal_influence": {
       "type": "variable",
       "data": {
         "name": "superluminal_causal_influence"
       },
-      "added": 1781181415.8331466
+      "added": 1781182654.040358
     },
     "var:bell_correlations": {
       "type": "variable",
       "data": {
         "name": "bell_correlations"
       },
-      "added": 1781181415.833204
+      "added": 1781182654.0404148
     },
     "law:superdeterminism_causes_bell_correlations": {
       "type": "law",
@@ -934,14 +934,14 @@
         ],
         "note": ""
       },
-      "added": 1781181415.8331687
+      "added": 1781182654.04038
     },
     "var:denial_of_freedom_of_choice_of_settings": {
       "type": "variable",
       "data": {
         "name": "denial_of_freedom_of_choice_of_settings"
       },
-      "added": 1781181415.8331702
+      "added": 1781182654.040381
     },
     "law:retrocausal_influence_causes_bell_correlations": {
       "type": "law",
@@ -957,14 +957,14 @@
         ],
         "note": ""
       },
-      "added": 1781181415.8331916
+      "added": 1781182654.040403
     },
     "var:retrocausal_influence": {
       "type": "variable",
       "data": {
         "name": "retrocausal_influence"
       },
-      "added": 1781181415.8331933
+      "added": 1781182654.040404
     },
     "law:Landauer Principle: Information has mass": {
       "type": "law",
@@ -980,21 +980,21 @@
         ],
         "note": ""
       },
-      "added": 1781181415.8332152
+      "added": 1781182654.040426
     },
     "var:information": {
       "type": "variable",
       "data": {
         "name": "information"
       },
-      "added": 1781181415.8337421
+      "added": 1781182654.0409253
     },
     "var:mass": {
       "type": "variable",
       "data": {
         "name": "mass"
       },
-      "added": 1781181415.833754
+      "added": 1781182654.040937
     },
     "law:Gravitational radiation irreversibility from Landauer principle": {
       "type": "law",
@@ -1012,35 +1012,35 @@
         ],
         "note": ""
       },
-      "added": 1781181415.833239
+      "added": 1781182654.0404491
     },
     "var:gravitational_radiation_conveys_information": {
       "type": "variable",
       "data": {
         "name": "gravitational_radiation_conveys_information"
       },
-      "added": 1781181415.8332407
+      "added": 1781182654.0404503
     },
     "var:landauer_principle": {
       "type": "variable",
       "data": {
         "name": "landauer_principle"
       },
-      "added": 1781181415.8332512
+      "added": 1781182654.040461
     },
     "var:gravitational_radiation_is_irreversible": {
       "type": "variable",
       "data": {
         "name": "gravitational_radiation_is_irreversible"
       },
-      "added": 1781181415.8332627
+      "added": 1781182654.0404723
     },
     "var:dissipation": {
       "type": "variable",
       "data": {
         "name": "dissipation"
       },
-      "added": 1781181415.8332734
+      "added": 1781182654.0404832
     },
     "law:Radiated energy part from radiated information": {
       "type": "law",
@@ -1056,21 +1056,21 @@
         ],
         "note": ""
       },
-      "added": 1781181415.833285
+      "added": 1781182654.040495
     },
     "var:radiated_information": {
       "type": "variable",
       "data": {
         "name": "radiated_information"
       },
-      "added": 1781181415.8332868
+      "added": 1781182654.0404956
     },
     "var:part_of_radiated_energy": {
       "type": "variable",
       "data": {
         "name": "part_of_radiated_energy"
       },
-      "added": 1781181415.8332977
+      "added": 1781182654.0405066
     },
     "law:Bits erased linked to Bondi news function": {
       "type": "law",
@@ -1086,21 +1086,21 @@
         ],
         "note": ""
       },
-      "added": 1781181415.8333094
+      "added": 1781182654.040518
     },
     "var:bits_erased": {
       "type": "variable",
       "data": {
         "name": "bits_erased"
       },
-      "added": 1781181415.8333106
+      "added": 1781182654.0405192
     },
     "var:bondi_news_function": {
       "type": "variable",
       "data": {
         "name": "bondi_news_function"
       },
-      "added": 1781181415.8333218
+      "added": 1781182654.0405314
     },
     "law:ChemicalPotentialNonmonotonicTemperatureDependence": {
       "type": "law",
@@ -1117,21 +1117,21 @@
         ],
         "note": ""
       },
-      "added": 1781181415.8333333
+      "added": 1781182654.040543
     },
     "var:low_dimensionality": {
       "type": "variable",
       "data": {
         "name": "low_dimensionality"
       },
-      "added": 1781181415.8333344
+      "added": 1781182654.0405438
     },
     "var:chemical_potential_nonmonotonic_dependence": {
       "type": "variable",
       "data": {
         "name": "chemical_potential_nonmonotonic_dependence"
       },
-      "added": 1781181415.8333726
+      "added": 1781182654.0405831
     },
     "law:ChemicalPotentialNonmonotonicityIndicatesThermodynamicRegime": {
       "type": "law",
@@ -1147,14 +1147,14 @@
         ],
         "note": ""
       },
-      "added": 1781181415.833371
+      "added": 1781182654.040578
     },
     "var:thermodynamic_regime_with_large_fluctuations": {
       "type": "variable",
       "data": {
         "name": "thermodynamic_regime_with_large_fluctuations"
       },
-      "added": 1781181415.8333967
+      "added": 1781182654.0406067
     },
     "law:ThermodynamicRegimeCausesLargeSusceptibilities": {
       "type": "law",
@@ -1171,21 +1171,21 @@
         ],
         "note": ""
       },
-      "added": 1781181415.8333952
+      "added": 1781182654.040606
     },
     "var:large_isothermal_compressibility": {
       "type": "variable",
       "data": {
         "name": "large_isothermal_compressibility"
       },
-      "added": 1781181415.8334076
+      "added": 1781182654.0406177
     },
     "var:large_specific_heat": {
       "type": "variable",
       "data": {
         "name": "large_specific_heat"
       },
-      "added": 1781181415.8334188
+      "added": 1781182654.040629
     },
     "law:Information-Energy Relation in Neural Systems": {
       "type": "law",
@@ -1203,35 +1203,35 @@
         ],
         "note": ""
       },
-      "added": 1781181415.8334308
+      "added": 1781182654.0406423
     },
     "var:neural_activity": {
       "type": "variable",
       "data": {
         "name": "neural_activity"
       },
-      "added": 1781181415.8334324
+      "added": 1781182654.0406432
     },
     "var:energy_cost": {
       "type": "variable",
       "data": {
         "name": "energy_cost"
       },
-      "added": 1781181415.833513
+      "added": 1781182654.0407228
     },
     "var:decoding_accuracy": {
       "type": "variable",
       "data": {
         "name": "decoding_accuracy"
       },
-      "added": 1781181415.8334548
+      "added": 1781182654.0406656
     },
     "var:information_thermodynamic_quantities": {
       "type": "variable",
       "data": {
         "name": "information_thermodynamic_quantities"
       },
-      "added": 1781181415.8334658
+      "added": 1781182654.0406768
     },
     "law:Stochastic Thermodynamics of Neural Inference": {
       "type": "law",
@@ -1249,28 +1249,28 @@
         ],
         "note": ""
       },
-      "added": 1781181415.8334777
+      "added": 1781182654.0406883
     },
     "var:noisy_neural_network": {
       "type": "variable",
       "data": {
         "name": "noisy_neural_network"
       },
-      "added": 1781181415.8334792
+      "added": 1781182654.0406895
     },
     "var:brownian_particle_motion": {
       "type": "variable",
       "data": {
         "name": "brownian_particle_motion"
       },
-      "added": 1781181415.8334904
+      "added": 1781182654.0407007
     },
     "var:probabilistic_motion_inference": {
       "type": "variable",
       "data": {
         "name": "probabilistic_motion_inference"
       },
-      "added": 1781181415.8335016
+      "added": 1781182654.0407119
     },
     "law:Learning as Information Storage in Synapses": {
       "type": "law",
@@ -1288,35 +1288,35 @@
         ],
         "note": ""
       },
-      "added": 1781181415.8335257
+      "added": 1781182654.0407348
     },
     "var:neural_network_activity": {
       "type": "variable",
       "data": {
         "name": "neural_network_activity"
       },
-      "added": 1781181415.8335273
+      "added": 1781182654.0407357
     },
     "var:particle_velocity": {
       "type": "variable",
       "data": {
         "name": "particle_velocity"
       },
-      "added": 1781181415.8335385
+      "added": 1781182654.040747
     },
     "var:synaptic_weight_information": {
       "type": "variable",
       "data": {
         "name": "synaptic_weight_information"
       },
-      "added": 1781181415.8335497
+      "added": 1781182654.0407584
     },
     "var:learning": {
       "type": "variable",
       "data": {
         "name": "learning"
       },
-      "added": 1781181415.8335614
+      "added": 1781182654.0407696
     },
     "law:MasterEquationDecoherence": {
       "type": "law",
@@ -1335,35 +1335,35 @@
         ],
         "note": "[arXiv] Exact Master Equation and Non-Markovian Decoherence for Quantum Dot Quantum Comp"
       },
-      "added": 1781181415.8335738
+      "added": 1781182654.0407817
     },
     "var:system_reservoir_coupling": {
       "type": "variable",
       "data": {
         "name": "system_reservoir_coupling"
       },
-      "added": 1781181415.8335757
+      "added": 1781182654.040783
     },
     "var:spectral_density": {
       "type": "variable",
       "data": {
         "name": "spectral_density"
       },
-      "added": 1781181415.8335986
+      "added": 1781182654.0407941
     },
     "var:bias": {
       "type": "variable",
       "data": {
         "name": "bias"
       },
-      "added": 1781181415.8336263
+      "added": 1781182654.0408165
     },
     "var:decoherence_dynamics": {
       "type": "variable",
       "data": {
         "name": "decoherence_dynamics"
       },
-      "added": 1781181415.8336384
+      "added": 1781182654.0408282
     },
     "law:QuantumJumpsFromEngineeredCoupling": {
       "type": "law",
@@ -1380,28 +1380,28 @@
         ],
         "note": "[arXiv] Engineering Progressive Decoherence with Quantum Jumps in Charge Qubit"
       },
-      "added": 1781181415.8336508
+      "added": 1781182654.0408401
     },
     "var:engineered_coupling_to_reservoir": {
       "type": "variable",
       "data": {
         "name": "engineered_coupling_to_reservoir"
       },
-      "added": 1781181415.8336527
+      "added": 1781182654.0408409
     },
     "var:harmonic_oscillator_mode_in_lc_circuit": {
       "type": "variable",
       "data": {
         "name": "harmonic_oscillator_mode_in_lc_circuit"
       },
-      "added": 1781181415.8336642
+      "added": 1781182654.0408523
     },
     "var:quantum_jumps": {
       "type": "variable",
       "data": {
         "name": "quantum_jumps"
       },
-      "added": 1781181415.833676
+      "added": 1781182654.0408638
     },
     "law:DecoherenceFromEngineeredReservoir": {
       "type": "law",
@@ -1417,21 +1417,21 @@
         ],
         "note": "[arXiv] Engineering Progressive Decoherence with Quantum Jumps in Charge Qubit"
       },
-      "added": 1781181415.8336885
+      "added": 1781182654.0408754
     },
     "var:coupling_to_engineered_reservoir": {
       "type": "variable",
       "data": {
         "name": "coupling_to_engineered_reservoir"
       },
-      "added": 1781181415.8336904
+      "added": 1781182654.0408766
     },
     "var:loss_of_quantum_coherence": {
       "type": "variable",
       "data": {
         "name": "loss_of_quantum_coherence"
       },
-      "added": 1781181415.8337018
+      "added": 1781182654.0408878
     },
     "law:Landauer Principle": {
       "type": "law",
@@ -1447,21 +1447,21 @@
         ],
         "note": "[arXiv] Landauer Principle and General Relativity"
       },
-      "added": 1781181415.8337147
+      "added": 1781182654.0408998
     },
     "var:information_erasure": {
       "type": "variable",
       "data": {
         "name": "information_erasure"
       },
-      "added": 1781181415.8337162
+      "added": 1781182654.040901
     },
     "var:heat_dissipation": {
       "type": "variable",
       "data": {
         "name": "heat_dissipation"
       },
-      "added": 1781181415.833728
+      "added": 1781182654.0409122
     },
     "law:Mass-Information Equivalence": {
       "type": "law",
@@ -1477,7 +1477,7 @@
         ],
         "note": "[arXiv] Landauer Principle and General Relativity"
       },
-      "added": 1781181415.8337407
+      "added": 1781182654.0409243
     },
     "law:Landauer principle (Tsallis generalization)": {
       "type": "law",
@@ -1493,21 +1493,21 @@
         ],
         "note": "[arXiv] Modified Landauer principle according to Tsallis entropy"
       },
-      "added": 1781181415.8337667
+      "added": 1781182654.0409486
     },
     "var:erasure_of_one_bit_of_information": {
       "type": "variable",
       "data": {
         "name": "erasure_of_one_bit_of_information"
       },
-      "added": 1781181415.8337681
+      "added": 1781182654.0409498
     },
     "var:lower_bound_of_dissipated_energy": {
       "type": "variable",
       "data": {
         "name": "lower_bound_of_dissipated_energy"
       },
-      "added": 1781181415.8337798
+      "added": 1781182654.0409615
     },
     "law:Mass-energy equivalence for information (Tsallis modification)": {
       "type": "law",
@@ -1523,21 +1523,21 @@
         ],
         "note": "[arXiv] Modified Landauer principle according to Tsallis entropy"
       },
-      "added": 1781181415.8337922
+      "added": 1781182654.0409737
     },
     "var:one_bit_of_information": {
       "type": "variable",
       "data": {
         "name": "one_bit_of_information"
       },
-      "added": 1781181415.833794
+      "added": 1781182654.0409746
     },
     "var:mass_ascribed_to_one_bit_of_information": {
       "type": "variable",
       "data": {
         "name": "mass_ascribed_to_one_bit_of_information"
       },
-      "added": 1781181415.833806
+      "added": 1781182654.0409863
     },
     "law:Entanglement encodes gluing of quanta of space": {
       "type": "law",
@@ -1555,35 +1555,35 @@
         ],
         "note": "[arXiv] Loop Quantum Gravity and Quantum Information"
       },
-      "added": 1781181415.8338187
+      "added": 1781182654.0409985
     },
     "var:link_entanglement": {
       "type": "variable",
       "data": {
         "name": "link_entanglement"
       },
-      "added": 1781181415.83382
+      "added": 1781182654.0409994
     },
     "var:intertwiner_entanglement": {
       "type": "variable",
       "data": {
         "name": "intertwiner_entanglement"
       },
-      "added": 1781181415.8338323
+      "added": 1781182654.0410109
     },
     "var:boundary_spin_entanglement": {
       "type": "variable",
       "data": {
         "name": "boundary_spin_entanglement"
       },
-      "added": 1781181415.833844
+      "added": 1781182654.0410228
     },
     "var:gluing_of_quanta_of_space": {
       "type": "variable",
       "data": {
         "name": "gluing_of_quanta_of_space"
       },
-      "added": 1781181415.833856
+      "added": 1781182654.0410342
     },
     "law:Entanglement structures enable reconstruction of quantum geometry": {
       "type": "law",
@@ -1599,21 +1599,21 @@
         ],
         "note": "[arXiv] Loop Quantum Gravity and Quantum Information"
       },
-      "added": 1781181415.8338692
+      "added": 1781182654.0410469
     },
     "var:network_of_entanglement_structures": {
       "type": "variable",
       "data": {
         "name": "network_of_entanglement_structures"
       },
-      "added": 1781181415.833871
+      "added": 1781182654.0410478
     },
     "var:reconstruction_of_quantum_geometry": {
       "type": "variable",
       "data": {
         "name": "reconstruction_of_quantum_geometry"
       },
-      "added": 1781181415.833883
+      "added": 1781182654.0410593
     },
     "law:Statistical_mechanics_random_ensemble_universality": {
       "type": "law",
@@ -1629,21 +1629,21 @@
         ],
         "note": "[arXiv] Entanglement dynamics in hybrid quantum circuits"
       },
-      "added": 1781181415.8338962
+      "added": 1781182654.041072
     },
     "var:random_ensemble_statistical_properties": {
       "type": "variable",
       "data": {
         "name": "random_ensemble_statistical_properties"
       },
-      "added": 1781181415.8338983
+      "added": 1781182654.0410733
     },
     "var:simple_universal_laws": {
       "type": "variable",
       "data": {
         "name": "simple_universal_laws"
       },
-      "added": 1781181415.8339105
+      "added": 1781182654.0410852
     },
     "cv:Convergence_geodesic_path@quantum": {
       "type": "cross_validation",
@@ -1652,7 +1652,7 @@
         "domain": "quantum",
         "passed": true
       },
-      "added": 1781181415.8344328
+      "added": 1781182654.041416
     },
     "cv:测地线方程@quantum": {
       "type": "cross_validation",
@@ -1661,7 +1661,7 @@
         "domain": "quantum",
         "passed": false
       },
-      "added": 1781181415.8344533
+      "added": 1781182654.0414302
     },
     "cv:牛顿第二定律@quantum": {
       "type": "cross_validation",
@@ -1670,7 +1670,7 @@
         "domain": "quantum",
         "passed": true
       },
-      "added": 1781181415.834468
+      "added": 1781182654.0414433
     },
     "cv:等效原理@quantum": {
       "type": "cross_validation",
@@ -1679,7 +1679,7 @@
         "domain": "quantum",
         "passed": false
       },
-      "added": 1781181415.8344822
+      "added": 1781182654.0414562
     },
     "cv:最小作用量原理@quantum": {
       "type": "cross_validation",
@@ -1688,7 +1688,7 @@
         "domain": "quantum",
         "passed": false
       },
-      "added": 1781181415.834496
+      "added": 1781182654.0414686
     },
     "cv:Convergence_geodesic_path@thermodynamics": {
       "type": "cross_validation",
@@ -1697,7 +1697,7 @@
         "domain": "thermodynamics",
         "passed": true
       },
-      "added": 1781181415.8345096
+      "added": 1781182654.0414813
     },
     "cv:牛顿第二定律@geometry": {
       "type": "cross_validation",
@@ -1706,7 +1706,7 @@
         "domain": "geometry",
         "passed": true
       },
-      "added": 1781181415.8345249
+      "added": 1781182654.0414934
     },
     "cv:不确定性原理@geometry": {
       "type": "cross_validation",
@@ -1715,7 +1715,7 @@
         "domain": "geometry",
         "passed": false
       },
-      "added": 1781181415.8345382
+      "added": 1781182654.0415058
     },
     "cv:最小作用量原理@geometry": {
       "type": "cross_validation",
@@ -1724,7 +1724,7 @@
         "domain": "geometry",
         "passed": false
       },
-      "added": 1781181415.8345513
+      "added": 1781182654.041518
     },
     "cv:测地线方程@thermodynamics": {
       "type": "cross_validation",
@@ -1733,7 +1733,7 @@
         "domain": "thermodynamics",
         "passed": false
       },
-      "added": 1781181415.8345644
+      "added": 1781182654.0415304
     },
     "cv:牛顿第二定律@thermodynamics": {
       "type": "cross_validation",
@@ -1742,7 +1742,7 @@
         "domain": "thermodynamics",
         "passed": true
       },
-      "added": 1781181415.8345773
+      "added": 1781182654.0415428
     },
     "cv:等效原理@thermodynamics": {
       "type": "cross_validation",
@@ -1751,7 +1751,7 @@
         "domain": "thermodynamics",
         "passed": false
       },
-      "added": 1781181415.8346002
+      "added": 1781182654.041555
     },
     "cv:不确定性原理@thermodynamics": {
       "type": "cross_validation",
@@ -1760,7 +1760,7 @@
         "domain": "thermodynamics",
         "passed": false
       },
-      "added": 1781181415.8346136
+      "added": 1781182654.0415673
     },
     "cv:最小作用量原理@thermodynamics": {
       "type": "cross_validation",
@@ -1769,7 +1769,7 @@
         "domain": "thermodynamics",
         "passed": false
       },
-      "added": 1781181415.8346262
+      "added": 1781182654.0415838
     },
     "paper:2401.12345": {
       "type": "paper",
@@ -1777,7 +1777,7 @@
         "title": "Master Equation Decoherence",
         "arxiv_id": "2401.12345"
       },
-      "added": 1781181415.8347988
+      "added": 1781182654.0416956
     },
     "paper:2401.12346": {
       "type": "paper",
@@ -1785,7 +1785,7 @@
         "title": "Quantum Jumps from Engineered Coupling",
         "arxiv_id": "2401.12346"
       },
-      "added": 1781181415.8348024
+      "added": 1781182654.0416977
     },
     "paper:2401.12347": {
       "type": "paper",
@@ -1793,7 +1793,7 @@
         "title": "Decoherence from Engineered Reservoir",
         "arxiv_id": "2401.12347"
       },
-      "added": 1781181415.8348045
+      "added": 1781182654.0416994
     },
     "paper:2301.12348": {
       "type": "paper",
@@ -1801,7 +1801,7 @@
         "title": "Landauer Principle",
         "arxiv_id": "2301.12348"
       },
-      "added": 1781181415.834806
+      "added": 1781182654.0417004
     },
     "paper:2301.12349": {
       "type": "paper",
@@ -1809,7 +1809,7 @@
         "title": "Mass-Information Equivalence",
         "arxiv_id": "2301.12349"
       },
-      "added": 1781181415.8348076
+      "added": 1781182654.041701
     },
     "paper:2301.12350": {
       "type": "paper",
@@ -1817,7 +1817,7 @@
         "title": "Tsallis Landauer",
         "arxiv_id": "2301.12350"
       },
-      "added": 1781181415.8348088
+      "added": 1781182654.0417018
     },
     "paper:2301.12351": {
       "type": "paper",
@@ -1825,7 +1825,7 @@
         "title": "Tsallis Mass-Energy",
         "arxiv_id": "2301.12351"
       },
-      "added": 1781181415.83481
+      "added": 1781182654.0417027
     },
     "paper:2201.12352": {
       "type": "paper",
@@ -1833,7 +1833,7 @@
         "title": "Entanglement Encodes Geometry (LQG)",
         "arxiv_id": "2201.12352"
       },
-      "added": 1781181415.8348112
+      "added": 1781182654.0417037
     },
     "paper:2201.12353": {
       "type": "paper",
@@ -1841,7 +1841,7 @@
         "title": "Entanglement Reconstructs Geometry",
         "arxiv_id": "2201.12353"
       },
-      "added": 1781181415.8348124
+      "added": 1781182654.0417044
     },
     "paper:2201.12354": {
       "type": "paper",
@@ -1849,7 +1849,7 @@
         "title": "Statistical Universality",
         "arxiv_id": "2201.12354"
       },
-      "added": 1781181415.8348134
+      "added": 1781182654.0417051
     },
     "analogy:frequency↔spacetime_curvature": {
       "type": "analogy",
@@ -1858,7 +1858,7 @@
         "b": "spacetime_curvature",
         "similarity": 1.0
       },
-      "added": 1781170350.6773846
+      "added": 1781182656.569807
     },
     "analogy:frequency↔current": {
       "type": "analogy",
@@ -1876,7 +1876,7 @@
         "b": "geodesic_path",
         "similarity": 1.0
       },
-      "added": 1781170350.6774063
+      "added": 1781182656.5698757
     },
     "analogy:frequency↔velocity": {
       "type": "analogy",
@@ -1885,7 +1885,7 @@
         "b": "velocity",
         "similarity": 1.0
       },
-      "added": 1781170350.6774108
+      "added": 1781182656.5697844
     },
     "analogy:frequency↔higher_d_metric": {
       "type": "analogy",
@@ -1921,7 +1921,7 @@
         "b": "time",
         "similarity": 1.0
       },
-      "added": 1781170350.6774297
+      "added": 1781182656.569761
     },
     "analogy:frequency↔wave_function": {
       "type": "analogy",
@@ -1930,7 +1930,7 @@
         "b": "wave_function",
         "similarity": 1.0
       },
-      "added": 1781170350.6774344
+      "added": 1781182656.5698302
     },
     "analogy:frequency↔temperature": {
       "type": "analogy",
@@ -1957,7 +1957,7 @@
         "b": "energy",
         "similarity": 1.0
       },
-      "added": 1781170350.677449
+      "added": 1781182656.5698526
     },
     "analogy:spacetime_curvature↔current": {
       "type": "analogy",
@@ -1975,7 +1975,7 @@
         "b": "geodesic_path",
         "similarity": 1.0
       },
-      "added": 1781170350.677459
+      "added": 1781182656.5700378
     },
     "analogy:spacetime_curvature↔velocity": {
       "type": "analogy",
@@ -2029,7 +2029,7 @@
         "b": "wave_function",
         "similarity": 1.0
       },
-      "added": 1781181418.0175176
+      "added": 1781182656.5699906
     },
     "analogy:spacetime_curvature↔temperature": {
       "type": "analogy",
@@ -2056,7 +2056,7 @@
         "b": "energy",
         "similarity": 1.0
       },
-      "added": 1781170350.6775062
+      "added": 1781182656.5700145
     },
     "analogy:current↔geodesic_path": {
       "type": "analogy",
@@ -2209,7 +2209,7 @@
         "b": "time",
         "similarity": 1.0
       },
-      "added": 1781181418.0169907
+      "added": 1781182656.5693812
     },
     "analogy:higher_d_metric↔wave_function": {
       "type": "analogy",
@@ -2218,7 +2218,7 @@
         "b": "wave_function",
         "similarity": 1.0
       },
-      "added": 1781181418.017049
+      "added": 1781182656.569425
     },
     "analogy:higher_d_metric↔temperature": {
       "type": "analogy",
@@ -2227,7 +2227,7 @@
         "b": "temperature",
         "similarity": 1.0
       },
-      "added": 1781170350.677618
+      "added": 1781182656.569337
     },
     "analogy:higher_d_metric↔mass": {
       "type": "analogy",
@@ -2236,7 +2236,7 @@
         "b": "mass",
         "similarity": 1.0
       },
-      "added": 1781170350.6776242
+      "added": 1781182656.5693145
     },
     "analogy:higher_d_metric↔energy": {
       "type": "analogy",
@@ -2245,7 +2245,7 @@
         "b": "energy",
         "similarity": 1.0
       },
-      "added": 1781181418.0169618
+      "added": 1781182656.5694473
     },
     "analogy:momentum↔mixed_state": {
       "type": "analogy",
@@ -2299,7 +2299,7 @@
         "b": "energy",
         "similarity": 1.0
       },
-      "added": 1781170350.6776705
+      "added": 1781182656.5689754
     },
     "analogy:time↔energy": {
       "type": "analogy",
@@ -2308,7 +2308,7 @@
         "b": "energy",
         "similarity": 1.0
       },
-      "added": 1781170350.6776776
+      "added": 1781182656.5699215
     },
     "mem:1781096856.8584545": {
       "type": "memory",
@@ -2322,42 +2322,42 @@
           "entanglement"
         ]
       },
-      "added": 1781181418.0176625
+      "added": 1781182656.570171
     },
     "tag:arxiv": {
       "type": "tag",
       "data": {
         "name": "arxiv"
       },
-      "added": 1781181418.017714
+      "added": 1781182656.570238
     },
     "tag:ingest": {
       "type": "tag",
       "data": {
         "name": "ingest"
       },
-      "added": 1781181418.0176759
+      "added": 1781182656.5701861
     },
     "tag:decoherence": {
       "type": "tag",
       "data": {
         "name": "decoherence"
       },
-      "added": 1781181418.0176847
+      "added": 1781182656.5701985
     },
     "tag:landauer": {
       "type": "tag",
       "data": {
         "name": "landauer"
       },
-      "added": 1781181418.0176933
+      "added": 1781182656.5702102
     },
     "tag:entanglement": {
       "type": "tag",
       "data": {
         "name": "entanglement"
       },
-      "added": 1781181418.0177016
+      "added": 1781182656.5702229
     },
     "mem:1781097217.8165905": {
       "type": "memory",
@@ -2368,14 +2368,14 @@
           "trust"
         ]
       },
-      "added": 1781181418.0177126
+      "added": 1781182656.5702372
     },
     "tag:trust": {
       "type": "tag",
       "data": {
         "name": "trust"
       },
-      "added": 1781181418.0177226
+      "added": 1781182656.5702503
     },
     "analogy:schwarzschild_radius↔current": {
       "type": "analogy",
@@ -2393,7 +2393,7 @@
         "b": "higher_d_metric",
         "similarity": 1.0
       },
-      "added": 1781181418.0167205
+      "added": 1781182656.5690377
     },
     "analogy:schwarzschild_radius↔compact_dimension": {
       "type": "analogy",
@@ -2402,7 +2402,7 @@
         "b": "compact_dimension",
         "similarity": 1.0
       },
-      "added": 1781181418.0167348
+      "added": 1781182656.5690587
     },
     "analogy:schwarzschild_radius↔gauge_field": {
       "type": "analogy",
@@ -2411,7 +2411,7 @@
         "b": "gauge_field",
         "similarity": 1.0
       },
-      "added": 1781181418.0167477
+      "added": 1781182656.569017
     },
     "analogy:schwarzschild_radius↔time": {
       "type": "analogy",
@@ -2420,7 +2420,7 @@
         "b": "time",
         "similarity": 1.0
       },
-      "added": 1781181418.016762
+      "added": 1781182656.5691016
     },
     "analogy:schwarzschild_radius↔mixed_state": {
       "type": "analogy",
@@ -2438,7 +2438,7 @@
         "b": "spacetime_curvature",
         "similarity": 1.0
       },
-      "added": 1781181418.01679
+      "added": 1781182656.5691228
     },
     "analogy:current↔compact_dimension": {
       "type": "analogy",
@@ -2492,7 +2492,7 @@
         "b": "spacetime_curvature",
         "similarity": 1.0
       },
-      "added": 1781181418.0170345
+      "added": 1781182656.5694032
     },
     "analogy:energy↔compact_dimension": {
       "type": "analogy",
@@ -2582,7 +2582,7 @@
         "b": "time",
         "similarity": 1.0
       },
-      "added": 1781181418.017246
+      "added": 1781182656.569648
     },
     "analogy:compact_dimension↔mixed_state": {
       "type": "analogy",
@@ -2609,7 +2609,7 @@
         "b": "spacetime_curvature",
         "similarity": 1.0
       },
-      "added": 1781181418.0172923
+      "added": 1781182656.569671
     },
     "analogy:compact_dimension↔wave_function": {
       "type": "analogy",
@@ -2618,7 +2618,7 @@
         "b": "wave_function",
         "similarity": 1.0
       },
-      "added": 1781181418.017308
+      "added": 1781182656.5696933
     },
     "analogy:gauge_field↔time": {
       "type": "analogy",
@@ -2627,7 +2627,7 @@
         "b": "time",
         "similarity": 1.0
       },
-      "added": 1781181418.017323
+      "added": 1781182656.569207
     },
     "analogy:gauge_field↔mixed_state": {
       "type": "analogy",
@@ -2654,7 +2654,7 @@
         "b": "spacetime_curvature",
         "similarity": 1.0
       },
-      "added": 1781181418.017371
+      "added": 1781182656.569229
     },
     "analogy:gauge_field↔wave_function": {
       "type": "analogy",
@@ -2663,7 +2663,7 @@
         "b": "wave_function",
         "similarity": 1.0
       },
-      "added": 1781181418.017387
+      "added": 1781182656.5692506
     },
     "analogy:time↔wavelength": {
       "type": "analogy",
@@ -2681,7 +2681,7 @@
         "b": "spacetime_curvature",
         "similarity": 1.0
       },
-      "added": 1781181418.017419
+      "added": 1781182656.5698986
     },
     "analogy:mixed_state↔wavelength": {
       "type": "analogy",
@@ -2699,7 +2699,7 @@
         "b": "spacetime_curvature",
         "similarity": 1.0
       },
-      "added": 1781181418.017452
+      "added": 1781182656.5689545
     },
     "analogy:wavelength↔spacetime_curvature": {
       "type": "analogy",
@@ -2727,6 +2727,231 @@
         "similarity": 1.0
       },
       "added": 1781181418.017501
+    },
+    "analogy:mixed_state↔schwarzschild_radius": {
+      "type": "analogy",
+      "data": {
+        "a": "mixed_state",
+        "b": "schwarzschild_radius",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5688329
+    },
+    "analogy:mixed_state↔gauge_field": {
+      "type": "analogy",
+      "data": {
+        "a": "mixed_state",
+        "b": "gauge_field",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5688748
+    },
+    "analogy:mixed_state↔higher_d_metric": {
+      "type": "analogy",
+      "data": {
+        "a": "mixed_state",
+        "b": "higher_d_metric",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5688953
+    },
+    "analogy:mixed_state↔compact_dimension": {
+      "type": "analogy",
+      "data": {
+        "a": "mixed_state",
+        "b": "compact_dimension",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5689151
+    },
+    "analogy:mixed_state↔frequency": {
+      "type": "analogy",
+      "data": {
+        "a": "mixed_state",
+        "b": "frequency",
+        "similarity": 1.0
+      },
+      "added": 1781182656.568935
+    },
+    "analogy:mixed_state↔geodesic_path": {
+      "type": "analogy",
+      "data": {
+        "a": "mixed_state",
+        "b": "geodesic_path",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5689967
+    },
+    "analogy:schwarzschild_radius↔frequency": {
+      "type": "analogy",
+      "data": {
+        "a": "schwarzschild_radius",
+        "b": "frequency",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5690804
+    },
+    "analogy:gauge_field↔mass": {
+      "type": "analogy",
+      "data": {
+        "a": "gauge_field",
+        "b": "mass",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5691435
+    },
+    "analogy:gauge_field↔temperature": {
+      "type": "analogy",
+      "data": {
+        "a": "gauge_field",
+        "b": "temperature",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5691648
+    },
+    "analogy:gauge_field↔frequency": {
+      "type": "analogy",
+      "data": {
+        "a": "gauge_field",
+        "b": "frequency",
+        "similarity": 1.0
+      },
+      "added": 1781182656.569186
+    },
+    "analogy:gauge_field↔energy": {
+      "type": "analogy",
+      "data": {
+        "a": "gauge_field",
+        "b": "energy",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5692718
+    },
+    "analogy:gauge_field↔geodesic_path": {
+      "type": "analogy",
+      "data": {
+        "a": "gauge_field",
+        "b": "geodesic_path",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5692933
+    },
+    "analogy:higher_d_metric↔frequency": {
+      "type": "analogy",
+      "data": {
+        "a": "higher_d_metric",
+        "b": "frequency",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5693598
+    },
+    "analogy:higher_d_metric↔geodesic_path": {
+      "type": "analogy",
+      "data": {
+        "a": "higher_d_metric",
+        "b": "geodesic_path",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5694692
+    },
+    "analogy:mass↔compact_dimension": {
+      "type": "analogy",
+      "data": {
+        "a": "mass",
+        "b": "compact_dimension",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5694907
+    },
+    "analogy:mass↔frequency": {
+      "type": "analogy",
+      "data": {
+        "a": "mass",
+        "b": "frequency",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5695126
+    },
+    "analogy:mass↔spacetime_curvature": {
+      "type": "analogy",
+      "data": {
+        "a": "mass",
+        "b": "spacetime_curvature",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5695345
+    },
+    "analogy:temperature↔compact_dimension": {
+      "type": "analogy",
+      "data": {
+        "a": "temperature",
+        "b": "compact_dimension",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5695565
+    },
+    "analogy:temperature↔frequency": {
+      "type": "analogy",
+      "data": {
+        "a": "temperature",
+        "b": "frequency",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5695817
+    },
+    "analogy:temperature↔spacetime_curvature": {
+      "type": "analogy",
+      "data": {
+        "a": "temperature",
+        "b": "spacetime_curvature",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5696042
+    },
+    "analogy:compact_dimension↔frequency": {
+      "type": "analogy",
+      "data": {
+        "a": "compact_dimension",
+        "b": "frequency",
+        "similarity": 1.0
+      },
+      "added": 1781182656.569626
+    },
+    "analogy:compact_dimension↔energy": {
+      "type": "analogy",
+      "data": {
+        "a": "compact_dimension",
+        "b": "energy",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5697162
+    },
+    "analogy:compact_dimension↔geodesic_path": {
+      "type": "analogy",
+      "data": {
+        "a": "compact_dimension",
+        "b": "geodesic_path",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5697389
+    },
+    "analogy:time↔geodesic_path": {
+      "type": "analogy",
+      "data": {
+        "a": "time",
+        "b": "geodesic_path",
+        "similarity": 1.0
+      },
+      "added": 1781182656.5699449
+    },
+    "analogy:velocity↔spacetime_curvature": {
+      "type": "analogy",
+      "data": {
+        "a": "velocity",
+        "b": "spacetime_curvature",
+        "similarity": 1.0
+      },
+      "added": 1781182656.569968
     }
   },
   "edges": [
@@ -5533,6 +5758,1441 @@
     [
       "var:velocity",
       "analogy:spacetime_curvature↔velocity",
+      "analogous_to"
+    ],
+    [
+      "mem:1781096856.8584545",
+      "tag:arxiv",
+      "tagged_as"
+    ],
+    [
+      "mem:1781096856.8584545",
+      "tag:ingest",
+      "tagged_as"
+    ],
+    [
+      "mem:1781096856.8584545",
+      "tag:decoherence",
+      "tagged_as"
+    ],
+    [
+      "mem:1781096856.8584545",
+      "tag:landauer",
+      "tagged_as"
+    ],
+    [
+      "mem:1781096856.8584545",
+      "tag:entanglement",
+      "tagged_as"
+    ],
+    [
+      "mem:1781097217.8165905",
+      "tag:arxiv",
+      "tagged_as"
+    ],
+    [
+      "mem:1781097217.8165905",
+      "tag:trust",
+      "tagged_as"
+    ],
+    [
+      "var:kinetic_energy",
+      "law:Convergence_geodesic_path",
+      "has_input"
+    ],
+    [
+      "var:energy",
+      "law:Convergence_geodesic_path",
+      "has_input"
+    ],
+    [
+      "law:Convergence_geodesic_path",
+      "var:geodesic_path",
+      "has_output"
+    ],
+    [
+      "var:x^\\mu (坐标)",
+      "law:测地线方程",
+      "has_input"
+    ],
+    [
+      "var:\\lambda (仿射参数)",
+      "law:测地线方程",
+      "has_input"
+    ],
+    [
+      "var:\\Gamma^\\mu_{\\alpha \\beta} (克里斯托费尔符号)",
+      "law:测地线方程",
+      "has_input"
+    ],
+    [
+      "law:测地线方程",
+      "var:测地线轨迹",
+      "has_output"
+    ],
+    [
+      "var:m",
+      "law:牛顿第二定律",
+      "has_input"
+    ],
+    [
+      "var:a",
+      "law:牛顿第二定律",
+      "has_input"
+    ],
+    [
+      "law:牛顿第二定律",
+      "var:F",
+      "has_output"
+    ],
+    [
+      "var:质量 m",
+      "law:牛顿第二定律",
+      "has_input"
+    ],
+    [
+      "var:加速度 a",
+      "law:牛顿第二定律",
+      "has_input"
+    ],
+    [
+      "law:牛顿第二定律",
+      "var:力 F",
+      "has_output"
+    ],
+    [
+      "var:m (质量)",
+      "law:牛顿第二定律",
+      "has_input"
+    ],
+    [
+      "var:a (加速度)",
+      "law:牛顿第二定律",
+      "has_input"
+    ],
+    [
+      "law:牛顿第二定律",
+      "var:F (力)",
+      "has_output"
+    ],
+    [
+      "var:惯性质量 m_i",
+      "law:等效原理",
+      "has_input"
+    ],
+    [
+      "var:引力质量 m_g",
+      "law:等效原理",
+      "has_input"
+    ],
+    [
+      "law:等效原理",
+      "var:等效质量",
+      "has_output"
+    ],
+    [
+      "var:位置不确定度Δx",
+      "law:不确定性原理",
+      "has_input"
+    ],
+    [
+      "var:动量不确定度Δp",
+      "law:不确定性原理",
+      "has_input"
+    ],
+    [
+      "law:不确定性原理",
+      "var:乘积下限",
+      "has_output"
+    ],
+    [
+      "var:拉格朗日量 L",
+      "law:最小作用量原理",
+      "has_input"
+    ],
+    [
+      "var:广义坐标 q",
+      "law:最小作用量原理",
+      "has_input"
+    ],
+    [
+      "var:广义速度 \\dot{q}",
+      "law:最小作用量原理",
+      "has_input"
+    ],
+    [
+      "var:时间 t",
+      "law:最小作用量原理",
+      "has_input"
+    ],
+    [
+      "law:最小作用量原理",
+      "var:作用量 S 的变分为零",
+      "has_output"
+    ],
+    [
+      "var:temperature",
+      "law:ThermalDecoherence",
+      "has_input"
+    ],
+    [
+      "law:ThermalDecoherence",
+      "var:environment_coupling",
+      "has_output"
+    ],
+    [
+      "var:mixed_state",
+      "law:DecoherenceEntropy",
+      "has_input"
+    ],
+    [
+      "law:DecoherenceEntropy",
+      "var:entropy",
+      "has_output"
+    ],
+    [
+      "var:mixed_state",
+      "law:DecoherenceCollapse",
+      "has_input"
+    ],
+    [
+      "law:DecoherenceCollapse",
+      "var:collapse_probability",
+      "has_output"
+    ],
+    [
+      "var:temperature",
+      "law:ThermalSymmetryBreaking",
+      "has_input"
+    ],
+    [
+      "law:ThermalSymmetryBreaking",
+      "var:broken_symmetry",
+      "has_output"
+    ],
+    [
+      "var:external_perturbation",
+      "law:ExternalSymmetryBreaking",
+      "has_input"
+    ],
+    [
+      "law:ExternalSymmetryBreaking",
+      "var:broken_symmetry",
+      "has_output"
+    ],
+    [
+      "var:quantum_fluctuation",
+      "law:QuantumFluctuationSymmetryBreaking",
+      "has_input"
+    ],
+    [
+      "law:QuantumFluctuationSymmetryBreaking",
+      "var:broken_symmetry",
+      "has_output"
+    ],
+    [
+      "var:velocity",
+      "law:DynamicPressure",
+      "has_input"
+    ],
+    [
+      "law:DynamicPressure",
+      "var:dynamic_pressure",
+      "has_output"
+    ],
+    [
+      "var:dynamic_pressure",
+      "law:DragForce",
+      "has_input"
+    ],
+    [
+      "var:velocity",
+      "law:DragForce",
+      "has_input"
+    ],
+    [
+      "law:DragForce",
+      "var:drag_force",
+      "has_output"
+    ],
+    [
+      "var:drag_force",
+      "law:FrictionalEnergyLoss",
+      "has_input"
+    ],
+    [
+      "law:FrictionalEnergyLoss",
+      "var:kinetic_energy_loss",
+      "has_output"
+    ],
+    [
+      "var:kinetic_energy_loss",
+      "law:FrictionalHeating",
+      "has_input"
+    ],
+    [
+      "law:FrictionalHeating",
+      "var:entropy",
+      "has_output"
+    ],
+    [
+      "var:subsystem_boundary",
+      "law:SubsystemEnergyTransfer",
+      "has_input"
+    ],
+    [
+      "law:SubsystemEnergyTransfer",
+      "var:energy_transfer",
+      "has_output"
+    ],
+    [
+      "var:velocity",
+      "law:BoundaryLayerDrag",
+      "has_input"
+    ],
+    [
+      "var:subsystem_boundary",
+      "law:BoundaryLayerDrag",
+      "has_input"
+    ],
+    [
+      "law:BoundaryLayerDrag",
+      "var:drag_force",
+      "has_output"
+    ],
+    [
+      "var:environment_coupling",
+      "law:PhaseDecoherence",
+      "has_input"
+    ],
+    [
+      "var:phase_coherence",
+      "law:PhaseDecoherence",
+      "has_input"
+    ],
+    [
+      "law:PhaseDecoherence",
+      "var:mixed_state",
+      "has_output"
+    ],
+    [
+      "var:phase_coherence",
+      "law:DissipationAnalogy",
+      "has_input"
+    ],
+    [
+      "law:DissipationAnalogy",
+      "var:kinetic_energy_loss",
+      "has_output"
+    ],
+    [
+      "var:environment_coupling",
+      "law:InformationDissipation",
+      "has_input"
+    ],
+    [
+      "law:InformationDissipation",
+      "var:information_loss",
+      "has_output"
+    ],
+    [
+      "law:InformationDissipation",
+      "var:entropy",
+      "has_output"
+    ],
+    [
+      "var:拉格朗日量L",
+      "law:诺特定理",
+      "has_input"
+    ],
+    [
+      "var:广义坐标q_i",
+      "law:诺特定理",
+      "has_input"
+    ],
+    [
+      "var:广义速度\\dot{q}_i",
+      "law:诺特定理",
+      "has_input"
+    ],
+    [
+      "var:连续对称变换",
+      "law:诺特定理",
+      "has_input"
+    ],
+    [
+      "law:诺特定理",
+      "var:守恒量（如能量、动量、角动量）",
+      "has_output"
+    ],
+    [
+      "var:加速度 a 或力 F",
+      "law:牛顿第二定律",
+      "has_input"
+    ],
+    [
+      "law:牛顿第二定律",
+      "var:力 F 或动量变化率 dp/dt",
+      "has_output"
+    ],
+    [
+      "var:拉格朗日密度 L",
+      "law:诺特定理",
+      "has_input"
+    ],
+    [
+      "var:场 φ",
+      "law:诺特定理",
+      "has_input"
+    ],
+    [
+      "var:无穷小变换参数",
+      "law:诺特定理",
+      "has_input"
+    ],
+    [
+      "law:诺特定理",
+      "var:守恒流 J^μ",
+      "has_output"
+    ],
+    [
+      "law:诺特定理",
+      "var:守恒荷 Q",
+      "has_output"
+    ],
+    [
+      "var:连续对称性",
+      "law:诺特定理",
+      "has_input"
+    ],
+    [
+      "var:拉格朗日量",
+      "law:诺特定理",
+      "has_input"
+    ],
+    [
+      "law:诺特定理",
+      "var:守恒流",
+      "has_output"
+    ],
+    [
+      "law:诺特定理",
+      "var:守恒荷",
+      "has_output"
+    ],
+    [
+      "var:system_environment_entanglement",
+      "law:Decoherence from system-environment entanglement",
+      "has_input"
+    ],
+    [
+      "law:Decoherence from system-environment entanglement",
+      "var:non_markovian_decoherence_dynamics",
+      "has_output"
+    ],
+    [
+      "var:quantum_point_contact_measurement",
+      "law:Decoherence induced by QPC measurement",
+      "has_input"
+    ],
+    [
+      "law:Decoherence induced by QPC measurement",
+      "var:charge_qubit_decoherence",
+      "has_output"
+    ],
+    [
+      "var:nonsignalling_correlations",
+      "law:Bell_inequality_violation_requires_fine-tuning",
+      "has_input"
+    ],
+    [
+      "var:bell_inequality_violation",
+      "law:Bell_inequality_violation_requires_fine-tuning",
+      "has_input"
+    ],
+    [
+      "law:Bell_inequality_violation_requires_fine-tuning",
+      "var:fine_tuning_of_causal_parameters",
+      "has_output"
+    ],
+    [
+      "var:superluminal_causal_influence",
+      "law:superluminal_influence_causes_bell_correlations",
+      "has_input"
+    ],
+    [
+      "law:superluminal_influence_causes_bell_correlations",
+      "var:bell_correlations",
+      "has_output"
+    ],
+    [
+      "var:denial_of_freedom_of_choice_of_settings",
+      "law:superdeterminism_causes_bell_correlations",
+      "has_input"
+    ],
+    [
+      "law:superdeterminism_causes_bell_correlations",
+      "var:bell_correlations",
+      "has_output"
+    ],
+    [
+      "var:retrocausal_influence",
+      "law:retrocausal_influence_causes_bell_correlations",
+      "has_input"
+    ],
+    [
+      "law:retrocausal_influence_causes_bell_correlations",
+      "var:bell_correlations",
+      "has_output"
+    ],
+    [
+      "var:information",
+      "law:Landauer Principle: Information has mass",
+      "has_input"
+    ],
+    [
+      "law:Landauer Principle: Information has mass",
+      "var:mass",
+      "has_output"
+    ],
+    [
+      "var:gravitational_radiation_conveys_information",
+      "law:Gravitational radiation irreversibility from Landauer principle",
+      "has_input"
+    ],
+    [
+      "var:landauer_principle",
+      "law:Gravitational radiation irreversibility from Landauer principle",
+      "has_input"
+    ],
+    [
+      "law:Gravitational radiation irreversibility from Landauer principle",
+      "var:gravitational_radiation_is_irreversible",
+      "has_output"
+    ],
+    [
+      "law:Gravitational radiation irreversibility from Landauer principle",
+      "var:dissipation",
+      "has_output"
+    ],
+    [
+      "var:radiated_information",
+      "law:Radiated energy part from radiated information",
+      "has_input"
+    ],
+    [
+      "law:Radiated energy part from radiated information",
+      "var:part_of_radiated_energy",
+      "has_output"
+    ],
+    [
+      "var:bits_erased",
+      "law:Bits erased linked to Bondi news function",
+      "has_input"
+    ],
+    [
+      "law:Bits erased linked to Bondi news function",
+      "var:bondi_news_function",
+      "has_output"
+    ],
+    [
+      "var:low_dimensionality",
+      "law:ChemicalPotentialNonmonotonicTemperatureDependence",
+      "has_input"
+    ],
+    [
+      "var:temperature",
+      "law:ChemicalPotentialNonmonotonicTemperatureDependence",
+      "has_input"
+    ],
+    [
+      "law:ChemicalPotentialNonmonotonicTemperatureDependence",
+      "var:chemical_potential_nonmonotonic_dependence",
+      "has_output"
+    ],
+    [
+      "var:chemical_potential_nonmonotonic_dependence",
+      "law:ChemicalPotentialNonmonotonicityIndicatesThermodynamicRegime",
+      "has_input"
+    ],
+    [
+      "law:ChemicalPotentialNonmonotonicityIndicatesThermodynamicRegime",
+      "var:thermodynamic_regime_with_large_fluctuations",
+      "has_output"
+    ],
+    [
+      "var:thermodynamic_regime_with_large_fluctuations",
+      "law:ThermodynamicRegimeCausesLargeSusceptibilities",
+      "has_input"
+    ],
+    [
+      "law:ThermodynamicRegimeCausesLargeSusceptibilities",
+      "var:large_isothermal_compressibility",
+      "has_output"
+    ],
+    [
+      "law:ThermodynamicRegimeCausesLargeSusceptibilities",
+      "var:large_specific_heat",
+      "has_output"
+    ],
+    [
+      "var:neural_activity",
+      "law:Information-Energy Relation in Neural Systems",
+      "has_input"
+    ],
+    [
+      "var:energy_cost",
+      "law:Information-Energy Relation in Neural Systems",
+      "has_input"
+    ],
+    [
+      "law:Information-Energy Relation in Neural Systems",
+      "var:decoding_accuracy",
+      "has_output"
+    ],
+    [
+      "law:Information-Energy Relation in Neural Systems",
+      "var:information_thermodynamic_quantities",
+      "has_output"
+    ],
+    [
+      "var:noisy_neural_network",
+      "law:Stochastic Thermodynamics of Neural Inference",
+      "has_input"
+    ],
+    [
+      "var:brownian_particle_motion",
+      "law:Stochastic Thermodynamics of Neural Inference",
+      "has_input"
+    ],
+    [
+      "law:Stochastic Thermodynamics of Neural Inference",
+      "var:probabilistic_motion_inference",
+      "has_output"
+    ],
+    [
+      "law:Stochastic Thermodynamics of Neural Inference",
+      "var:energy_cost",
+      "has_output"
+    ],
+    [
+      "var:neural_network_activity",
+      "law:Learning as Information Storage in Synapses",
+      "has_input"
+    ],
+    [
+      "var:particle_velocity",
+      "law:Learning as Information Storage in Synapses",
+      "has_input"
+    ],
+    [
+      "law:Learning as Information Storage in Synapses",
+      "var:synaptic_weight_information",
+      "has_output"
+    ],
+    [
+      "law:Learning as Information Storage in Synapses",
+      "var:learning",
+      "has_output"
+    ],
+    [
+      "var:system_reservoir_coupling",
+      "law:MasterEquationDecoherence",
+      "has_input"
+    ],
+    [
+      "var:spectral_density",
+      "law:MasterEquationDecoherence",
+      "has_input"
+    ],
+    [
+      "var:temperature",
+      "law:MasterEquationDecoherence",
+      "has_input"
+    ],
+    [
+      "var:bias",
+      "law:MasterEquationDecoherence",
+      "has_input"
+    ],
+    [
+      "law:MasterEquationDecoherence",
+      "var:decoherence_dynamics",
+      "has_output"
+    ],
+    [
+      "var:engineered_coupling_to_reservoir",
+      "law:QuantumJumpsFromEngineeredCoupling",
+      "has_input"
+    ],
+    [
+      "var:harmonic_oscillator_mode_in_lc_circuit",
+      "law:QuantumJumpsFromEngineeredCoupling",
+      "has_input"
+    ],
+    [
+      "law:QuantumJumpsFromEngineeredCoupling",
+      "var:quantum_jumps",
+      "has_output"
+    ],
+    [
+      "var:coupling_to_engineered_reservoir",
+      "law:DecoherenceFromEngineeredReservoir",
+      "has_input"
+    ],
+    [
+      "law:DecoherenceFromEngineeredReservoir",
+      "var:loss_of_quantum_coherence",
+      "has_output"
+    ],
+    [
+      "var:information_erasure",
+      "law:Landauer Principle",
+      "has_input"
+    ],
+    [
+      "law:Landauer Principle",
+      "var:heat_dissipation",
+      "has_output"
+    ],
+    [
+      "var:information",
+      "law:Mass-Information Equivalence",
+      "has_input"
+    ],
+    [
+      "law:Mass-Information Equivalence",
+      "var:mass",
+      "has_output"
+    ],
+    [
+      "var:erasure_of_one_bit_of_information",
+      "law:Landauer principle (Tsallis generalization)",
+      "has_input"
+    ],
+    [
+      "law:Landauer principle (Tsallis generalization)",
+      "var:lower_bound_of_dissipated_energy",
+      "has_output"
+    ],
+    [
+      "var:one_bit_of_information",
+      "law:Mass-energy equivalence for information (Tsallis modification)",
+      "has_input"
+    ],
+    [
+      "law:Mass-energy equivalence for information (Tsallis modification)",
+      "var:mass_ascribed_to_one_bit_of_information",
+      "has_output"
+    ],
+    [
+      "var:link_entanglement",
+      "law:Entanglement encodes gluing of quanta of space",
+      "has_input"
+    ],
+    [
+      "var:intertwiner_entanglement",
+      "law:Entanglement encodes gluing of quanta of space",
+      "has_input"
+    ],
+    [
+      "var:boundary_spin_entanglement",
+      "law:Entanglement encodes gluing of quanta of space",
+      "has_input"
+    ],
+    [
+      "law:Entanglement encodes gluing of quanta of space",
+      "var:gluing_of_quanta_of_space",
+      "has_output"
+    ],
+    [
+      "var:network_of_entanglement_structures",
+      "law:Entanglement structures enable reconstruction of quantum geometry",
+      "has_input"
+    ],
+    [
+      "law:Entanglement structures enable reconstruction of quantum geometry",
+      "var:reconstruction_of_quantum_geometry",
+      "has_output"
+    ],
+    [
+      "var:random_ensemble_statistical_properties",
+      "law:Statistical_mechanics_random_ensemble_universality",
+      "has_input"
+    ],
+    [
+      "law:Statistical_mechanics_random_ensemble_universality",
+      "var:simple_universal_laws",
+      "has_output"
+    ],
+    [
+      "law:Convergence_geodesic_path",
+      "cv:Convergence_geodesic_path@quantum",
+      "validated_in"
+    ],
+    [
+      "law:测地线方程",
+      "cv:测地线方程@quantum",
+      "validated_in"
+    ],
+    [
+      "law:牛顿第二定律",
+      "cv:牛顿第二定律@quantum",
+      "validated_in"
+    ],
+    [
+      "law:等效原理",
+      "cv:等效原理@quantum",
+      "validated_in"
+    ],
+    [
+      "law:最小作用量原理",
+      "cv:最小作用量原理@quantum",
+      "validated_in"
+    ],
+    [
+      "law:Convergence_geodesic_path",
+      "cv:Convergence_geodesic_path@thermodynamics",
+      "validated_in"
+    ],
+    [
+      "law:牛顿第二定律",
+      "cv:牛顿第二定律@geometry",
+      "validated_in"
+    ],
+    [
+      "law:不确定性原理",
+      "cv:不确定性原理@geometry",
+      "validated_in"
+    ],
+    [
+      "law:最小作用量原理",
+      "cv:最小作用量原理@geometry",
+      "validated_in"
+    ],
+    [
+      "law:测地线方程",
+      "cv:测地线方程@thermodynamics",
+      "validated_in"
+    ],
+    [
+      "law:牛顿第二定律",
+      "cv:牛顿第二定律@thermodynamics",
+      "validated_in"
+    ],
+    [
+      "law:等效原理",
+      "cv:等效原理@thermodynamics",
+      "validated_in"
+    ],
+    [
+      "law:不确定性原理",
+      "cv:不确定性原理@thermodynamics",
+      "validated_in"
+    ],
+    [
+      "law:最小作用量原理",
+      "cv:最小作用量原理@thermodynamics",
+      "validated_in"
+    ],
+    [
+      "paper:2401.12345",
+      "law:Master Equation Decoherence",
+      "discovered_in"
+    ],
+    [
+      "paper:2401.12346",
+      "law:Quantum Jumps from Engineered Coupling",
+      "discovered_in"
+    ],
+    [
+      "paper:2401.12347",
+      "law:Decoherence from Engineered Reservoir",
+      "discovered_in"
+    ],
+    [
+      "paper:2301.12348",
+      "law:Landauer Principle",
+      "discovered_in"
+    ],
+    [
+      "paper:2301.12349",
+      "law:Mass-Information Equivalence",
+      "discovered_in"
+    ],
+    [
+      "paper:2301.12350",
+      "law:Tsallis Landauer",
+      "discovered_in"
+    ],
+    [
+      "paper:2301.12351",
+      "law:Tsallis Mass-Energy",
+      "discovered_in"
+    ],
+    [
+      "paper:2201.12352",
+      "law:Entanglement Encodes Geometry (LQG)",
+      "discovered_in"
+    ],
+    [
+      "paper:2201.12353",
+      "law:Entanglement Reconstructs Geometry",
+      "discovered_in"
+    ],
+    [
+      "paper:2201.12354",
+      "law:Statistical Universality",
+      "discovered_in"
+    ],
+    [
+      "var:mixed_state",
+      "analogy:mixed_state↔schwarzschild_radius",
+      "analogous_to"
+    ],
+    [
+      "var:schwarzschild_radius",
+      "analogy:mixed_state↔schwarzschild_radius",
+      "analogous_to"
+    ],
+    [
+      "var:mixed_state",
+      "analogy:mixed_state↔gauge_field",
+      "analogous_to"
+    ],
+    [
+      "var:gauge_field",
+      "analogy:mixed_state↔gauge_field",
+      "analogous_to"
+    ],
+    [
+      "var:mixed_state",
+      "analogy:mixed_state↔higher_d_metric",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:mixed_state↔higher_d_metric",
+      "analogous_to"
+    ],
+    [
+      "var:mixed_state",
+      "analogy:mixed_state↔compact_dimension",
+      "analogous_to"
+    ],
+    [
+      "var:compact_dimension",
+      "analogy:mixed_state↔compact_dimension",
+      "analogous_to"
+    ],
+    [
+      "var:mixed_state",
+      "analogy:mixed_state↔frequency",
+      "analogous_to"
+    ],
+    [
+      "var:frequency",
+      "analogy:mixed_state↔frequency",
+      "analogous_to"
+    ],
+    [
+      "var:mixed_state",
+      "analogy:mixed_state↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:mixed_state↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:mixed_state",
+      "analogy:mixed_state↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:energy",
+      "analogy:mixed_state↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:mixed_state",
+      "analogy:mixed_state↔geodesic_path",
+      "analogous_to"
+    ],
+    [
+      "var:geodesic_path",
+      "analogy:mixed_state↔geodesic_path",
+      "analogous_to"
+    ],
+    [
+      "var:schwarzschild_radius",
+      "analogy:schwarzschild_radius↔gauge_field",
+      "analogous_to"
+    ],
+    [
+      "var:gauge_field",
+      "analogy:schwarzschild_radius↔gauge_field",
+      "analogous_to"
+    ],
+    [
+      "var:schwarzschild_radius",
+      "analogy:schwarzschild_radius↔higher_d_metric",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:schwarzschild_radius↔higher_d_metric",
+      "analogous_to"
+    ],
+    [
+      "var:schwarzschild_radius",
+      "analogy:schwarzschild_radius↔compact_dimension",
+      "analogous_to"
+    ],
+    [
+      "var:compact_dimension",
+      "analogy:schwarzschild_radius↔compact_dimension",
+      "analogous_to"
+    ],
+    [
+      "var:schwarzschild_radius",
+      "analogy:schwarzschild_radius↔frequency",
+      "analogous_to"
+    ],
+    [
+      "var:frequency",
+      "analogy:schwarzschild_radius↔frequency",
+      "analogous_to"
+    ],
+    [
+      "var:schwarzschild_radius",
+      "analogy:schwarzschild_radius↔time",
+      "analogous_to"
+    ],
+    [
+      "var:time",
+      "analogy:schwarzschild_radius↔time",
+      "analogous_to"
+    ],
+    [
+      "var:schwarzschild_radius",
+      "analogy:schwarzschild_radius↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:schwarzschild_radius↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:gauge_field",
+      "analogy:gauge_field↔mass",
+      "analogous_to"
+    ],
+    [
+      "var:mass",
+      "analogy:gauge_field↔mass",
+      "analogous_to"
+    ],
+    [
+      "var:gauge_field",
+      "analogy:gauge_field↔temperature",
+      "analogous_to"
+    ],
+    [
+      "var:temperature",
+      "analogy:gauge_field↔temperature",
+      "analogous_to"
+    ],
+    [
+      "var:gauge_field",
+      "analogy:gauge_field↔frequency",
+      "analogous_to"
+    ],
+    [
+      "var:frequency",
+      "analogy:gauge_field↔frequency",
+      "analogous_to"
+    ],
+    [
+      "var:gauge_field",
+      "analogy:gauge_field↔time",
+      "analogous_to"
+    ],
+    [
+      "var:time",
+      "analogy:gauge_field↔time",
+      "analogous_to"
+    ],
+    [
+      "var:gauge_field",
+      "analogy:gauge_field↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:gauge_field↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:gauge_field",
+      "analogy:gauge_field↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:wave_function",
+      "analogy:gauge_field↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:gauge_field",
+      "analogy:gauge_field↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:energy",
+      "analogy:gauge_field↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:gauge_field",
+      "analogy:gauge_field↔geodesic_path",
+      "analogous_to"
+    ],
+    [
+      "var:geodesic_path",
+      "analogy:gauge_field↔geodesic_path",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:higher_d_metric↔mass",
+      "analogous_to"
+    ],
+    [
+      "var:mass",
+      "analogy:higher_d_metric↔mass",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:higher_d_metric↔temperature",
+      "analogous_to"
+    ],
+    [
+      "var:temperature",
+      "analogy:higher_d_metric↔temperature",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:higher_d_metric↔frequency",
+      "analogous_to"
+    ],
+    [
+      "var:frequency",
+      "analogy:higher_d_metric↔frequency",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:higher_d_metric↔time",
+      "analogous_to"
+    ],
+    [
+      "var:time",
+      "analogy:higher_d_metric↔time",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:higher_d_metric↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:higher_d_metric↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:higher_d_metric↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:wave_function",
+      "analogy:higher_d_metric↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:higher_d_metric↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:energy",
+      "analogy:higher_d_metric↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:higher_d_metric↔geodesic_path",
+      "analogous_to"
+    ],
+    [
+      "var:geodesic_path",
+      "analogy:higher_d_metric↔geodesic_path",
+      "analogous_to"
+    ],
+    [
+      "var:mass",
+      "analogy:mass↔compact_dimension",
+      "analogous_to"
+    ],
+    [
+      "var:compact_dimension",
+      "analogy:mass↔compact_dimension",
+      "analogous_to"
+    ],
+    [
+      "var:mass",
+      "analogy:mass↔frequency",
+      "analogous_to"
+    ],
+    [
+      "var:frequency",
+      "analogy:mass↔frequency",
+      "analogous_to"
+    ],
+    [
+      "var:mass",
+      "analogy:mass↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:mass↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:temperature",
+      "analogy:temperature↔compact_dimension",
+      "analogous_to"
+    ],
+    [
+      "var:compact_dimension",
+      "analogy:temperature↔compact_dimension",
+      "analogous_to"
+    ],
+    [
+      "var:temperature",
+      "analogy:temperature↔frequency",
+      "analogous_to"
+    ],
+    [
+      "var:frequency",
+      "analogy:temperature↔frequency",
+      "analogous_to"
+    ],
+    [
+      "var:temperature",
+      "analogy:temperature↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:temperature↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:compact_dimension",
+      "analogy:compact_dimension↔frequency",
+      "analogous_to"
+    ],
+    [
+      "var:frequency",
+      "analogy:compact_dimension↔frequency",
+      "analogous_to"
+    ],
+    [
+      "var:compact_dimension",
+      "analogy:compact_dimension↔time",
+      "analogous_to"
+    ],
+    [
+      "var:time",
+      "analogy:compact_dimension↔time",
+      "analogous_to"
+    ],
+    [
+      "var:compact_dimension",
+      "analogy:compact_dimension↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:compact_dimension↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:compact_dimension",
+      "analogy:compact_dimension↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:wave_function",
+      "analogy:compact_dimension↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:compact_dimension",
+      "analogy:compact_dimension↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:energy",
+      "analogy:compact_dimension↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:compact_dimension",
+      "analogy:compact_dimension↔geodesic_path",
+      "analogous_to"
+    ],
+    [
+      "var:geodesic_path",
+      "analogy:compact_dimension↔geodesic_path",
+      "analogous_to"
+    ],
+    [
+      "var:frequency",
+      "analogy:frequency↔time",
+      "analogous_to"
+    ],
+    [
+      "var:time",
+      "analogy:frequency↔time",
+      "analogous_to"
+    ],
+    [
+      "var:frequency",
+      "analogy:frequency↔velocity",
+      "analogous_to"
+    ],
+    [
+      "var:velocity",
+      "analogy:frequency↔velocity",
+      "analogous_to"
+    ],
+    [
+      "var:frequency",
+      "analogy:frequency↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:frequency↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:frequency",
+      "analogy:frequency↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:wave_function",
+      "analogy:frequency↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:frequency",
+      "analogy:frequency↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:energy",
+      "analogy:frequency↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:frequency",
+      "analogy:frequency↔geodesic_path",
+      "analogous_to"
+    ],
+    [
+      "var:geodesic_path",
+      "analogy:frequency↔geodesic_path",
+      "analogous_to"
+    ],
+    [
+      "var:time",
+      "analogy:time↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:time↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:time",
+      "analogy:time↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:energy",
+      "analogy:time↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:time",
+      "analogy:time↔geodesic_path",
+      "analogous_to"
+    ],
+    [
+      "var:geodesic_path",
+      "analogy:time↔geodesic_path",
+      "analogous_to"
+    ],
+    [
+      "var:velocity",
+      "analogy:velocity↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:velocity↔spacetime_curvature",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:spacetime_curvature↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:wave_function",
+      "analogy:spacetime_curvature↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:spacetime_curvature↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:energy",
+      "analogy:spacetime_curvature↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:spacetime_curvature↔geodesic_path",
+      "analogous_to"
+    ],
+    [
+      "var:geodesic_path",
+      "analogy:spacetime_curvature↔geodesic_path",
       "analogous_to"
     ],
     [
