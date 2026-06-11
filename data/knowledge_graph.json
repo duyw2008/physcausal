@@ -15,28 +15,28 @@
         ],
         "note": "Promoted from tier 4 after 3 validations (score=0.82). Convergence of kinetic_energy and energy on geodesic_path confirmed consistent with axiom chain."
       },
-      "added": 1781170096.6419773
+      "added": 1781170349.118159
     },
     "var:kinetic_energy": {
       "type": "variable",
       "data": {
         "name": "kinetic_energy"
       },
-      "added": 1781170096.6419811
+      "added": 1781170349.1181612
     },
     "var:energy": {
       "type": "variable",
       "data": {
         "name": "energy"
       },
-      "added": 1781170096.6419873
+      "added": 1781170349.118164
     },
     "var:geodesic_path": {
       "type": "variable",
       "data": {
         "name": "geodesic_path"
       },
-      "added": 1781170096.6419911
+      "added": 1781170349.1181657
     },
     "law:测地线方程": {
       "type": "law",
@@ -54,35 +54,35 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6419973
+      "added": 1781170349.1181686
     },
     "var:x^\\mu (坐标)": {
       "type": "variable",
       "data": {
         "name": "x^\\mu (坐标)"
       },
-      "added": 1781170096.641999
+      "added": 1781170349.118169
     },
     "var:\\lambda (仿射参数)": {
       "type": "variable",
       "data": {
         "name": "\\lambda (仿射参数)"
       },
-      "added": 1781170096.6420014
+      "added": 1781170349.1181703
     },
     "var:\\Gamma^\\mu_{\\alpha \\beta} (克里斯托费尔符号)": {
       "type": "variable",
       "data": {
         "name": "\\Gamma^\\mu_{\\alpha \\beta} (克里斯托费尔符号)"
       },
-      "added": 1781170096.6420038
+      "added": 1781170349.1181715
     },
     "var:测地线轨迹": {
       "type": "variable",
       "data": {
         "name": "测地线轨迹"
       },
-      "added": 1781170096.642006
+      "added": 1781170349.1181724
     },
     "law:牛顿第二定律": {
       "type": "law",
@@ -99,49 +99,49 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6422153
+      "added": 1781170349.1182723
     },
     "var:m": {
       "type": "variable",
       "data": {
         "name": "m"
       },
-      "added": 1781170096.6420114
+      "added": 1781170349.118175
     },
     "var:a": {
       "type": "variable",
       "data": {
         "name": "a"
       },
-      "added": 1781170096.6420138
+      "added": 1781170349.118176
     },
     "var:F": {
       "type": "variable",
       "data": {
         "name": "F"
       },
-      "added": 1781170096.6420155
+      "added": 1781170349.118177
     },
     "var:质量 m": {
       "type": "variable",
       "data": {
         "name": "质量 m"
       },
-      "added": 1781170096.6422164
+      "added": 1781170349.118273
     },
     "var:加速度 a": {
       "type": "variable",
       "data": {
         "name": "加速度 a"
       },
-      "added": 1781170096.6420226
+      "added": 1781170349.1181803
     },
     "var:力 F": {
       "type": "variable",
       "data": {
         "name": "力 F"
       },
-      "added": 1781170096.642025
+      "added": 1781170349.1181815
     },
     "law:未在给定定律": {
       "type": "law",
@@ -153,28 +153,28 @@
         "outputs": [],
         "note": ""
       },
-      "added": 1781170096.642028
+      "added": 1781170349.118183
     },
     "var:m (质量)": {
       "type": "variable",
       "data": {
         "name": "m (质量)"
       },
-      "added": 1781170096.6420317
+      "added": 1781170349.1181846
     },
     "var:a (加速度)": {
       "type": "variable",
       "data": {
         "name": "a (加速度)"
       },
-      "added": 1781170096.6420336
+      "added": 1781170349.1181855
     },
     "var:F (力)": {
       "type": "variable",
       "data": {
         "name": "F (力)"
       },
-      "added": 1781170096.6420357
+      "added": 1781170349.1181865
     },
     "law:等效原理": {
       "type": "law",
@@ -191,28 +191,28 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6420414
+      "added": 1781170349.1181881
     },
     "var:惯性质量 m_i": {
       "type": "variable",
       "data": {
         "name": "惯性质量 m_i"
       },
-      "added": 1781170096.6420424
+      "added": 1781170349.1181886
     },
     "var:引力质量 m_g": {
       "type": "variable",
       "data": {
         "name": "引力质量 m_g"
       },
-      "added": 1781170096.6420453
+      "added": 1781170349.1181898
     },
     "var:等效质量": {
       "type": "variable",
       "data": {
         "name": "等效质量"
       },
-      "added": 1781170096.6420472
+      "added": 1781170349.1181908
     },
     "law:不确定性原理": {
       "type": "law",
@@ -229,28 +229,28 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6420505
+      "added": 1781170349.1181922
     },
     "var:位置不确定度Δx": {
       "type": "variable",
       "data": {
         "name": "位置不确定度Δx"
       },
-      "added": 1781170096.6420517
+      "added": 1781170349.1181927
     },
     "var:动量不确定度Δp": {
       "type": "variable",
       "data": {
         "name": "动量不确定度Δp"
       },
-      "added": 1781170096.6420538
+      "added": 1781170349.1181936
     },
     "var:乘积下限": {
       "type": "variable",
       "data": {
         "name": "乘积下限"
       },
-      "added": 1781170096.642056
+      "added": 1781170349.1181958
     },
     "law:最小作用量原理": {
       "type": "law",
@@ -269,42 +269,42 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6420593
+      "added": 1781170349.1181972
     },
     "var:拉格朗日量 L": {
       "type": "variable",
       "data": {
         "name": "拉格朗日量 L"
       },
-      "added": 1781170096.64206
+      "added": 1781170349.1181977
     },
     "var:广义坐标 q": {
       "type": "variable",
       "data": {
         "name": "广义坐标 q"
       },
-      "added": 1781170096.6420624
+      "added": 1781170349.1181986
     },
     "var:广义速度 \\dot{q}": {
       "type": "variable",
       "data": {
         "name": "广义速度 \\dot{q}"
       },
-      "added": 1781170096.6420646
+      "added": 1781170349.1181996
     },
     "var:时间 t": {
       "type": "variable",
       "data": {
         "name": "时间 t"
       },
-      "added": 1781170096.642067
+      "added": 1781170349.1182005
     },
     "var:作用量 S 的变分为零": {
       "type": "variable",
       "data": {
         "name": "作用量 S 的变分为零"
       },
-      "added": 1781170096.642069
+      "added": 1781170349.118202
     },
     "law:ThermalDecoherence": {
       "type": "law",
@@ -320,21 +320,21 @@
         ],
         "note": "热退相干: 温度决定环境耦合强度。声子/光子热涨落 → 退相干速率 ∝ T。Landauer 和 Decoherence 之间的桥梁。"
       },
-      "added": 1781170096.6420727
+      "added": 1781170349.1182034
     },
     "var:temperature": {
       "type": "variable",
       "data": {
         "name": "temperature"
       },
-      "added": 1781170096.642505
+      "added": 1781170349.1184087
     },
     "var:environment_coupling": {
       "type": "variable",
       "data": {
         "name": "environment_coupling"
       },
-      "added": 1781170096.642184
+      "added": 1781170349.1182587
     },
     "law:DecoherenceEntropy": {
       "type": "law",
@@ -350,21 +350,21 @@
         ],
         "note": "退相干熵产生: 量子系统退相干 → 信息流入环境 → 熵增。von Neumann 熵 S = -Tr(ρ ln ρ), Landauer 原理的信息-熵等价。"
       },
-      "added": 1781170096.642079
+      "added": 1781170349.1182065
     },
     "var:mixed_state": {
       "type": "variable",
       "data": {
         "name": "mixed_state"
       },
-      "added": 1781170096.6421719
+      "added": 1781170349.1182518
     },
     "var:entropy": {
       "type": "variable",
       "data": {
         "name": "entropy"
       },
-      "added": 1781170096.6421902
+      "added": 1781170349.1182616
     },
     "law:DecoherenceCollapse": {
       "type": "law",
@@ -380,14 +380,14 @@
         ],
         "note": "退相干-坍缩桥接: 混合态的纯度 Tr(ρ^2) 决定有效坍缩概率。这是量子达尔文主义/退相干程序的核心假设，但\"坍缩是否完全由退相干解释\"仍是开放问题。标记 tier 3。"
       },
-      "added": 1781170096.6420856
+      "added": 1781170349.1182096
     },
     "var:collapse_probability": {
       "type": "variable",
       "data": {
         "name": "collapse_probability"
       },
-      "added": 1781170096.6420894
+      "added": 1781170349.118211
     },
     "law:ThermalSymmetryBreaking": {
       "type": "law",
@@ -403,14 +403,14 @@
         ],
         "note": "热力学对称破缺: 温度低于临界温度 → 对称性丢失。铁磁、超导、超流等相变的统一因果机制。"
       },
-      "added": 1781170096.6420925
+      "added": 1781170349.1182127
     },
     "var:broken_symmetry": {
       "type": "variable",
       "data": {
         "name": "broken_symmetry"
       },
-      "added": 1781170096.6421115
+      "added": 1781170349.1182218
     },
     "law:ExternalSymmetryBreaking": {
       "type": "law",
@@ -426,14 +426,14 @@
         ],
         "note": "显式对称破缺: 外场/外扰动直接打破系统对称性。Zeeman效应、Stark效应的因果机制。"
       },
-      "added": 1781170096.6421008
+      "added": 1781170349.1182165
     },
     "var:external_perturbation": {
       "type": "variable",
       "data": {
         "name": "external_perturbation"
       },
-      "added": 1781170096.6421018
+      "added": 1781170349.118217
     },
     "law:QuantumFluctuationSymmetryBreaking": {
       "type": "law",
@@ -449,14 +449,14 @@
         ],
         "note": "量子涨落触发对称破缺: 真空期待值 ≠ 0 来自量子涨落的随机触发。Higgs机制的核心。tier 3 因为哪个方向被挑中是随机的，不是确定性的因果——但触发机制本身是确定的。"
       },
-      "added": 1781170096.642108
+      "added": 1781170349.11822
     },
     "var:quantum_fluctuation": {
       "type": "variable",
       "data": {
         "name": "quantum_fluctuation"
       },
-      "added": 1781170096.6421092
+      "added": 1781170349.1182206
     },
     "law:DynamicPressure": {
       "type": "law",
@@ -472,21 +472,21 @@
         ],
         "note": "伯努利原理: 流速 → 动压。流体动力学的基本因果边。"
       },
-      "added": 1781170096.642115
+      "added": 1781170349.1182234
     },
     "var:velocity": {
       "type": "variable",
       "data": {
         "name": "velocity"
       },
-      "added": 1781170096.6421552
+      "added": 1781170349.118243
     },
     "var:dynamic_pressure": {
       "type": "variable",
       "data": {
         "name": "dynamic_pressure"
       },
-      "added": 1781170096.642123
+      "added": 1781170349.1182275
     },
     "law:DragForce": {
       "type": "law",
@@ -503,14 +503,14 @@
         ],
         "note": "阻力公式: 动压+速度 → 阻力。Rayleigh耗散的现象学基础。"
       },
-      "added": 1781170096.642122
+      "added": 1781170349.118227
     },
     "var:drag_force": {
       "type": "variable",
       "data": {
         "name": "drag_force"
       },
-      "added": 1781170096.6421611
+      "added": 1781170349.1182468
     },
     "law:FrictionalEnergyLoss": {
       "type": "law",
@@ -526,14 +526,14 @@
         ],
         "note": "摩擦做功: 阻力 × 位移 → 动能损失。耗散的能量转化。"
       },
-      "added": 1781170096.642132
+      "added": 1781170349.1182318
     },
     "var:kinetic_energy_loss": {
       "type": "variable",
       "data": {
         "name": "kinetic_energy_loss"
       },
-      "added": 1781170096.6421793
+      "added": 1781170349.1182563
     },
     "law:FrictionalHeating": {
       "type": "law",
@@ -549,7 +549,7 @@
         ],
         "note": "摩擦生热: 动能损失 → 热能 → 熵增。耗散的不可逆性来源。与DecoherenceEntropy同构: 都是子系统→环境的信息/能量逃逸。"
       },
-      "added": 1781170096.6421394
+      "added": 1781170349.118235
     },
     "law:SubsystemEnergyTransfer": {
       "type": "law",
@@ -565,21 +565,21 @@
         ],
         "note": "子系统能量转移: 从子系统视角看耗散, 从全系统视角看守恒。δS=0对全系统成立, 子系统边界产生表观不可逆。与Decoherence的environment_coupling同构。"
       },
-      "added": 1781170096.642147
+      "added": 1781170349.1182387
     },
     "var:subsystem_boundary": {
       "type": "variable",
       "data": {
         "name": "subsystem_boundary"
       },
-      "added": 1781170096.6421583
+      "added": 1781170349.1182456
     },
     "var:energy_transfer": {
       "type": "variable",
       "data": {
         "name": "energy_transfer"
       },
-      "added": 1781170096.6421506
+      "added": 1781170349.1182408
     },
     "law:BoundaryLayerDrag": {
       "type": "law",
@@ -596,7 +596,7 @@
         ],
         "note": "边界层摩擦: 速度+表面 → 壁面剪应力 → 阻力。流体边界层是经典耗散的核心机制。"
       },
-      "added": 1781170096.6421542
+      "added": 1781170349.1182425
     },
     "law:PhaseDecoherence": {
       "type": "law",
@@ -613,14 +613,14 @@
         ],
         "note": "相位退相干: 环境耦合首先破坏相位相干性 → 密度矩阵非对角元指数衰减 → 混合态。这是退相干的核心机制——相位信息的耗散。与经典耗散同构: phase_coherence ≈ kinetic_energy, environment_coupling ≈ drag_force。"
       },
-      "added": 1781170096.642165
+      "added": 1781170349.1182487
     },
     "var:phase_coherence": {
       "type": "variable",
       "data": {
         "name": "phase_coherence"
       },
-      "added": 1781170096.6421762
+      "added": 1781170349.1182537
     },
     "law:DissipationAnalogy": {
       "type": "law",
@@ -636,7 +636,7 @@
         ],
         "note": "耗散类比: 量子相位耗散 ↔ 经典动能耗散。两者都是子系统→环境的不可逆信息/能量逃逸。同一因果结构在两个尺度的投影。tier 3 因为是结构类比不是严格物理推导。"
       },
-      "added": 1781170096.6421754
+      "added": 1781170349.1182535
     },
     "law:InformationDissipation": {
       "type": "law",
@@ -653,14 +653,14 @@
         ],
         "note": "信息耗散: 环境耦合 → 子系统信息丢失 → 环境熵增。Landauer原理(信息擦除=熵增)和退相干(环境耦合→混合态)的统一表述。方向严格: 不是信息驱动耦合, 是耦合导致信息丢失。与动能耗散/相位耗散同构。"
       },
-      "added": 1781170096.642183
+      "added": 1781170349.1182582
     },
     "var:information_loss": {
       "type": "variable",
       "data": {
         "name": "information_loss"
       },
-      "added": 1781170096.6421874
+      "added": 1781170349.1182601
     },
     "law:诺特定理": {
       "type": "law",
@@ -678,119 +678,119 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6422472
+      "added": 1781170349.118288
     },
     "var:拉格朗日量L": {
       "type": "variable",
       "data": {
         "name": "拉格朗日量L"
       },
-      "added": 1781170096.6421976
+      "added": 1781170349.118264
     },
     "var:广义坐标q_i": {
       "type": "variable",
       "data": {
         "name": "广义坐标q_i"
       },
-      "added": 1781170096.642201
+      "added": 1781170349.1182656
     },
     "var:广义速度\\dot{q}_i": {
       "type": "variable",
       "data": {
         "name": "广义速度\\dot{q}_i"
       },
-      "added": 1781170096.6422038
+      "added": 1781170349.118267
     },
     "var:连续对称变换": {
       "type": "variable",
       "data": {
         "name": "连续对称变换"
       },
-      "added": 1781170096.642207
+      "added": 1781170349.1182685
     },
     "var:守恒量（如能量、动量、角动量）": {
       "type": "variable",
       "data": {
         "name": "守恒量（如能量、动量、角动量）"
       },
-      "added": 1781170096.642211
+      "added": 1781170349.1182704
     },
     "var:加速度 a 或力 F": {
       "type": "variable",
       "data": {
         "name": "加速度 a 或力 F"
       },
-      "added": 1781170096.6422193
+      "added": 1781170349.1182742
     },
     "var:力 F 或动量变化率 dp/dt": {
       "type": "variable",
       "data": {
         "name": "力 F 或动量变化率 dp/dt"
       },
-      "added": 1781170096.642223
+      "added": 1781170349.118276
     },
     "var:拉格朗日密度 L": {
       "type": "variable",
       "data": {
         "name": "拉格朗日密度 L"
       },
-      "added": 1781170096.642229
+      "added": 1781170349.1182787
     },
     "var:场 φ": {
       "type": "variable",
       "data": {
         "name": "场 φ"
       },
-      "added": 1781170096.6422327
+      "added": 1781170349.1182804
     },
     "var:无穷小变换参数": {
       "type": "variable",
       "data": {
         "name": "无穷小变换参数"
       },
-      "added": 1781170096.642236
+      "added": 1781170349.118282
     },
     "var:守恒流 J^μ": {
       "type": "variable",
       "data": {
         "name": "守恒流 J^μ"
       },
-      "added": 1781170096.6422396
+      "added": 1781170349.1182835
     },
     "var:守恒荷 Q": {
       "type": "variable",
       "data": {
         "name": "守恒荷 Q"
       },
-      "added": 1781170096.6422431
+      "added": 1781170349.1182864
     },
     "var:连续对称性": {
       "type": "variable",
       "data": {
         "name": "连续对称性"
       },
-      "added": 1781170096.6422484
+      "added": 1781170349.1182888
     },
     "var:拉格朗日量": {
       "type": "variable",
       "data": {
         "name": "拉格朗日量"
       },
-      "added": 1781170096.6422517
+      "added": 1781170349.1182902
     },
     "var:守恒流": {
       "type": "variable",
       "data": {
         "name": "守恒流"
       },
-      "added": 1781170096.642255
+      "added": 1781170349.1182919
     },
     "var:守恒荷": {
       "type": "variable",
       "data": {
         "name": "守恒荷"
       },
-      "added": 1781170096.6422584
+      "added": 1781170349.1182945
     },
     "law:Decoherence from system-environment entanglement": {
       "type": "law",
@@ -806,21 +806,21 @@
         ],
         "note": ""
       },
-      "added": 1781170096.642264
+      "added": 1781170349.1182969
     },
     "var:system_environment_entanglement": {
       "type": "variable",
       "data": {
         "name": "system_environment_entanglement"
       },
-      "added": 1781170096.6422672
+      "added": 1781170349.1182973
     },
     "var:non_markovian_decoherence_dynamics": {
       "type": "variable",
       "data": {
         "name": "non_markovian_decoherence_dynamics"
       },
-      "added": 1781170096.642271
+      "added": 1781170349.1182988
     },
     "law:Decoherence induced by QPC measurement": {
       "type": "law",
@@ -836,21 +836,21 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6422756
+      "added": 1781170349.118301
     },
     "var:quantum_point_contact_measurement": {
       "type": "variable",
       "data": {
         "name": "quantum_point_contact_measurement"
       },
-      "added": 1781170096.6422782
+      "added": 1781170349.118302
     },
     "var:charge_qubit_decoherence": {
       "type": "variable",
       "data": {
         "name": "charge_qubit_decoherence"
       },
-      "added": 1781170096.642282
+      "added": 1781170349.1183038
     },
     "law:Bell_inequality_violation_requires_fine-tuning": {
       "type": "law",
@@ -867,28 +867,28 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6422865
+      "added": 1781170349.1183057
     },
     "var:nonsignalling_correlations": {
       "type": "variable",
       "data": {
         "name": "nonsignalling_correlations"
       },
-      "added": 1781170096.6422877
+      "added": 1781170349.1183064
     },
     "var:bell_inequality_violation": {
       "type": "variable",
       "data": {
         "name": "bell_inequality_violation"
       },
-      "added": 1781170096.6422908
+      "added": 1781170349.1183078
     },
     "var:fine_tuning_of_causal_parameters": {
       "type": "variable",
       "data": {
         "name": "fine_tuning_of_causal_parameters"
       },
-      "added": 1781170096.6422946
+      "added": 1781170349.1183097
     },
     "law:superluminal_influence_causes_bell_correlations": {
       "type": "law",
@@ -904,21 +904,21 @@
         ],
         "note": ""
       },
-      "added": 1781170096.642299
+      "added": 1781170349.1183114
     },
     "var:superluminal_causal_influence": {
       "type": "variable",
       "data": {
         "name": "superluminal_causal_influence"
       },
-      "added": 1781170096.6423
+      "added": 1781170349.118312
     },
     "var:bell_correlations": {
       "type": "variable",
       "data": {
         "name": "bell_correlations"
       },
-      "added": 1781170096.6423242
+      "added": 1781170349.118323
     },
     "law:superdeterminism_causes_bell_correlations": {
       "type": "law",
@@ -934,14 +934,14 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6423101
+      "added": 1781170349.1183157
     },
     "var:denial_of_freedom_of_choice_of_settings": {
       "type": "variable",
       "data": {
         "name": "denial_of_freedom_of_choice_of_settings"
       },
-      "added": 1781170096.642311
+      "added": 1781170349.1183162
     },
     "law:retrocausal_influence_causes_bell_correlations": {
       "type": "law",
@@ -957,14 +957,14 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6423197
+      "added": 1781170349.1183202
     },
     "var:retrocausal_influence": {
       "type": "variable",
       "data": {
         "name": "retrocausal_influence"
       },
-      "added": 1781170096.6423206
+      "added": 1781170349.1183207
     },
     "law:Landauer Principle: Information has mass": {
       "type": "law",
@@ -980,21 +980,21 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6423287
+      "added": 1781170349.1183262
     },
     "var:information": {
       "type": "variable",
       "data": {
         "name": "information"
       },
-      "added": 1781170096.6425636
+      "added": 1781170349.118436
     },
     "var:mass": {
       "type": "variable",
       "data": {
         "name": "mass"
       },
-      "added": 1781170096.642569
+      "added": 1781170349.1184385
     },
     "law:Gravitational radiation irreversibility from Landauer principle": {
       "type": "law",
@@ -1012,35 +1012,35 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6423411
+      "added": 1781170349.1183321
     },
     "var:gravitational_radiation_conveys_information": {
       "type": "variable",
       "data": {
         "name": "gravitational_radiation_conveys_information"
       },
-      "added": 1781170096.642342
+      "added": 1781170349.1183326
     },
     "var:landauer_principle": {
       "type": "variable",
       "data": {
         "name": "landauer_principle"
       },
-      "added": 1781170096.6423554
+      "added": 1781170349.1183348
     },
     "var:gravitational_radiation_is_irreversible": {
       "type": "variable",
       "data": {
         "name": "gravitational_radiation_is_irreversible"
       },
-      "added": 1781170096.6423597
+      "added": 1781170349.1183364
     },
     "var:dissipation": {
       "type": "variable",
       "data": {
         "name": "dissipation"
       },
-      "added": 1781170096.6423638
+      "added": 1781170349.1183383
     },
     "law:Radiated energy part from radiated information": {
       "type": "law",
@@ -1056,21 +1056,21 @@
         ],
         "note": ""
       },
-      "added": 1781170096.642369
+      "added": 1781170349.1183417
     },
     "var:radiated_information": {
       "type": "variable",
       "data": {
         "name": "radiated_information"
       },
-      "added": 1781170096.6423697
+      "added": 1781170349.1183422
     },
     "var:part_of_radiated_energy": {
       "type": "variable",
       "data": {
         "name": "part_of_radiated_energy"
       },
-      "added": 1781170096.6423738
+      "added": 1781170349.1183438
     },
     "law:Bits erased linked to Bondi news function": {
       "type": "law",
@@ -1086,21 +1086,21 @@
         ],
         "note": ""
       },
-      "added": 1781170096.642379
+      "added": 1781170349.1183515
     },
     "var:bits_erased": {
       "type": "variable",
       "data": {
         "name": "bits_erased"
       },
-      "added": 1781170096.6423798
+      "added": 1781170349.118352
     },
     "var:bondi_news_function": {
       "type": "variable",
       "data": {
         "name": "bondi_news_function"
       },
-      "added": 1781170096.6423838
+      "added": 1781170349.1183538
     },
     "law:ChemicalPotentialNonmonotonicTemperatureDependence": {
       "type": "law",
@@ -1117,21 +1117,21 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6423888
+      "added": 1781170349.118356
     },
     "var:low_dimensionality": {
       "type": "variable",
       "data": {
         "name": "low_dimensionality"
       },
-      "added": 1781170096.6423898
+      "added": 1781170349.1183565
     },
     "var:chemical_potential_nonmonotonic_dependence": {
       "type": "variable",
       "data": {
         "name": "chemical_potential_nonmonotonic_dependence"
       },
-      "added": 1781170096.6424067
+      "added": 1781170349.1183631
     },
     "law:ChemicalPotentialNonmonotonicityIndicatesThermodynamicRegime": {
       "type": "law",
@@ -1147,14 +1147,14 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6424057
+      "added": 1781170349.118363
     },
     "var:thermodynamic_regime_with_large_fluctuations": {
       "type": "variable",
       "data": {
         "name": "thermodynamic_regime_with_large_fluctuations"
       },
-      "added": 1781170096.642417
+      "added": 1781170349.1183689
     },
     "law:ThermodynamicRegimeCausesLargeSusceptibilities": {
       "type": "law",
@@ -1171,21 +1171,21 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6424162
+      "added": 1781170349.1183674
     },
     "var:large_isothermal_compressibility": {
       "type": "variable",
       "data": {
         "name": "large_isothermal_compressibility"
       },
-      "added": 1781170096.6424212
+      "added": 1781170349.118371
     },
     "var:large_specific_heat": {
       "type": "variable",
       "data": {
         "name": "large_specific_heat"
       },
-      "added": 1781170096.6424274
+      "added": 1781170349.118373
     },
     "law:Information-Energy Relation in Neural Systems": {
       "type": "law",
@@ -1203,35 +1203,35 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6424325
+      "added": 1781170349.118375
     },
     "var:neural_activity": {
       "type": "variable",
       "data": {
         "name": "neural_activity"
       },
-      "added": 1781170096.6424336
+      "added": 1781170349.1183758
     },
     "var:energy_cost": {
       "type": "variable",
       "data": {
         "name": "energy_cost"
       },
-      "added": 1781170096.6424682
+      "added": 1781170349.1183903
     },
     "var:decoding_accuracy": {
       "type": "variable",
       "data": {
         "name": "decoding_accuracy"
       },
-      "added": 1781170096.6424422
+      "added": 1781170349.1183798
     },
     "var:information_thermodynamic_quantities": {
       "type": "variable",
       "data": {
         "name": "information_thermodynamic_quantities"
       },
-      "added": 1781170096.6424465
+      "added": 1781170349.1183815
     },
     "law:Stochastic Thermodynamics of Neural Inference": {
       "type": "law",
@@ -1249,28 +1249,28 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6424537
+      "added": 1781170349.118384
     },
     "var:noisy_neural_network": {
       "type": "variable",
       "data": {
         "name": "noisy_neural_network"
       },
-      "added": 1781170096.6424549
+      "added": 1781170349.1183844
     },
     "var:brownian_particle_motion": {
       "type": "variable",
       "data": {
         "name": "brownian_particle_motion"
       },
-      "added": 1781170096.6424594
+      "added": 1781170349.1183865
     },
     "var:probabilistic_motion_inference": {
       "type": "variable",
       "data": {
         "name": "probabilistic_motion_inference"
       },
-      "added": 1781170096.6424637
+      "added": 1781170349.1183882
     },
     "law:Learning as Information Storage in Synapses": {
       "type": "law",
@@ -1288,35 +1288,35 @@
         ],
         "note": ""
       },
-      "added": 1781170096.6424737
+      "added": 1781170349.118393
     },
     "var:neural_network_activity": {
       "type": "variable",
       "data": {
         "name": "neural_network_activity"
       },
-      "added": 1781170096.6424744
+      "added": 1781170349.1183934
     },
     "var:particle_velocity": {
       "type": "variable",
       "data": {
         "name": "particle_velocity"
       },
-      "added": 1781170096.642479
+      "added": 1781170349.1183953
     },
     "var:synaptic_weight_information": {
       "type": "variable",
       "data": {
         "name": "synaptic_weight_information"
       },
-      "added": 1781170096.6424835
+      "added": 1781170349.1183975
     },
     "var:learning": {
       "type": "variable",
       "data": {
         "name": "learning"
       },
-      "added": 1781170096.6424878
+      "added": 1781170349.1183994
     },
     "law:MasterEquationDecoherence": {
       "type": "law",
@@ -1335,35 +1335,35 @@
         ],
         "note": "[arXiv] Exact Master Equation and Non-Markovian Decoherence for Quantum Dot Quantum Comp"
       },
-      "added": 1781170096.642493
+      "added": 1781170349.1184018
     },
     "var:system_reservoir_coupling": {
       "type": "variable",
       "data": {
         "name": "system_reservoir_coupling"
       },
-      "added": 1781170096.642494
+      "added": 1781170349.1184022
     },
     "var:spectral_density": {
       "type": "variable",
       "data": {
         "name": "spectral_density"
       },
-      "added": 1781170096.6424985
+      "added": 1781170349.1184053
     },
     "var:bias": {
       "type": "variable",
       "data": {
         "name": "bias"
       },
-      "added": 1781170096.6425104
+      "added": 1781170349.118411
     },
     "var:decoherence_dynamics": {
       "type": "variable",
       "data": {
         "name": "decoherence_dynamics"
       },
-      "added": 1781170096.6425152
+      "added": 1781170349.1184132
     },
     "law:QuantumJumpsFromEngineeredCoupling": {
       "type": "law",
@@ -1380,28 +1380,28 @@
         ],
         "note": "[arXiv] Engineering Progressive Decoherence with Quantum Jumps in Charge Qubit"
       },
-      "added": 1781170096.642521
+      "added": 1781170349.1184158
     },
     "var:engineered_coupling_to_reservoir": {
       "type": "variable",
       "data": {
         "name": "engineered_coupling_to_reservoir"
       },
-      "added": 1781170096.6425219
+      "added": 1781170349.1184163
     },
     "var:harmonic_oscillator_mode_in_lc_circuit": {
       "type": "variable",
       "data": {
         "name": "harmonic_oscillator_mode_in_lc_circuit"
       },
-      "added": 1781170096.6425264
+      "added": 1781170349.1184194
     },
     "var:quantum_jumps": {
       "type": "variable",
       "data": {
         "name": "quantum_jumps"
       },
-      "added": 1781170096.6425312
+      "added": 1781170349.1184218
     },
     "law:DecoherenceFromEngineeredReservoir": {
       "type": "law",
@@ -1417,21 +1417,21 @@
         ],
         "note": "[arXiv] Engineering Progressive Decoherence with Quantum Jumps in Charge Qubit"
       },
-      "added": 1781170096.6425364
+      "added": 1781170349.1184247
     },
     "var:coupling_to_engineered_reservoir": {
       "type": "variable",
       "data": {
         "name": "coupling_to_engineered_reservoir"
       },
-      "added": 1781170096.6425374
+      "added": 1781170349.1184251
     },
     "var:loss_of_quantum_coherence": {
       "type": "variable",
       "data": {
         "name": "loss_of_quantum_coherence"
       },
-      "added": 1781170096.6425424
+      "added": 1781170349.1184278
     },
     "law:Landauer Principle": {
       "type": "law",
@@ -1447,21 +1447,21 @@
         ],
         "note": "[arXiv] Landauer Principle and General Relativity"
       },
-      "added": 1781170096.6425505
+      "added": 1781170349.1184301
     },
     "var:information_erasure": {
       "type": "variable",
       "data": {
         "name": "information_erasure"
       },
-      "added": 1781170096.6425517
+      "added": 1781170349.1184304
     },
     "var:heat_dissipation": {
       "type": "variable",
       "data": {
         "name": "heat_dissipation"
       },
-      "added": 1781170096.6425564
+      "added": 1781170349.118433
     },
     "law:Mass-Information Equivalence": {
       "type": "law",
@@ -1477,7 +1477,7 @@
         ],
         "note": "[arXiv] Landauer Principle and General Relativity"
       },
-      "added": 1781170096.6425626
+      "added": 1781170349.1184356
     },
     "law:Landauer principle (Tsallis generalization)": {
       "type": "law",
@@ -1493,21 +1493,21 @@
         ],
         "note": "[arXiv] Modified Landauer principle according to Tsallis entropy"
       },
-      "added": 1781170096.6425748
+      "added": 1781170349.1184409
     },
     "var:erasure_of_one_bit_of_information": {
       "type": "variable",
       "data": {
         "name": "erasure_of_one_bit_of_information"
       },
-      "added": 1781170096.642576
+      "added": 1781170349.1184416
     },
     "var:lower_bound_of_dissipated_energy": {
       "type": "variable",
       "data": {
         "name": "lower_bound_of_dissipated_energy"
       },
-      "added": 1781170096.6425807
+      "added": 1781170349.1184437
     },
     "law:Mass-energy equivalence for information (Tsallis modification)": {
       "type": "law",
@@ -1523,21 +1523,21 @@
         ],
         "note": "[arXiv] Modified Landauer principle according to Tsallis entropy"
       },
-      "added": 1781170096.6425867
+      "added": 1781170349.1184464
     },
     "var:one_bit_of_information": {
       "type": "variable",
       "data": {
         "name": "one_bit_of_information"
       },
-      "added": 1781170096.6425877
+      "added": 1781170349.1184478
     },
     "var:mass_ascribed_to_one_bit_of_information": {
       "type": "variable",
       "data": {
         "name": "mass_ascribed_to_one_bit_of_information"
       },
-      "added": 1781170096.6425927
+      "added": 1781170349.1184514
     },
     "law:Entanglement encodes gluing of quanta of space": {
       "type": "law",
@@ -1555,35 +1555,35 @@
         ],
         "note": "[arXiv] Loop Quantum Gravity and Quantum Information"
       },
-      "added": 1781170096.6425984
+      "added": 1781170349.1184542
     },
     "var:link_entanglement": {
       "type": "variable",
       "data": {
         "name": "link_entanglement"
       },
-      "added": 1781170096.6426017
+      "added": 1781170349.1184547
     },
     "var:intertwiner_entanglement": {
       "type": "variable",
       "data": {
         "name": "intertwiner_entanglement"
       },
-      "added": 1781170096.6426067
+      "added": 1781170349.118457
     },
     "var:boundary_spin_entanglement": {
       "type": "variable",
       "data": {
         "name": "boundary_spin_entanglement"
       },
-      "added": 1781170096.642612
+      "added": 1781170349.1184595
     },
     "var:gluing_of_quanta_of_space": {
       "type": "variable",
       "data": {
         "name": "gluing_of_quanta_of_space"
       },
-      "added": 1781170096.642617
+      "added": 1781170349.1184628
     },
     "law:Entanglement structures enable reconstruction of quantum geometry": {
       "type": "law",
@@ -1599,21 +1599,21 @@
         ],
         "note": "[arXiv] Loop Quantum Gravity and Quantum Information"
       },
-      "added": 1781170096.6426232
+      "added": 1781170349.1184654
     },
     "var:network_of_entanglement_structures": {
       "type": "variable",
       "data": {
         "name": "network_of_entanglement_structures"
       },
-      "added": 1781170096.642624
+      "added": 1781170349.1184661
     },
     "var:reconstruction_of_quantum_geometry": {
       "type": "variable",
       "data": {
         "name": "reconstruction_of_quantum_geometry"
       },
-      "added": 1781170096.6426294
+      "added": 1781170349.1184685
     },
     "law:Statistical_mechanics_random_ensemble_universality": {
       "type": "law",
@@ -1629,21 +1629,21 @@
         ],
         "note": "[arXiv] Entanglement dynamics in hybrid quantum circuits"
       },
-      "added": 1781170096.6426353
+      "added": 1781170349.1184711
     },
     "var:random_ensemble_statistical_properties": {
       "type": "variable",
       "data": {
         "name": "random_ensemble_statistical_properties"
       },
-      "added": 1781170096.6426363
+      "added": 1781170349.1184716
     },
     "var:simple_universal_laws": {
       "type": "variable",
       "data": {
         "name": "simple_universal_laws"
       },
-      "added": 1781170096.6426413
+      "added": 1781170349.118474
     },
     "cv:Convergence_geodesic_path@quantum": {
       "type": "cross_validation",
@@ -1652,7 +1652,7 @@
         "domain": "quantum",
         "passed": true
       },
-      "added": 1781170096.643137
+      "added": 1781170349.118698
     },
     "cv:测地线方程@quantum": {
       "type": "cross_validation",
@@ -1661,7 +1661,7 @@
         "domain": "quantum",
         "passed": false
       },
-      "added": 1781170096.6431465
+      "added": 1781170349.1187024
     },
     "cv:牛顿第二定律@quantum": {
       "type": "cross_validation",
@@ -1670,7 +1670,7 @@
         "domain": "quantum",
         "passed": true
       },
-      "added": 1781170096.643154
+      "added": 1781170349.1187057
     },
     "cv:等效原理@quantum": {
       "type": "cross_validation",
@@ -1679,7 +1679,7 @@
         "domain": "quantum",
         "passed": false
       },
-      "added": 1781170096.6431642
+      "added": 1781170349.1187105
     },
     "cv:最小作用量原理@quantum": {
       "type": "cross_validation",
@@ -1688,7 +1688,7 @@
         "domain": "quantum",
         "passed": false
       },
-      "added": 1781170096.643171
+      "added": 1781170349.1187134
     },
     "cv:Convergence_geodesic_path@thermodynamics": {
       "type": "cross_validation",
@@ -1697,7 +1697,7 @@
         "domain": "thermodynamics",
         "passed": true
       },
-      "added": 1781170096.6431775
+      "added": 1781170349.1187174
     },
     "cv:牛顿第二定律@geometry": {
       "type": "cross_validation",
@@ -1706,7 +1706,7 @@
         "domain": "geometry",
         "passed": true
       },
-      "added": 1781170096.6431837
+      "added": 1781170349.1187205
     },
     "cv:不确定性原理@geometry": {
       "type": "cross_validation",
@@ -1715,7 +1715,7 @@
         "domain": "geometry",
         "passed": false
       },
-      "added": 1781170096.6431923
+      "added": 1781170349.1187267
     },
     "cv:最小作用量原理@geometry": {
       "type": "cross_validation",
@@ -1724,7 +1724,7 @@
         "domain": "geometry",
         "passed": false
       },
-      "added": 1781170096.6431987
+      "added": 1781170349.1187294
     },
     "cv:测地线方程@thermodynamics": {
       "type": "cross_validation",
@@ -1733,7 +1733,7 @@
         "domain": "thermodynamics",
         "passed": false
       },
-      "added": 1781170096.6432047
+      "added": 1781170349.1187322
     },
     "cv:牛顿第二定律@thermodynamics": {
       "type": "cross_validation",
@@ -1742,7 +1742,7 @@
         "domain": "thermodynamics",
         "passed": true
       },
-      "added": 1781170096.6432106
+      "added": 1781170349.118735
     },
     "cv:等效原理@thermodynamics": {
       "type": "cross_validation",
@@ -1751,7 +1751,7 @@
         "domain": "thermodynamics",
         "passed": false
       },
-      "added": 1781170096.6432168
+      "added": 1781170349.118738
     },
     "cv:不确定性原理@thermodynamics": {
       "type": "cross_validation",
@@ -1760,7 +1760,7 @@
         "domain": "thermodynamics",
         "passed": false
       },
-      "added": 1781170096.643223
+      "added": 1781170349.1187408
     },
     "cv:最小作用量原理@thermodynamics": {
       "type": "cross_validation",
@@ -1769,7 +1769,7 @@
         "domain": "thermodynamics",
         "passed": false
       },
-      "added": 1781170096.6432292
+      "added": 1781170349.118744
     },
     "paper:2401.12345": {
       "type": "paper",
@@ -1777,7 +1777,7 @@
         "title": "Master Equation Decoherence",
         "arxiv_id": "2401.12345"
       },
-      "added": 1781170096.6433709
+      "added": 1781170349.1188173
     },
     "paper:2401.12346": {
       "type": "paper",
@@ -1785,7 +1785,7 @@
         "title": "Quantum Jumps from Engineered Coupling",
         "arxiv_id": "2401.12346"
       },
-      "added": 1781170096.643373
+      "added": 1781170349.1188185
     },
     "paper:2401.12347": {
       "type": "paper",
@@ -1793,7 +1793,7 @@
         "title": "Decoherence from Engineered Reservoir",
         "arxiv_id": "2401.12347"
       },
-      "added": 1781170096.6433744
+      "added": 1781170349.1188192
     },
     "paper:2301.12348": {
       "type": "paper",
@@ -1801,7 +1801,7 @@
         "title": "Landauer Principle",
         "arxiv_id": "2301.12348"
       },
-      "added": 1781170096.6433752
+      "added": 1781170349.11882
     },
     "paper:2301.12349": {
       "type": "paper",
@@ -1809,7 +1809,7 @@
         "title": "Mass-Information Equivalence",
         "arxiv_id": "2301.12349"
       },
-      "added": 1781170096.643376
+      "added": 1781170349.1188204
     },
     "paper:2301.12350": {
       "type": "paper",
@@ -1817,7 +1817,7 @@
         "title": "Tsallis Landauer",
         "arxiv_id": "2301.12350"
       },
-      "added": 1781170096.6433766
+      "added": 1781170349.118821
     },
     "paper:2301.12351": {
       "type": "paper",
@@ -1825,7 +1825,7 @@
         "title": "Tsallis Mass-Energy",
         "arxiv_id": "2301.12351"
       },
-      "added": 1781170096.6433773
+      "added": 1781170349.1188214
     },
     "paper:2201.12352": {
       "type": "paper",
@@ -1833,7 +1833,7 @@
         "title": "Entanglement Encodes Geometry (LQG)",
         "arxiv_id": "2201.12352"
       },
-      "added": 1781170096.6433783
+      "added": 1781170349.1188219
     },
     "paper:2201.12353": {
       "type": "paper",
@@ -1841,7 +1841,7 @@
         "title": "Entanglement Reconstructs Geometry",
         "arxiv_id": "2201.12353"
       },
-      "added": 1781170096.643379
+      "added": 1781170349.118822
     },
     "paper:2201.12354": {
       "type": "paper",
@@ -1849,421 +1849,115 @@
         "title": "Statistical Universality",
         "arxiv_id": "2201.12354"
       },
-      "added": 1781170096.6433797
+      "added": 1781170349.1188226
     },
-    "analogy:mass↔gauge_field": {
+    "analogy:frequency↔spacetime_curvature": {
       "type": "analogy",
       "data": {
-        "a": "mass",
-        "b": "gauge_field",
+        "a": "frequency",
+        "b": "spacetime_curvature",
         "similarity": 1.0
       },
-      "added": 1781170098.7768297
+      "added": 1781170350.6773846
     },
-    "analogy:mass↔wavelength": {
+    "analogy:frequency↔current": {
       "type": "analogy",
       "data": {
-        "a": "mass",
-        "b": "wavelength",
+        "a": "frequency",
+        "b": "current",
         "similarity": 1.0
       },
-      "added": 1781170098.7768471
+      "added": 1781170350.6774006
     },
-    "analogy:mass↔momentum": {
+    "analogy:frequency↔geodesic_path": {
       "type": "analogy",
       "data": {
-        "a": "mass",
+        "a": "frequency",
+        "b": "geodesic_path",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6774063
+    },
+    "analogy:frequency↔velocity": {
+      "type": "analogy",
+      "data": {
+        "a": "frequency",
+        "b": "velocity",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6774108
+    },
+    "analogy:frequency↔higher_d_metric": {
+      "type": "analogy",
+      "data": {
+        "a": "frequency",
+        "b": "higher_d_metric",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6774154
+    },
+    "analogy:frequency↔momentum": {
+      "type": "analogy",
+      "data": {
+        "a": "frequency",
         "b": "momentum",
         "similarity": 1.0
       },
-      "added": 1781170098.776855
+      "added": 1781170350.6774204
     },
-    "analogy:mass↔compact_dimension": {
+    "analogy:frequency↔mixed_state": {
       "type": "analogy",
       "data": {
-        "a": "mass",
-        "b": "compact_dimension",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7768614
-    },
-    "analogy:mass↔spacetime_curvature": {
-      "type": "analogy",
-      "data": {
-        "a": "mass",
-        "b": "spacetime_curvature",
-        "similarity": 1.0
-      },
-      "added": 1781170098.776868
-    },
-    "analogy:mass↔current": {
-      "type": "analogy",
-      "data": {
-        "a": "mass",
-        "b": "current",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7768748
-    },
-    "analogy:mass↔frequency": {
-      "type": "analogy",
-      "data": {
-        "a": "mass",
-        "b": "frequency",
-        "similarity": 1.0
-      },
-      "added": 1781170098.776882
-    },
-    "analogy:gauge_field↔wavelength": {
-      "type": "analogy",
-      "data": {
-        "a": "gauge_field",
-        "b": "wavelength",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7768886
-    },
-    "analogy:gauge_field↔momentum": {
-      "type": "analogy",
-      "data": {
-        "a": "gauge_field",
-        "b": "momentum",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7768955
-    },
-    "analogy:gauge_field↔mixed_state": {
-      "type": "analogy",
-      "data": {
-        "a": "gauge_field",
+        "a": "frequency",
         "b": "mixed_state",
         "similarity": 1.0
       },
-      "added": 1781170098.7769027
+      "added": 1781170350.6774251
     },
-    "analogy:gauge_field↔spacetime_curvature": {
+    "analogy:frequency↔time": {
       "type": "analogy",
       "data": {
-        "a": "gauge_field",
-        "b": "spacetime_curvature",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7769098
-    },
-    "analogy:gauge_field↔temperature": {
-      "type": "analogy",
-      "data": {
-        "a": "gauge_field",
-        "b": "temperature",
-        "similarity": 1.0
-      },
-      "added": 1781170098.776917
-    },
-    "analogy:gauge_field↔time": {
-      "type": "analogy",
-      "data": {
-        "a": "gauge_field",
+        "a": "frequency",
         "b": "time",
         "similarity": 1.0
       },
-      "added": 1781170098.7769246
+      "added": 1781170350.6774297
     },
-    "analogy:gauge_field↔current": {
+    "analogy:frequency↔wave_function": {
       "type": "analogy",
       "data": {
-        "a": "gauge_field",
-        "b": "current",
+        "a": "frequency",
+        "b": "wave_function",
         "similarity": 1.0
       },
-      "added": 1781170098.776932
+      "added": 1781170350.6774344
     },
-    "analogy:gauge_field↔frequency": {
+    "analogy:frequency↔temperature": {
       "type": "analogy",
       "data": {
-        "a": "gauge_field",
-        "b": "frequency",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7769396
-    },
-    "analogy:gauge_field↔schwarzschild_radius": {
-      "type": "analogy",
-      "data": {
-        "a": "gauge_field",
-        "b": "schwarzschild_radius",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7769468
-    },
-    "analogy:wavelength↔mixed_state": {
-      "type": "analogy",
-      "data": {
-        "a": "wavelength",
-        "b": "mixed_state",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7769544
-    },
-    "analogy:wavelength↔compact_dimension": {
-      "type": "analogy",
-      "data": {
-        "a": "wavelength",
-        "b": "compact_dimension",
-        "similarity": 1.0
-      },
-      "added": 1781170098.776962
-    },
-    "analogy:wavelength↔spacetime_curvature": {
-      "type": "analogy",
-      "data": {
-        "a": "wavelength",
-        "b": "spacetime_curvature",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7769692
-    },
-    "analogy:wavelength↔temperature": {
-      "type": "analogy",
-      "data": {
-        "a": "wavelength",
+        "a": "frequency",
         "b": "temperature",
         "similarity": 1.0
       },
-      "added": 1781170098.7769763
+      "added": 1781170350.677439
     },
-    "analogy:wavelength↔time": {
+    "analogy:frequency↔mass": {
       "type": "analogy",
       "data": {
-        "a": "wavelength",
-        "b": "time",
+        "a": "frequency",
+        "b": "mass",
         "similarity": 1.0
       },
-      "added": 1781170098.7769842
+      "added": 1781170350.6774437
     },
-    "analogy:wavelength↔velocity": {
+    "analogy:frequency↔energy": {
       "type": "analogy",
       "data": {
-        "a": "wavelength",
-        "b": "velocity",
+        "a": "frequency",
+        "b": "energy",
         "similarity": 1.0
       },
-      "added": 1781170098.776992
-    },
-    "analogy:wavelength↔current": {
-      "type": "analogy",
-      "data": {
-        "a": "wavelength",
-        "b": "current",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7769997
-    },
-    "analogy:wavelength↔frequency": {
-      "type": "analogy",
-      "data": {
-        "a": "wavelength",
-        "b": "frequency",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7770076
-    },
-    "analogy:momentum↔mixed_state": {
-      "type": "analogy",
-      "data": {
-        "a": "momentum",
-        "b": "mixed_state",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7770152
-    },
-    "analogy:momentum↔compact_dimension": {
-      "type": "analogy",
-      "data": {
-        "a": "momentum",
-        "b": "compact_dimension",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7770236
-    },
-    "analogy:momentum↔spacetime_curvature": {
-      "type": "analogy",
-      "data": {
-        "a": "momentum",
-        "b": "spacetime_curvature",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7770314
-    },
-    "analogy:momentum↔temperature": {
-      "type": "analogy",
-      "data": {
-        "a": "momentum",
-        "b": "temperature",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7770395
-    },
-    "analogy:momentum↔time": {
-      "type": "analogy",
-      "data": {
-        "a": "momentum",
-        "b": "time",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7770479
-    },
-    "analogy:momentum↔velocity": {
-      "type": "analogy",
-      "data": {
-        "a": "momentum",
-        "b": "velocity",
-        "similarity": 1.0
-      },
-      "added": 1781170098.777056
-    },
-    "analogy:momentum↔current": {
-      "type": "analogy",
-      "data": {
-        "a": "momentum",
-        "b": "current",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7770646
-    },
-    "analogy:momentum↔frequency": {
-      "type": "analogy",
-      "data": {
-        "a": "momentum",
-        "b": "frequency",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7770724
-    },
-    "analogy:mixed_state↔compact_dimension": {
-      "type": "analogy",
-      "data": {
-        "a": "mixed_state",
-        "b": "compact_dimension",
-        "similarity": 1.0
-      },
-      "added": 1781170098.777081
-    },
-    "analogy:mixed_state↔spacetime_curvature": {
-      "type": "analogy",
-      "data": {
-        "a": "mixed_state",
-        "b": "spacetime_curvature",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7770898
-    },
-    "analogy:mixed_state↔current": {
-      "type": "analogy",
-      "data": {
-        "a": "mixed_state",
-        "b": "current",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7770984
-    },
-    "analogy:mixed_state↔frequency": {
-      "type": "analogy",
-      "data": {
-        "a": "mixed_state",
-        "b": "frequency",
-        "similarity": 1.0
-      },
-      "added": 1781170098.777107
-    },
-    "analogy:mixed_state↔schwarzschild_radius": {
-      "type": "analogy",
-      "data": {
-        "a": "mixed_state",
-        "b": "schwarzschild_radius",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7771156
-    },
-    "analogy:compact_dimension↔spacetime_curvature": {
-      "type": "analogy",
-      "data": {
-        "a": "compact_dimension",
-        "b": "spacetime_curvature",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7771244
-    },
-    "analogy:compact_dimension↔temperature": {
-      "type": "analogy",
-      "data": {
-        "a": "compact_dimension",
-        "b": "temperature",
-        "similarity": 1.0
-      },
-      "added": 1781170098.777133
-    },
-    "analogy:compact_dimension↔time": {
-      "type": "analogy",
-      "data": {
-        "a": "compact_dimension",
-        "b": "time",
-        "similarity": 1.0
-      },
-      "added": 1781170098.777142
-    },
-    "analogy:compact_dimension↔current": {
-      "type": "analogy",
-      "data": {
-        "a": "compact_dimension",
-        "b": "current",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7771513
-    },
-    "analogy:compact_dimension↔frequency": {
-      "type": "analogy",
-      "data": {
-        "a": "compact_dimension",
-        "b": "frequency",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7771602
-    },
-    "analogy:compact_dimension↔schwarzschild_radius": {
-      "type": "analogy",
-      "data": {
-        "a": "compact_dimension",
-        "b": "schwarzschild_radius",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7771692
-    },
-    "analogy:spacetime_curvature↔temperature": {
-      "type": "analogy",
-      "data": {
-        "a": "spacetime_curvature",
-        "b": "temperature",
-        "similarity": 1.0
-      },
-      "added": 1781170098.777178
-    },
-    "analogy:spacetime_curvature↔time": {
-      "type": "analogy",
-      "data": {
-        "a": "spacetime_curvature",
-        "b": "time",
-        "similarity": 1.0
-      },
-      "added": 1781170098.7771876
-    },
-    "analogy:spacetime_curvature↔velocity": {
-      "type": "analogy",
-      "data": {
-        "a": "spacetime_curvature",
-        "b": "velocity",
-        "similarity": 1.0
-      },
-      "added": 1781170098.777197
+      "added": 1781170350.677449
     },
     "analogy:spacetime_curvature↔current": {
       "type": "analogy",
@@ -2272,115 +1966,349 @@
         "b": "current",
         "similarity": 1.0
       },
-      "added": 1781170098.777206
+      "added": 1781170350.677454
     },
-    "analogy:spacetime_curvature↔frequency": {
+    "analogy:spacetime_curvature↔geodesic_path": {
       "type": "analogy",
       "data": {
         "a": "spacetime_curvature",
-        "b": "frequency",
+        "b": "geodesic_path",
         "similarity": 1.0
       },
-      "added": 1781170098.7772152
+      "added": 1781170350.677459
     },
-    "analogy:spacetime_curvature↔schwarzschild_radius": {
+    "analogy:spacetime_curvature↔velocity": {
       "type": "analogy",
       "data": {
         "a": "spacetime_curvature",
-        "b": "schwarzschild_radius",
+        "b": "velocity",
         "similarity": 1.0
       },
-      "added": 1781170098.7772245
+      "added": 1781170350.6774638
     },
-    "analogy:temperature↔current": {
+    "analogy:spacetime_curvature↔higher_d_metric": {
       "type": "analogy",
       "data": {
-        "a": "temperature",
-        "b": "current",
+        "a": "spacetime_curvature",
+        "b": "higher_d_metric",
         "similarity": 1.0
       },
-      "added": 1781170098.7772336
+      "added": 1781170350.677469
     },
-    "analogy:temperature↔frequency": {
+    "analogy:spacetime_curvature↔momentum": {
       "type": "analogy",
       "data": {
-        "a": "temperature",
-        "b": "frequency",
+        "a": "spacetime_curvature",
+        "b": "momentum",
         "similarity": 1.0
       },
-      "added": 1781170098.7772436
+      "added": 1781170350.6774743
     },
-    "analogy:time↔current": {
+    "analogy:spacetime_curvature↔mixed_state": {
       "type": "analogy",
       "data": {
-        "a": "time",
-        "b": "current",
+        "a": "spacetime_curvature",
+        "b": "mixed_state",
         "similarity": 1.0
       },
-      "added": 1781170098.7772534
+      "added": 1781170350.6774795
     },
-    "analogy:time↔frequency": {
+    "analogy:spacetime_curvature↔time": {
       "type": "analogy",
       "data": {
-        "a": "time",
-        "b": "frequency",
+        "a": "spacetime_curvature",
+        "b": "time",
         "similarity": 1.0
       },
-      "added": 1781170098.777263
+      "added": 1781170350.6774848
     },
-    "analogy:time↔schwarzschild_radius": {
+    "analogy:spacetime_curvature↔wave_function": {
       "type": "analogy",
       "data": {
-        "a": "time",
-        "b": "schwarzschild_radius",
+        "a": "spacetime_curvature",
+        "b": "wave_function",
         "similarity": 1.0
       },
-      "added": 1781170098.7772725
+      "added": 1781170350.6774902
     },
-    "analogy:velocity↔current": {
+    "analogy:spacetime_curvature↔temperature": {
       "type": "analogy",
       "data": {
-        "a": "velocity",
-        "b": "current",
+        "a": "spacetime_curvature",
+        "b": "temperature",
         "similarity": 1.0
       },
-      "added": 1781170098.777282
+      "added": 1781170350.6774955
     },
-    "analogy:velocity↔frequency": {
+    "analogy:spacetime_curvature↔mass": {
       "type": "analogy",
       "data": {
-        "a": "velocity",
-        "b": "frequency",
+        "a": "spacetime_curvature",
+        "b": "mass",
         "similarity": 1.0
       },
-      "added": 1781170098.7772925
+      "added": 1781170350.677501
     },
-    "analogy:current↔frequency": {
+    "analogy:spacetime_curvature↔energy": {
+      "type": "analogy",
+      "data": {
+        "a": "spacetime_curvature",
+        "b": "energy",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6775062
+    },
+    "analogy:current↔geodesic_path": {
       "type": "analogy",
       "data": {
         "a": "current",
-        "b": "frequency",
+        "b": "geodesic_path",
         "similarity": 1.0
       },
-      "added": 1781170098.7773023
+      "added": 1781170350.677512
     },
-    "analogy:current↔schwarzschild_radius": {
+    "analogy:current↔velocity": {
       "type": "analogy",
       "data": {
         "a": "current",
-        "b": "schwarzschild_radius",
+        "b": "velocity",
         "similarity": 1.0
       },
-      "added": 1781170098.7773123
+      "added": 1781170350.6775174
     },
-    "analogy:frequency↔schwarzschild_radius": {
+    "analogy:current↔higher_d_metric": {
       "type": "analogy",
       "data": {
-        "a": "frequency",
-        "b": "schwarzschild_radius",
+        "a": "current",
+        "b": "higher_d_metric",
         "similarity": 1.0
       },
-      "added": 1781170098.7773223
+      "added": 1781170350.6775227
+    },
+    "analogy:current↔momentum": {
+      "type": "analogy",
+      "data": {
+        "a": "current",
+        "b": "momentum",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6775284
+    },
+    "analogy:current↔mixed_state": {
+      "type": "analogy",
+      "data": {
+        "a": "current",
+        "b": "mixed_state",
+        "similarity": 1.0
+      },
+      "added": 1781170350.677534
+    },
+    "analogy:current↔time": {
+      "type": "analogy",
+      "data": {
+        "a": "current",
+        "b": "time",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6775396
+    },
+    "analogy:current↔wave_function": {
+      "type": "analogy",
+      "data": {
+        "a": "current",
+        "b": "wave_function",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6775453
+    },
+    "analogy:current↔temperature": {
+      "type": "analogy",
+      "data": {
+        "a": "current",
+        "b": "temperature",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6775508
+    },
+    "analogy:current↔mass": {
+      "type": "analogy",
+      "data": {
+        "a": "current",
+        "b": "mass",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6775568
+    },
+    "analogy:current↔energy": {
+      "type": "analogy",
+      "data": {
+        "a": "current",
+        "b": "energy",
+        "similarity": 1.0
+      },
+      "added": 1781170350.677563
+    },
+    "analogy:geodesic_path↔higher_d_metric": {
+      "type": "analogy",
+      "data": {
+        "a": "geodesic_path",
+        "b": "higher_d_metric",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6775687
+    },
+    "analogy:geodesic_path↔mixed_state": {
+      "type": "analogy",
+      "data": {
+        "a": "geodesic_path",
+        "b": "mixed_state",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6775746
+    },
+    "analogy:geodesic_path↔time": {
+      "type": "analogy",
+      "data": {
+        "a": "geodesic_path",
+        "b": "time",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6775806
+    },
+    "analogy:velocity↔momentum": {
+      "type": "analogy",
+      "data": {
+        "a": "velocity",
+        "b": "momentum",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6775868
+    },
+    "analogy:higher_d_metric↔momentum": {
+      "type": "analogy",
+      "data": {
+        "a": "higher_d_metric",
+        "b": "momentum",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6775928
+    },
+    "analogy:higher_d_metric↔mixed_state": {
+      "type": "analogy",
+      "data": {
+        "a": "higher_d_metric",
+        "b": "mixed_state",
+        "similarity": 1.0
+      },
+      "added": 1781170350.677599
+    },
+    "analogy:higher_d_metric↔time": {
+      "type": "analogy",
+      "data": {
+        "a": "higher_d_metric",
+        "b": "time",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6776054
+    },
+    "analogy:higher_d_metric↔wave_function": {
+      "type": "analogy",
+      "data": {
+        "a": "higher_d_metric",
+        "b": "wave_function",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6776116
+    },
+    "analogy:higher_d_metric↔temperature": {
+      "type": "analogy",
+      "data": {
+        "a": "higher_d_metric",
+        "b": "temperature",
+        "similarity": 1.0
+      },
+      "added": 1781170350.677618
+    },
+    "analogy:higher_d_metric↔mass": {
+      "type": "analogy",
+      "data": {
+        "a": "higher_d_metric",
+        "b": "mass",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6776242
+    },
+    "analogy:higher_d_metric↔energy": {
+      "type": "analogy",
+      "data": {
+        "a": "higher_d_metric",
+        "b": "energy",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6776304
+    },
+    "analogy:momentum↔mixed_state": {
+      "type": "analogy",
+      "data": {
+        "a": "momentum",
+        "b": "mixed_state",
+        "similarity": 1.0
+      },
+      "added": 1781170350.677637
+    },
+    "analogy:momentum↔time": {
+      "type": "analogy",
+      "data": {
+        "a": "momentum",
+        "b": "time",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6776435
+    },
+    "analogy:momentum↔wave_function": {
+      "type": "analogy",
+      "data": {
+        "a": "momentum",
+        "b": "wave_function",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6776505
+    },
+    "analogy:momentum↔temperature": {
+      "type": "analogy",
+      "data": {
+        "a": "momentum",
+        "b": "temperature",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6776571
+    },
+    "analogy:momentum↔mass": {
+      "type": "analogy",
+      "data": {
+        "a": "momentum",
+        "b": "mass",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6776638
+    },
+    "analogy:mixed_state↔energy": {
+      "type": "analogy",
+      "data": {
+        "a": "mixed_state",
+        "b": "energy",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6776705
+    },
+    "analogy:time↔energy": {
+      "type": "analogy",
+      "data": {
+        "a": "time",
+        "b": "energy",
+        "similarity": 1.0
+      },
+      "added": 1781170350.6776776
     },
     "mem:1781096856.8584545": {
       "type": "memory",
@@ -2394,42 +2322,42 @@
           "entanglement"
         ]
       },
-      "added": 1781170098.7774692
+      "added": 1781170350.6777751
     },
     "tag:arxiv": {
       "type": "tag",
       "data": {
         "name": "arxiv"
       },
-      "added": 1781170098.7775025
+      "added": 1781170350.677798
     },
     "tag:ingest": {
       "type": "tag",
       "data": {
         "name": "ingest"
       },
-      "added": 1781170098.777478
+      "added": 1781170350.6777813
     },
     "tag:decoherence": {
       "type": "tag",
       "data": {
         "name": "decoherence"
       },
-      "added": 1781170098.7774832
+      "added": 1781170350.6777852
     },
     "tag:landauer": {
       "type": "tag",
       "data": {
         "name": "landauer"
       },
-      "added": 1781170098.7774887
+      "added": 1781170350.677789
     },
     "tag:entanglement": {
       "type": "tag",
       "data": {
         "name": "entanglement"
       },
-      "added": 1781170098.7774937
+      "added": 1781170350.6777923
     },
     "mem:1781097217.8165905": {
       "type": "memory",
@@ -2440,14 +2368,14 @@
           "trust"
         ]
       },
-      "added": 1781170098.7775016
+      "added": 1781170350.6777976
     },
     "tag:trust": {
       "type": "tag",
       "data": {
         "name": "trust"
       },
-      "added": 1781170098.777508
+      "added": 1781170350.677802
     }
   },
   "edges": [
@@ -3302,463 +3230,123 @@
       "discovered_in"
     ],
     [
-      "var:mass",
-      "analogy:mass↔gauge_field",
-      "analogous_to"
-    ],
-    [
-      "var:gauge_field",
-      "analogy:mass↔gauge_field",
-      "analogous_to"
-    ],
-    [
-      "var:mass",
-      "analogy:mass↔wavelength",
-      "analogous_to"
-    ],
-    [
-      "var:wavelength",
-      "analogy:mass↔wavelength",
-      "analogous_to"
-    ],
-    [
-      "var:mass",
-      "analogy:mass↔momentum",
-      "analogous_to"
-    ],
-    [
-      "var:momentum",
-      "analogy:mass↔momentum",
-      "analogous_to"
-    ],
-    [
-      "var:mass",
-      "analogy:mass↔compact_dimension",
-      "analogous_to"
-    ],
-    [
-      "var:compact_dimension",
-      "analogy:mass↔compact_dimension",
-      "analogous_to"
-    ],
-    [
-      "var:mass",
-      "analogy:mass↔spacetime_curvature",
+      "var:frequency",
+      "analogy:frequency↔spacetime_curvature",
       "analogous_to"
     ],
     [
       "var:spacetime_curvature",
-      "analogy:mass↔spacetime_curvature",
-      "analogous_to"
-    ],
-    [
-      "var:mass",
-      "analogy:mass↔current",
-      "analogous_to"
-    ],
-    [
-      "var:current",
-      "analogy:mass↔current",
-      "analogous_to"
-    ],
-    [
-      "var:mass",
-      "analogy:mass↔frequency",
+      "analogy:frequency↔spacetime_curvature",
       "analogous_to"
     ],
     [
       "var:frequency",
-      "analogy:mass↔frequency",
-      "analogous_to"
-    ],
-    [
-      "var:gauge_field",
-      "analogy:gauge_field↔wavelength",
-      "analogous_to"
-    ],
-    [
-      "var:wavelength",
-      "analogy:gauge_field↔wavelength",
-      "analogous_to"
-    ],
-    [
-      "var:gauge_field",
-      "analogy:gauge_field↔momentum",
-      "analogous_to"
-    ],
-    [
-      "var:momentum",
-      "analogy:gauge_field↔momentum",
-      "analogous_to"
-    ],
-    [
-      "var:gauge_field",
-      "analogy:gauge_field↔mixed_state",
-      "analogous_to"
-    ],
-    [
-      "var:mixed_state",
-      "analogy:gauge_field↔mixed_state",
-      "analogous_to"
-    ],
-    [
-      "var:gauge_field",
-      "analogy:gauge_field↔spacetime_curvature",
-      "analogous_to"
-    ],
-    [
-      "var:spacetime_curvature",
-      "analogy:gauge_field↔spacetime_curvature",
-      "analogous_to"
-    ],
-    [
-      "var:gauge_field",
-      "analogy:gauge_field↔temperature",
-      "analogous_to"
-    ],
-    [
-      "var:temperature",
-      "analogy:gauge_field↔temperature",
-      "analogous_to"
-    ],
-    [
-      "var:gauge_field",
-      "analogy:gauge_field↔time",
-      "analogous_to"
-    ],
-    [
-      "var:time",
-      "analogy:gauge_field↔time",
-      "analogous_to"
-    ],
-    [
-      "var:gauge_field",
-      "analogy:gauge_field↔current",
+      "analogy:frequency↔current",
       "analogous_to"
     ],
     [
       "var:current",
-      "analogy:gauge_field↔current",
-      "analogous_to"
-    ],
-    [
-      "var:gauge_field",
-      "analogy:gauge_field↔frequency",
+      "analogy:frequency↔current",
       "analogous_to"
     ],
     [
       "var:frequency",
-      "analogy:gauge_field↔frequency",
+      "analogy:frequency↔geodesic_path",
       "analogous_to"
     ],
     [
-      "var:gauge_field",
-      "analogy:gauge_field↔schwarzschild_radius",
+      "var:geodesic_path",
+      "analogy:frequency↔geodesic_path",
       "analogous_to"
     ],
     [
-      "var:schwarzschild_radius",
-      "analogy:gauge_field↔schwarzschild_radius",
-      "analogous_to"
-    ],
-    [
-      "var:wavelength",
-      "analogy:wavelength↔mixed_state",
-      "analogous_to"
-    ],
-    [
-      "var:mixed_state",
-      "analogy:wavelength↔mixed_state",
-      "analogous_to"
-    ],
-    [
-      "var:wavelength",
-      "analogy:wavelength↔compact_dimension",
-      "analogous_to"
-    ],
-    [
-      "var:compact_dimension",
-      "analogy:wavelength↔compact_dimension",
-      "analogous_to"
-    ],
-    [
-      "var:wavelength",
-      "analogy:wavelength↔spacetime_curvature",
-      "analogous_to"
-    ],
-    [
-      "var:spacetime_curvature",
-      "analogy:wavelength↔spacetime_curvature",
-      "analogous_to"
-    ],
-    [
-      "var:wavelength",
-      "analogy:wavelength↔temperature",
-      "analogous_to"
-    ],
-    [
-      "var:temperature",
-      "analogy:wavelength↔temperature",
-      "analogous_to"
-    ],
-    [
-      "var:wavelength",
-      "analogy:wavelength↔time",
-      "analogous_to"
-    ],
-    [
-      "var:time",
-      "analogy:wavelength↔time",
-      "analogous_to"
-    ],
-    [
-      "var:wavelength",
-      "analogy:wavelength↔velocity",
+      "var:frequency",
+      "analogy:frequency↔velocity",
       "analogous_to"
     ],
     [
       "var:velocity",
-      "analogy:wavelength↔velocity",
-      "analogous_to"
-    ],
-    [
-      "var:wavelength",
-      "analogy:wavelength↔current",
-      "analogous_to"
-    ],
-    [
-      "var:current",
-      "analogy:wavelength↔current",
-      "analogous_to"
-    ],
-    [
-      "var:wavelength",
-      "analogy:wavelength↔frequency",
+      "analogy:frequency↔velocity",
       "analogous_to"
     ],
     [
       "var:frequency",
-      "analogy:wavelength↔frequency",
+      "analogy:frequency↔higher_d_metric",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:frequency↔higher_d_metric",
+      "analogous_to"
+    ],
+    [
+      "var:frequency",
+      "analogy:frequency↔momentum",
       "analogous_to"
     ],
     [
       "var:momentum",
-      "analogy:momentum↔mixed_state",
+      "analogy:frequency↔momentum",
+      "analogous_to"
+    ],
+    [
+      "var:frequency",
+      "analogy:frequency↔mixed_state",
       "analogous_to"
     ],
     [
       "var:mixed_state",
-      "analogy:momentum↔mixed_state",
+      "analogy:frequency↔mixed_state",
       "analogous_to"
     ],
     [
-      "var:momentum",
-      "analogy:momentum↔compact_dimension",
-      "analogous_to"
-    ],
-    [
-      "var:compact_dimension",
-      "analogy:momentum↔compact_dimension",
-      "analogous_to"
-    ],
-    [
-      "var:momentum",
-      "analogy:momentum↔spacetime_curvature",
-      "analogous_to"
-    ],
-    [
-      "var:spacetime_curvature",
-      "analogy:momentum↔spacetime_curvature",
-      "analogous_to"
-    ],
-    [
-      "var:momentum",
-      "analogy:momentum↔temperature",
-      "analogous_to"
-    ],
-    [
-      "var:temperature",
-      "analogy:momentum↔temperature",
-      "analogous_to"
-    ],
-    [
-      "var:momentum",
-      "analogy:momentum↔time",
+      "var:frequency",
+      "analogy:frequency↔time",
       "analogous_to"
     ],
     [
       "var:time",
-      "analogy:momentum↔time",
-      "analogous_to"
-    ],
-    [
-      "var:momentum",
-      "analogy:momentum↔velocity",
-      "analogous_to"
-    ],
-    [
-      "var:velocity",
-      "analogy:momentum↔velocity",
-      "analogous_to"
-    ],
-    [
-      "var:momentum",
-      "analogy:momentum↔current",
-      "analogous_to"
-    ],
-    [
-      "var:current",
-      "analogy:momentum↔current",
-      "analogous_to"
-    ],
-    [
-      "var:momentum",
-      "analogy:momentum↔frequency",
+      "analogy:frequency↔time",
       "analogous_to"
     ],
     [
       "var:frequency",
-      "analogy:momentum↔frequency",
+      "analogy:frequency↔wave_function",
       "analogous_to"
     ],
     [
-      "var:mixed_state",
-      "analogy:mixed_state↔compact_dimension",
-      "analogous_to"
-    ],
-    [
-      "var:compact_dimension",
-      "analogy:mixed_state↔compact_dimension",
-      "analogous_to"
-    ],
-    [
-      "var:mixed_state",
-      "analogy:mixed_state↔spacetime_curvature",
-      "analogous_to"
-    ],
-    [
-      "var:spacetime_curvature",
-      "analogy:mixed_state↔spacetime_curvature",
-      "analogous_to"
-    ],
-    [
-      "var:mixed_state",
-      "analogy:mixed_state↔current",
-      "analogous_to"
-    ],
-    [
-      "var:current",
-      "analogy:mixed_state↔current",
-      "analogous_to"
-    ],
-    [
-      "var:mixed_state",
-      "analogy:mixed_state↔frequency",
+      "var:wave_function",
+      "analogy:frequency↔wave_function",
       "analogous_to"
     ],
     [
       "var:frequency",
-      "analogy:mixed_state↔frequency",
-      "analogous_to"
-    ],
-    [
-      "var:mixed_state",
-      "analogy:mixed_state↔schwarzschild_radius",
-      "analogous_to"
-    ],
-    [
-      "var:schwarzschild_radius",
-      "analogy:mixed_state↔schwarzschild_radius",
-      "analogous_to"
-    ],
-    [
-      "var:compact_dimension",
-      "analogy:compact_dimension↔spacetime_curvature",
-      "analogous_to"
-    ],
-    [
-      "var:spacetime_curvature",
-      "analogy:compact_dimension↔spacetime_curvature",
-      "analogous_to"
-    ],
-    [
-      "var:compact_dimension",
-      "analogy:compact_dimension↔temperature",
+      "analogy:frequency↔temperature",
       "analogous_to"
     ],
     [
       "var:temperature",
-      "analogy:compact_dimension↔temperature",
-      "analogous_to"
-    ],
-    [
-      "var:compact_dimension",
-      "analogy:compact_dimension↔time",
-      "analogous_to"
-    ],
-    [
-      "var:time",
-      "analogy:compact_dimension↔time",
-      "analogous_to"
-    ],
-    [
-      "var:compact_dimension",
-      "analogy:compact_dimension↔current",
-      "analogous_to"
-    ],
-    [
-      "var:current",
-      "analogy:compact_dimension↔current",
-      "analogous_to"
-    ],
-    [
-      "var:compact_dimension",
-      "analogy:compact_dimension↔frequency",
+      "analogy:frequency↔temperature",
       "analogous_to"
     ],
     [
       "var:frequency",
-      "analogy:compact_dimension↔frequency",
+      "analogy:frequency↔mass",
       "analogous_to"
     ],
     [
-      "var:compact_dimension",
-      "analogy:compact_dimension↔schwarzschild_radius",
+      "var:mass",
+      "analogy:frequency↔mass",
       "analogous_to"
     ],
     [
-      "var:schwarzschild_radius",
-      "analogy:compact_dimension↔schwarzschild_radius",
+      "var:frequency",
+      "analogy:frequency↔energy",
       "analogous_to"
     ],
     [
-      "var:spacetime_curvature",
-      "analogy:spacetime_curvature↔temperature",
-      "analogous_to"
-    ],
-    [
-      "var:temperature",
-      "analogy:spacetime_curvature↔temperature",
-      "analogous_to"
-    ],
-    [
-      "var:spacetime_curvature",
-      "analogy:spacetime_curvature↔time",
-      "analogous_to"
-    ],
-    [
-      "var:time",
-      "analogy:spacetime_curvature↔time",
-      "analogous_to"
-    ],
-    [
-      "var:spacetime_curvature",
-      "analogy:spacetime_curvature↔velocity",
-      "analogous_to"
-    ],
-    [
-      "var:velocity",
-      "analogy:spacetime_curvature↔velocity",
+      "var:energy",
+      "analogy:frequency↔energy",
       "analogous_to"
     ],
     [
@@ -3773,122 +3361,382 @@
     ],
     [
       "var:spacetime_curvature",
-      "analogy:spacetime_curvature↔frequency",
+      "analogy:spacetime_curvature↔geodesic_path",
       "analogous_to"
     ],
     [
-      "var:frequency",
-      "analogy:spacetime_curvature↔frequency",
+      "var:geodesic_path",
+      "analogy:spacetime_curvature↔geodesic_path",
       "analogous_to"
     ],
     [
       "var:spacetime_curvature",
-      "analogy:spacetime_curvature↔schwarzschild_radius",
-      "analogous_to"
-    ],
-    [
-      "var:schwarzschild_radius",
-      "analogy:spacetime_curvature↔schwarzschild_radius",
-      "analogous_to"
-    ],
-    [
-      "var:temperature",
-      "analogy:temperature↔current",
-      "analogous_to"
-    ],
-    [
-      "var:current",
-      "analogy:temperature↔current",
-      "analogous_to"
-    ],
-    [
-      "var:temperature",
-      "analogy:temperature↔frequency",
-      "analogous_to"
-    ],
-    [
-      "var:frequency",
-      "analogy:temperature↔frequency",
-      "analogous_to"
-    ],
-    [
-      "var:time",
-      "analogy:time↔current",
-      "analogous_to"
-    ],
-    [
-      "var:current",
-      "analogy:time↔current",
-      "analogous_to"
-    ],
-    [
-      "var:time",
-      "analogy:time↔frequency",
-      "analogous_to"
-    ],
-    [
-      "var:frequency",
-      "analogy:time↔frequency",
-      "analogous_to"
-    ],
-    [
-      "var:time",
-      "analogy:time↔schwarzschild_radius",
-      "analogous_to"
-    ],
-    [
-      "var:schwarzschild_radius",
-      "analogy:time↔schwarzschild_radius",
+      "analogy:spacetime_curvature↔velocity",
       "analogous_to"
     ],
     [
       "var:velocity",
-      "analogy:velocity↔current",
+      "analogy:spacetime_curvature↔velocity",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:spacetime_curvature↔higher_d_metric",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:spacetime_curvature↔higher_d_metric",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:spacetime_curvature↔momentum",
+      "analogous_to"
+    ],
+    [
+      "var:momentum",
+      "analogy:spacetime_curvature↔momentum",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:spacetime_curvature↔mixed_state",
+      "analogous_to"
+    ],
+    [
+      "var:mixed_state",
+      "analogy:spacetime_curvature↔mixed_state",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:spacetime_curvature↔time",
+      "analogous_to"
+    ],
+    [
+      "var:time",
+      "analogy:spacetime_curvature↔time",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:spacetime_curvature↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:wave_function",
+      "analogy:spacetime_curvature↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:spacetime_curvature↔temperature",
+      "analogous_to"
+    ],
+    [
+      "var:temperature",
+      "analogy:spacetime_curvature↔temperature",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:spacetime_curvature↔mass",
+      "analogous_to"
+    ],
+    [
+      "var:mass",
+      "analogy:spacetime_curvature↔mass",
+      "analogous_to"
+    ],
+    [
+      "var:spacetime_curvature",
+      "analogy:spacetime_curvature↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:energy",
+      "analogy:spacetime_curvature↔energy",
       "analogous_to"
     ],
     [
       "var:current",
-      "analogy:velocity↔current",
+      "analogy:current↔geodesic_path",
+      "analogous_to"
+    ],
+    [
+      "var:geodesic_path",
+      "analogy:current↔geodesic_path",
+      "analogous_to"
+    ],
+    [
+      "var:current",
+      "analogy:current↔velocity",
       "analogous_to"
     ],
     [
       "var:velocity",
-      "analogy:velocity↔frequency",
-      "analogous_to"
-    ],
-    [
-      "var:frequency",
-      "analogy:velocity↔frequency",
+      "analogy:current↔velocity",
       "analogous_to"
     ],
     [
       "var:current",
-      "analogy:current↔frequency",
+      "analogy:current↔higher_d_metric",
       "analogous_to"
     ],
     [
-      "var:frequency",
-      "analogy:current↔frequency",
+      "var:higher_d_metric",
+      "analogy:current↔higher_d_metric",
       "analogous_to"
     ],
     [
       "var:current",
-      "analogy:current↔schwarzschild_radius",
+      "analogy:current↔momentum",
       "analogous_to"
     ],
     [
-      "var:schwarzschild_radius",
-      "analogy:current↔schwarzschild_radius",
+      "var:momentum",
+      "analogy:current↔momentum",
       "analogous_to"
     ],
     [
-      "var:frequency",
-      "analogy:frequency↔schwarzschild_radius",
+      "var:current",
+      "analogy:current↔mixed_state",
       "analogous_to"
     ],
     [
-      "var:schwarzschild_radius",
-      "analogy:frequency↔schwarzschild_radius",
+      "var:mixed_state",
+      "analogy:current↔mixed_state",
+      "analogous_to"
+    ],
+    [
+      "var:current",
+      "analogy:current↔time",
+      "analogous_to"
+    ],
+    [
+      "var:time",
+      "analogy:current↔time",
+      "analogous_to"
+    ],
+    [
+      "var:current",
+      "analogy:current↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:wave_function",
+      "analogy:current↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:current",
+      "analogy:current↔temperature",
+      "analogous_to"
+    ],
+    [
+      "var:temperature",
+      "analogy:current↔temperature",
+      "analogous_to"
+    ],
+    [
+      "var:current",
+      "analogy:current↔mass",
+      "analogous_to"
+    ],
+    [
+      "var:mass",
+      "analogy:current↔mass",
+      "analogous_to"
+    ],
+    [
+      "var:current",
+      "analogy:current↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:energy",
+      "analogy:current↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:geodesic_path",
+      "analogy:geodesic_path↔higher_d_metric",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:geodesic_path↔higher_d_metric",
+      "analogous_to"
+    ],
+    [
+      "var:geodesic_path",
+      "analogy:geodesic_path↔mixed_state",
+      "analogous_to"
+    ],
+    [
+      "var:mixed_state",
+      "analogy:geodesic_path↔mixed_state",
+      "analogous_to"
+    ],
+    [
+      "var:geodesic_path",
+      "analogy:geodesic_path↔time",
+      "analogous_to"
+    ],
+    [
+      "var:time",
+      "analogy:geodesic_path↔time",
+      "analogous_to"
+    ],
+    [
+      "var:velocity",
+      "analogy:velocity↔momentum",
+      "analogous_to"
+    ],
+    [
+      "var:momentum",
+      "analogy:velocity↔momentum",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:higher_d_metric↔momentum",
+      "analogous_to"
+    ],
+    [
+      "var:momentum",
+      "analogy:higher_d_metric↔momentum",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:higher_d_metric↔mixed_state",
+      "analogous_to"
+    ],
+    [
+      "var:mixed_state",
+      "analogy:higher_d_metric↔mixed_state",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:higher_d_metric↔time",
+      "analogous_to"
+    ],
+    [
+      "var:time",
+      "analogy:higher_d_metric↔time",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:higher_d_metric↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:wave_function",
+      "analogy:higher_d_metric↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:higher_d_metric↔temperature",
+      "analogous_to"
+    ],
+    [
+      "var:temperature",
+      "analogy:higher_d_metric↔temperature",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:higher_d_metric↔mass",
+      "analogous_to"
+    ],
+    [
+      "var:mass",
+      "analogy:higher_d_metric↔mass",
+      "analogous_to"
+    ],
+    [
+      "var:higher_d_metric",
+      "analogy:higher_d_metric↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:energy",
+      "analogy:higher_d_metric↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:momentum",
+      "analogy:momentum↔mixed_state",
+      "analogous_to"
+    ],
+    [
+      "var:mixed_state",
+      "analogy:momentum↔mixed_state",
+      "analogous_to"
+    ],
+    [
+      "var:momentum",
+      "analogy:momentum↔time",
+      "analogous_to"
+    ],
+    [
+      "var:time",
+      "analogy:momentum↔time",
+      "analogous_to"
+    ],
+    [
+      "var:momentum",
+      "analogy:momentum↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:wave_function",
+      "analogy:momentum↔wave_function",
+      "analogous_to"
+    ],
+    [
+      "var:momentum",
+      "analogy:momentum↔temperature",
+      "analogous_to"
+    ],
+    [
+      "var:temperature",
+      "analogy:momentum↔temperature",
+      "analogous_to"
+    ],
+    [
+      "var:momentum",
+      "analogy:momentum↔mass",
+      "analogous_to"
+    ],
+    [
+      "var:mass",
+      "analogy:momentum↔mass",
+      "analogous_to"
+    ],
+    [
+      "var:mixed_state",
+      "analogy:mixed_state↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:energy",
+      "analogy:mixed_state↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:time",
+      "analogy:time↔energy",
+      "analogous_to"
+    ],
+    [
+      "var:energy",
+      "analogy:time↔energy",
       "analogous_to"
     ],
     [

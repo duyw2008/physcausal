@@ -109,6 +109,124 @@ class KnowledgeGraph:
         adj = [(node_idx[s], node_idx[d]) for s, d, _ in self.edges]
         return node_list, adj
 
+    # ── 层4: 推理 — 路径查找 ──
+
+    def upstream(self, node_id: str, max_depth: int = 3) -> List[List[str]]:
+        """查找上游路径: 什么导致这个变量?"""
+        paths = []
+        visited = set()
+
+        def dfs(current, path, depth):
+            if depth > max_depth:
+                return
+            visited.add(current)
+            for src, dst, etype in self.edges:
+                if dst == current and src not in visited:
+                    new_path = path + [f"{src}({etype})"]
+                    paths.append(new_path)
+                    dfs(src, new_path, depth + 1)
+            visited.discard(current)
+
+        dfs(node_id, [node_id], 1)
+        return paths
+
+    def downstream(self, node_id: str, max_depth: int = 3) -> List[List[str]]:
+        """查找下游路径: 这个变量导致什么?"""
+        paths = []
+        visited = set()
+
+        def dfs(current, path, depth):
+            if depth > max_depth:
+                return
+            visited.add(current)
+            for src, dst, etype in self.edges:
+                if src == current and dst not in visited:
+                    new_path = path + [f"{dst}({etype})"]
+                    paths.append(new_path)
+                    dfs(dst, new_path, depth + 1)
+            visited.discard(current)
+
+        dfs(node_id, [node_id], 1)
+        return paths
+
+    def connect(self, node_a: str, node_b: str, max_depth: int = 3) -> List[List[str]]:
+        """查找两个节点之间的所有路径"""
+        paths = []
+
+        def dfs(current, path, depth):
+            if depth > max_depth:
+                return
+            if current == node_b and len(path) > 1:
+                paths.append(path[:])
+                return
+            for src, dst, _ in self.edges:
+                if src == current and dst not in path:
+                    dfs(dst, path + [dst], depth + 1)
+                if dst == current and src not in path:  # 也走反向
+                    dfs(src, path + [src], depth + 1)
+
+        dfs(node_a, [node_a], 1)
+        return paths
+
+    # ── 层5: 矛盾检测 ──
+
+    def detect_contradictions(self) -> List[Dict]:
+        """检测图中的矛盾"""
+        contradictions = []
+
+        # 1. 同一变量对的相反因果方向
+        seen_pairs = {}
+        for src, dst, etype in self.edges:
+            if etype in ("has_input", "has_output"):
+                pair = (src, dst)
+                reverse = (dst, src)
+                if reverse in seen_pairs:
+                    contradictions.append({
+                        "type": "reverse_causality",
+                        "pair": (src, dst),
+                        "message": f"{src} 和 {dst} 存在双向因果边, 可能冲突",
+                    })
+                seen_pairs[pair] = etype
+
+        # 2. 论文断言 vs 已有定律冲突
+        for src, dst, etype in self.edges:
+            if etype == "discovered_in":
+                # 检查这条定律的因果方向是否和已有定律反向
+                law_node = self.get_node(src)
+                if law_node:
+                    inputs = law_node["data"].get("inputs", [])
+                    outputs = law_node["data"].get("outputs", [])
+                    for i in inputs:
+                        for o in outputs:
+                            reverse_key = (f"var:{o}", f"var:{i}")
+                            if reverse_key in seen_pairs:
+                                contradictions.append({
+                                    "type": "paper_vs_law",
+                                    "paper_law": src,
+                                    "existing_law": seen_pairs[reverse_key],
+                                    "message": f"论文 {src} 的因果方向与已有定律冲突: {o}→{i}",
+                                })
+
+        # 3. 孤儿变量: 只有入边没有出边, 或只有出边没有人边
+        for nid, nd in self.nodes.items():
+            if nd["type"] == "variable":
+                in_edges = [e for e in self.edges if e[1] == nid]
+                out_edges = [e for e in self.edges if e[0] == nid]
+                if in_edges and not out_edges:
+                    contradictions.append({
+                        "type": "sink_variable",
+                        "variable": nid,
+                        "message": f"{nid} 只被使用, 不产生任何东西 (纯消耗)",
+                    })
+                elif out_edges and not in_edges:
+                    contradictions.append({
+                        "type": "source_variable",
+                        "variable": nid,
+                        "message": f"{nid} 只有产出, 没有来源 (根变量)",
+                    })
+
+        return contradictions
+
 
 # ── 全局单例 ──
 

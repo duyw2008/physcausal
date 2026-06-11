@@ -1039,14 +1039,29 @@ def run_interactive():
 
             if cmd == "kg":
                 from meta_cognition.kg_migration import kg_stats_report, kg_query
-                if not rest:
-                    try:
-                        from meta_cognition.kg_migration import migrate_all
-                        print(migrate_all())
-                    except Exception as e:
-                        print(f"Migration failed: {e}")
-                else:
+                if rest == "contra":
+                    from meta_cognition.knowledge_graph import kg
+                    contras = kg.detect_contradictions()
+                    if contras:
+                        print(f"═══ 矛盾检测 ({len(contras)} 条) ═══")
+                        for c in contras:
+                            print(f"  [{c['type']}] {c['message']}")
+                    else:
+                        print("无矛盾。因果图自洽。")
+                elif rest and "->" in rest:
+                    parts = rest.split("->")
+                    if len(parts) == 2:
+                        from meta_cognition.knowledge_graph import kg
+                        paths = kg.connect(parts[0].strip(), parts[1].strip())
+                        print(f"═══ {parts[0].strip()} → {parts[1].strip()} ═══")
+                        print(f"  路径: {len(paths)} 条")
+                        for p in paths[:5]:
+                            print(f"    {' → '.join(p)}")
+                elif rest:
                     print(kg_query(rest))
+                else:
+                    from meta_cognition.kg_migration import migrate_all
+                    print(migrate_all())
                 continue
 
             if cmd == "strategy":
