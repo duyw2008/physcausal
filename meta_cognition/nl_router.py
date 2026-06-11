@@ -70,16 +70,26 @@ def parse_nl_query(text: str) -> Optional[Tuple]:
             elif cmd in ("upstream", "downstream", "query"):
                 return (cmd, f"var:{vname}")
             elif cmd == "connect":
-                # 找第二个变量或概念
+                # 优先概念匹配 (退相干/耗散 不是单一变量)
+                for cname, vars_list in CONCEPT_TO_VARS.items():
+                    if cname in text_lower and len(vname) <= 3:
+                        # 当前匹配到的变量太短 → 可能是误匹配, 用概念
+                        for cname2, vl2 in CONCEPT_TO_VARS.items():
+                            if cname2 != cname and cname2 in text_lower:
+                                return ("connect", f"var:{vl2[0]}", f"var:{vars_list[0]}")
+                # 常规变量匹配
                 for nid3, nd3 in kg.nodes.items():
                     if nd3["type"] == "variable":
                         v2 = nd3["data"]["name"]
-                        if v2 != vname and v2.lower() in text_lower:
+                        if v2 != vname and len(v2) > 2 and v2.lower() in text_lower:
                             return ("connect", f"var:{vname}", f"var:{v2}")
                 # 概念回退
+                found_concepts = []
                 for cname, vars_list in CONCEPT_TO_VARS.items():
                     if cname in text_lower:
-                        return ("connect", f"var:{vars_list[0]}", f"var:{vname}")
+                        found_concepts.append(vars_list[0])
+                if len(found_concepts) >= 2:
+                    return ("connect", f"var:{found_concepts[0]}", f"var:{found_concepts[1]}")
 
         # 无变量参数的命令
         if cmd == "concept":
