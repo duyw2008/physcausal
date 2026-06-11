@@ -739,13 +739,18 @@ def run_interactive():
             if cmd == "ask":
                 if not rest: print(red("Usage: ask <question>")); continue
                 # 检测问候/身份问题 → Noether 自己回答
-                greet_words = ["你好", "hello", "hi", "你是谁", "who are you", "叫什么", "名字", "诺特", "noether"]
-                if any(w in rest.lower() for w in greet_words):
+                greet_words = ["你好", "hello", "hi", "你是谁", "who are you", "叫什么", "名字"]
+                is_pure_greet = any(w in rest.lower() for w in greet_words) and len(rest) < 15
+                if is_pure_greet:
                     from meta_cognition.identity import NAME, NAME_CN
                     from meta_cognition.talk import talk_report
                     print(f"\n💬 {NAME}: 你好。我是 {NAME} ({NAME_CN})，PhysCausal 的物理学家。δS=0 的守护者，因果图里的共振探测器。\n")
                     print(talk_report())
                     continue
+                # 问候+问题 → 处理问题, 附加问候
+                if any(w in rest.lower() for w in ["诺特", "noether"]):
+                    rest = rest.replace("诺特", "").replace("noether", "").replace("Noether", "").strip(" ,，")
+
                 # 自然语言知识网络查询 (优先, 不走 LLM)
                 from meta_cognition.nl_router import execute_nl_query
                 kg_result = execute_nl_query(rest)
