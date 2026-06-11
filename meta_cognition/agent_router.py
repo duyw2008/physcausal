@@ -61,7 +61,7 @@ AGENT_COMMANDS = {
         "parser": lambda text: _parse_autonomous(text),
     },
     "watch": {
-        "keywords": ["后台", "定时", "挂着", "watch"],
+        "keywords": ["后台", "定时", "挂着", "watch", "开始工作", "工作吧", "自己跑"],
         "parser": lambda _: ("watch",),
     },
     "plan": {
@@ -229,6 +229,10 @@ def execute_agent_command(text: str) -> Optional[str]:
             if r and r.get("interesting"):
                 discoveries.append(r)
         return f"自主运行 {n} 轮: {len(discoveries)} 个有趣的想法"
+    
+    if cmd == "watch":
+        from meta_cognition.identity import NAME
+        return f"💬 {NAME}: 好的，我开始后台工作了。每30分钟自主研究一轮。\n   如需停止: 在 agent 终端输入 watch stop" 
     
     if cmd == "strategy":
         from reinforcement.meta_rl import strategy_report
