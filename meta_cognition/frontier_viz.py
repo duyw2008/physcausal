@@ -72,6 +72,9 @@ def generate_frontier_html() -> str:
   #chart {{ width:100vw; height:calc(100vh-50px); }}
   .legend {{ position:fixed; bottom:10px; right:10px; background:#161b22; 
              padding:8px 12px; border-radius:6px; border:1px solid #30363d; font-size:11px; }}
+  .sparse-dot {{ fill:#50B86C; stroke:#50B86C; }}
+  .gap-dot {{ fill:#E8A838; stroke:#E8A838; }}
+  .dead-dot {{ fill:#D94A4A; stroke:#D94A4A; }}
 </style></head><body>
 <div id="header"><h2>PhysCausal Frontier Map <span>sparse:{groups['sparse']} gap:{groups['gap']} dead:{groups['dead']}</span></h2></div>
 <div id="chart"></div>
@@ -79,17 +82,23 @@ def generate_frontier_html() -> str:
   {"".join(f'<div><span style="background:{c};display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px"></span> {g} ({n})</div>' for g,n,c in [('sparse',groups['sparse'],colors['sparse']),('gap',groups['gap'],colors['gap']),('dead',groups['dead'],colors['dead'])])}
 </div>
 <script>
-var items = {json.dumps([{**p, "color": colors[p["group"]]} for p in points], ensure_ascii=False)};
+var items = {json.dumps(points, ensure_ascii=False)};
 var dataset = new vis.DataSet(items);
-new vis.Graph2d(document.getElementById('chart'), dataset, {{
-  style:'points', drawPoints:{{style:'circle',size:(item)=>item.size||5}},
-  dataAxis:{{left:{{title:'Y'}}, bottom:{{title:'X'}}}},
+var options = {{
+  style:'points',
+  drawPoints:{{style:'circle'}},
+  dataAxis:{{left:{{title:'frequency/score'}}, bottom:{{title:'domains/depth'}}}},
   defaultGroup:'sparse',
-  groups:{{sparse:{{content:'稀疏区'}},gap:{{content:'尺度裂缝'}},dead:{{content:'断头路'}}}},
-  showMajorLabels:true, showMinorLabels:false,
-  tooltip:(item)=>`<b>${{item.label}}</b><br>${{item.detail}}${{item.group}}`,
+  groups:{{
+    sparse:{{content:'Sparse Zones',className:'sparse-dot'}},
+    gap:{{content:'Scale Gaps',className:'gap-dot'}},
+    dead:{{content:'Dead Ends',className:'dead-dot'}}
+  }},
+  showMajorLabels:true,
+  tooltip:function(item){{return '<b>'+item.label+'</b><br>'+item.detail+' ('+item.group+')';}},
   height:'100%',
-}});
+}};
+new vis.Graph2d(document.getElementById('chart'), dataset, options);
 </script></body></html>"""
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
