@@ -72,6 +72,26 @@ AGENT_COMMANDS = {
         "keywords": ["策略", "最优", "决策", "应该", "哪个方向"],
         "parser": lambda _: ("strategy",),
     },
+    "dissonance": {
+        "keywords": ["矛盾", "失调", "不一致", "冲突", "张力"],
+        "parser": lambda _: ("dissonance",),
+    },
+    "innovate": {
+        "keywords": ["创新", "新发现", "候选边", "生成"],
+        "parser": lambda _: ("innovate",),
+    },
+    "trust": {
+        "keywords": ["信任", "论文质量", "摄入", "arXiv"],
+        "parser": lambda _: ("trust",),
+    },
+    "entropy": {
+        "keywords": ["熵方向", "熵箭头", "时间方向"],
+        "parser": lambda _: ("entropy",),
+    },
+    "reason": {
+        "keywords": ["多步", "推理链", "如果", "那么"],
+        "parser": lambda text: _parse_reason(text),
+    },
 }
 
 
@@ -154,6 +174,16 @@ def parse_agent_command(text: str) -> Optional[Tuple]:
     return None
 
 
+def _parse_reason(text: str):
+    import re
+    for cn, en in {"如果": "", "那么": "", "升高": "升高", "降低": "降低"}.items():
+        text = text.replace(cn, en)
+    m = re.search(r"(\w+)\s+(\S+)\s*→\s*(.+)", text)
+    if m:
+        return ("reason", f"{m.group(1)} {m.group(2)} -> {m.group(3).strip()}")
+    return None
+
+
 def execute_agent_command(text: str) -> Optional[str]:
     """执行自然语言智能体命令"""
     result = parse_agent_command(text)
@@ -233,6 +263,25 @@ def execute_agent_command(text: str) -> Optional[str]:
     if cmd == "watch":
         from meta_cognition.identity import NAME
         return f"💬 {NAME}: 好的，我开始后台工作了。每30分钟自主研究一轮。\n   如需停止: 在 agent 终端输入 watch stop" 
+    
+    if cmd == "dissonance":
+        from meta_cognition.dissonance import cognitive_summary
+        return cognitive_summary()
+    
+    if cmd == "innovate":
+        from creative.innovation_engine import innovation_report
+        return innovation_report()
+    
+    if cmd == "trust":
+        from session.paper_trust import paper_trust_report
+        return paper_trust_report()
+    
+    if cmd == "entropy":
+        return "熵方向请使用: entropy <csv> <A> <B>\n或通过 chain entropy 查看因果传播"
+    
+    if cmd == "reason":
+        from inference.multi_step import multi_step_reason
+        return multi_step_reason(args[0])
     
     if cmd == "strategy":
         from reinforcement.meta_rl import strategy_report
