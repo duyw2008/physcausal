@@ -711,6 +711,18 @@ def run_interactive():
             parts = user_input.split()
             cmd, rest = parts[0], " ".join(parts[1:])
 
+            # 对话记忆: 自动记录关键命令
+            if cmd in ("ask", "chain", "analogy", "research", "suggest", "reason"):
+                try:
+                    from meta_cognition.conversation import remember_conversation
+                    remember_conversation(
+                        topic=cmd,
+                        insight=rest[:100] if rest else user_input[:100],
+                        tags=[cmd, "auto"]
+                    )
+                except Exception:
+                    pass
+
             # ── Help ──
             if cmd in ("help", "h"):
                 for section, cmds in CMD_HELP.items():
@@ -1033,6 +1045,25 @@ def run_interactive():
             if cmd == "trust":
                 from session.paper_trust import paper_trust_report
                 print(paper_trust_report())
+                continue
+
+            if cmd == "experiment":
+                from meta_cognition.experiment_design import experiment_plan_report
+                print(experiment_plan_report())
+                continue
+
+            if cmd == "reason":
+                from inference.multi_step import multi_step_reason
+                if not rest:
+                    from inference.multi_step import multi_step_report
+                    print(multi_step_report())
+                else:
+                    print(multi_step_reason(rest))
+                continue
+
+            if cmd == "convo":
+                from meta_cognition.conversation import context_summary
+                print(context_summary())
                 continue
 
             if cmd == "ingest":
