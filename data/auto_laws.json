@@ -1132,5 +1132,67 @@
     ],
     "confidence_tier": 3,
     "_discovery_note": "[arXiv] ?"
+  },
+  {
+    "name": "FreeEnergyDefinition",
+    "domain": "thermodynamics",
+    "latex": "F = E - TS",
+    "inputs": [
+      "temperature",
+      "entropy"
+    ],
+    "outputs": [
+      "free_energy"
+    ],
+    "causal_direction": [
+      [
+        "temperature",
+        "free_energy"
+      ],
+      [
+        "entropy",
+        "free_energy"
+      ]
+    ],
+    "confidence_tier": 1,
+    "_discovery_note": "自由能定义: F = E - TS。温度决定熵的权重, 熵贡献到自由能。Legendgre变换: S(E)→F(T)。"
+  },
+  {
+    "name": "FreeEnergyEquilibrium",
+    "domain": "thermodynamics",
+    "latex": "\\delta F = 0 \\Rightarrow \\text{equilibrium}",
+    "inputs": [
+      "free_energy"
+    ],
+    "outputs": [
+      "equilibrium_state"
+    ],
+    "causal_direction": [
+      [
+        "free_energy",
+        "equilibrium_state"
+      ]
+    ],
+    "confidence_tier": 1,
+    "_discovery_note": "自由能极小原理: δF=0 → 平衡态。与最大熵原理等价, 是δS=0在接触热浴约束下的重新表述。"
+  },
+  {
+    "name": "EnergyFreeEnergyRelation",
+    "domain": "thermodynamics",
+    "latex": "F \\leq E",
+    "inputs": [
+      "energy"
+    ],
+    "outputs": [
+      "free_energy"
+    ],
+    "causal_direction": [
+      [
+        "energy",
+        "free_energy"
+      ]
+    ],
+    "confidence_tier": 1,
+    "_discovery_note": "自由能≤能量: F = E - TS, 熵非负 → F≤E。耗散将能量转化为自由能中不可用的部分。"
   }
 ]
