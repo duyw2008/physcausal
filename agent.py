@@ -678,6 +678,24 @@ CMD_HELP = {
         "entropy <csv> <A> <B>": "entropy arrow direction",
         "history [clear|sessions]": "manage command/session history",
     },
+    "≡ 对话 (ask 自然语言)": {
+        "质量减半会怎样":          "chain: 正向因果传播",
+        "从质量怎么到波长":        "plan: 反向规划路径",
+        "有什么新类比":            "analogy: 跨域结构共鸣",
+        "切换到量子引力":          "focus: 切换研究方向",
+        "帮我验证一下":            "suggest --run: 自动交叉验证",
+        "生成论文":               "paper: 自动生成论文",
+        "大胆假设一下":            "speculate: 无约束假说",
+        "看看状态":               "viz: 驱动面板+类比图",
+        "回忆一下":               "memory: 持久记忆",
+        "开始工作吧":              "watch: 后台自主运行",
+        "有什么矛盾吗":            "dissonance: 认知失调",
+        "有什么新发现":            "innovate: 创新引擎",
+        "哪个方向最值得研究":      "strategy: 元RL策略",
+        "退相干和耗散的关系":      "KG: 知识网络路径",
+        "熵的上游是什么":          "KG: 变量上下游",
+        "有新概念吗":              "KG: 概念涌现",
+    },
 }
 
 def _parse_options(rest, n_min, n_max=99):
