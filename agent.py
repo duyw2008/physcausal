@@ -1037,6 +1037,18 @@ def run_interactive():
                     print(discover_from_data(path, target))
                 continue
 
+            if cmd == "kg":
+                from meta_cognition.kg_migration import kg_stats_report, kg_query
+                if not rest:
+                    try:
+                        from meta_cognition.kg_migration import migrate_all
+                        print(migrate_all())
+                    except Exception as e:
+                        print(f"Migration failed: {e}")
+                else:
+                    print(kg_query(rest))
+                continue
+
             if cmd == "strategy":
                 from reinforcement.meta_rl import strategy_report
                 print(strategy_report())

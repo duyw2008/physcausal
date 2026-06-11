@@ -52,13 +52,30 @@ def _ucb_score(counts: Dict[str, int], values: Dict[str, float],
     return exploit + explore
 
 
+def _graph_state() -> Dict:
+    """从知识网络读取状态"""
+    try:
+        from meta_cognition.knowledge_graph import kg
+        stats = kg.stats()
+        cv = len(kg.nodes_of_type("cross_validation"))
+        analogies = len(kg.nodes_of_type("analogy"))
+        laws = len(kg.nodes_of_type("law"))
+        papers = len(kg.nodes_of_type("paper"))
+        return {
+            "laws": laws, "cv_count": cv, "analogies": analogies,
+            "papers": papers, "density": stats["edges"] / max(stats["nodes"], 1),
+        }
+    except:
+        return {}
+
 def best_strategy() -> Dict:
     """
-    从历史记录中学习最优策略。
+    从历史记录 + 知识网络状态中学习最优策略。
 
     返回: {recommended_action, confidence, rationale}
     """
     records = _load_records()
+    gs = _graph_state()
     if len(records) < 10:
         return {
             "action": "explore",
