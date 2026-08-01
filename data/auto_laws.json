@@ -5582,5 +5582,136 @@
       ]
     ],
     "confidence_tier": 3
+  },
+  {
+    "name": "LinearSuperpositionOfNeuralActivity",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "neural_activity"
+    ],
+    "outputs": [
+      "node_response"
+    ],
+    "causal_direction": [
+      [
+        "neural_activity",
+        "node_response"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ActivationFunctionTriggersNonlinearity",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "activation_function"
+    ],
+    "outputs": [
+      "nonlinearity"
+    ],
+    "causal_direction": [
+      [
+        "activation_function",
+        "nonlinearity"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "GaussianDistributionAssumptionInDANN",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "dann_structure"
+    ],
+    "outputs": [
+      "gaussian_distribution_of_neural_signals"
+    ],
+    "causal_direction": [
+      [
+        "dann_structure",
+        "gaussian_distribution_of_neural_signals"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "RedundantRepresentationDueToNonOrthogonality",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "non_orthogonality_of_neural_signals"
+    ],
+    "outputs": [
+      "redundant_representation"
+    ],
+    "causal_direction": [
+      [
+        "non_orthogonality_of_neural_signals",
+        "redundant_representation"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ArbitraryPolynomialChaosOrthonormalRepresentation",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "apc_theory"
+    ],
+    "outputs": [
+      "orthonormal_representation_on_node"
+    ],
+    "causal_direction": [
+      [
+        "apc_theory",
+        "orthonormal_representation_on_node"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "VibrationReductionImprovesPhaseNoise",
+    "domain": "mechanics",
+    "latex": "",
+    "inputs": [
+      "vibration_reduction_mode",
+      "distance_between_barycenter_and_crystal_oscillator"
+    ],
+    "outputs": [
+      "phase_noise"
+    ],
+    "causal_direction": [
+      [
+        "vibration_reduction_mode",
+        "phase_noise"
+      ],
+      [
+        "distance_between_barycenter_and_crystal_oscillator",
+        "phase_noise"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ActiveNoiseControlCompensatesPhaseNoise",
+    "domain": "mechanics",
+    "latex": "",
+    "inputs": [
+      "active_noise_control_system"
+    ],
+    "outputs": [
+      "phase_noise_compensation"
+    ],
+    "causal_direction": [
+      [
+        "active_noise_control_system",
+        "phase_noise_compensation"
+      ]
+    ],
+    "confidence_tier": 3
   }
 ]

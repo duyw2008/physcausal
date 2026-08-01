@@ -1,11 +1,11 @@
 {
-  "generation": 80,
-  "cells": 91,
-  "edges": 1643,
-  "known_paths": 13,
+  "generation": 136,
+  "cells": 6888,
+  "edges": 508,
+  "known_paths": 0,
   "feed_count": 0,
-  "synapse_edges": 68,
-  "total_rewards": 6971.486960000075,
-  "elapsed_h": 0.05,
-  "pid": 1280798
+  "synapse_edges": 872,
+  "total_rewards": 0.0,
+  "elapsed_h": 0.0,
+  "pid": 1281806
 }

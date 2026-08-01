@@ -2799,6 +2799,9 @@ class EvoColony:
 
         只在睡眠时运行，每次最多修补 3 个悬挂节点。
         """
+        # 初始化修复记录集（同一次 run 内不重复修）
+        if not hasattr(self, '_closure_fixed'):
+            self._closure_fixed: set = set()
         # 1. 收集所有 tier≤1 的已知原理节点（因果锚点）
         anchor_nodes: set = set()
         for key, tier in self.synapse.tiers.items():
@@ -2866,12 +2869,8 @@ class EvoColony:
 
         repaired = 0
         for node_id in dangling[:3]:  # 每次最多修 3 个
-            # 去重: 已有 axomatic 域 cause 边的跳过（CLOSURE 修过，不被 pruning 删）
-            already_fixed = any(
-                domain == 'axomatic'
-                for _, _, domain in self.graph.get(node_id, {}).get('causes', [])
-            )
-            if already_fixed:
+            # 去重: 同一次 run 内已修过的不重复
+            if node_id in self._closure_fixed:
                 continue
             # 尝试用 derive 找到到锚点的路径
             best_edge = self._find_closure_edge(node_id, anchor_nodes)
@@ -2888,6 +2887,7 @@ class EvoColony:
                 # 防 VSA 重建覆盖: 清除 dirty 标记，保护手动添加的因果边
                 self.graph._dirty.discard(src)
                 self.graph._dirty.discard(dst)
+                self._closure_fixed.add(node_id)  # 记录已修复
                 repaired += 1
                 if repaired == 1:
                     print(f"  [CLOSURE] {src} --[{formula}]--> {dst} (dangling→anchored)")
