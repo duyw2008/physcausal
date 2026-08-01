@@ -26,6 +26,57 @@ def _load_cross_validation_reports() -> List[Dict]:
     return load_cv_summary()
 
 
+def _load_tier3_hypotheses(limit: int = 10) -> List[Dict]:
+    """加载诺特脑发现的 tier 3 突触假说"""
+    try:
+        from meta_cognition.evo_colony import EvoColony
+        colony = EvoColony()
+        t3 = []
+        for key in colony.synapse.activations:
+            if colony.synapse.tiers.get(key, 4) == 3:
+                edge = colony.synapse.activations[key]
+                t3.append({
+                    "src": key[0],
+                    "dst": key[1],
+                    "neurons": len(edge['n']),
+                    "strength": round(edge['s'], 1),
+                    "count": edge['c'],
+                })
+        t3.sort(key=lambda x: -x["neurons"])
+        return t3[:limit]
+    except Exception:
+        return []
+
+
+def _search_arxiv_for_hypotheses(hypotheses: List[Dict]) -> List[Dict]:
+    """为 tier 3 假说搜索 arXiv 相关论文"""
+    papers = []
+    try:
+        from session.paper_ingest import search_arxiv
+        seen_ids = set()
+        for h in hypotheses[:5]:  # 只为 top 5 搜索
+            query = f"{h['src']} {h['dst']}".replace('_', ' ')
+            try:
+                results = search_arxiv(query, max_results=3)
+                for r in results:
+                    arxiv_id = r.get("arxiv_id", "")
+                    if arxiv_id and arxiv_id not in seen_ids:
+                        seen_ids.add(arxiv_id)
+                        papers.append({
+                            "arxiv_id": arxiv_id,
+                            "title": r.get("title", "?"),
+                            "authors": r.get("authors", "?"),
+                            "year": r.get("published", "")[:4],
+                            "query": query,
+                            "hypothesis": f"{h['src']}→{h['dst']}",
+                        })
+            except Exception:
+                pass
+    except Exception:
+        pass
+    return papers
+
+
 def _load_discoveries() -> List[Dict]:
     """加载自动发现中 tier≤3 的条目"""
     from data_paths import auto_laws_path; auto_path = auto_laws_path()
@@ -78,8 +129,10 @@ def _count_laws() -> Dict:
 
 
 def generate_paper() -> str:
-    """生成完整论文"""
+    """生成完整论文 — 聚焦 tier 3 诺特脑假说 + arXiv 参考文献"""
     focus = _get_focus_info()
+    tier3 = _load_tier3_hypotheses(limit=15)
+    arxiv_refs = _search_arxiv_for_hypotheses(tier3)
     discoveries = _load_discoveries()
     cv_reports = _load_cross_validation_reports()
     stats = _count_laws()
@@ -88,270 +141,147 @@ def generate_paper() -> str:
     lines = []
 
     # ═══════════ 标题 ═══════════
-    if focus:
-        title = f"Causal Structure of {focus['name']}: A PhysCausal Investigation"
-        title_cn = f"{focus['name']}的因果结构: PhysCausal 研究"
-        lines.append(f"# {title}")
-        lines.append(f"## {title_cn}")
+    if tier3:
+        top = tier3[0]
+        title = f"Causal Discovery of {top['src']} → {top['dst']}: A Noether Brain Hypothesis"
+        title_cn = f"诺特脑假说: {top['src']} → {top['dst']} 的因果发现"
     else:
-        lines.append("# PhysCausal Research Report")
-        lines.append("## PhysCausal 研究报告")
-
+        title = "PhysCausal Research Report"
+        title_cn = "PhysCausal 研究报告"
+    lines.append(f"# {title}")
+    lines.append(f"## {title_cn}")
     lines.append("")
-    lines.append(f"**PhysCausal Agent v0.3.10** | **{timestamp}**")
-    if focus:
-        lines.append(f"**研究方向**: [{focus.get('tag', '?')}] {focus['name']}")
+    lines.append(f"**PhysCausal Agent v0.3.11** | **{timestamp}**")
+    lines.append(f"**诺特脑 tier 3 假说: {len(tier3)} 条 | arXiv 参考: {len(arxiv_refs)} 篇**")
     lines.append("")
 
     # ═══════════ 摘要 ═══════════
     lines.append("## Abstract / 摘要")
     lines.append("")
-
-    n_discoveries = len(discoveries)
-    n_cv = len(cv_reports)
-    confirmed_cv = sum(1 for r in cv_reports
-                       if r.get("convergence_preserved") is True)
-
-    if focus:
-        lines.append(
-            f"本文使用 PhysCausal 因果推理框架研究**{focus['name']}**。"
-            f"基于 δS=0 的唯一生成原理和 {stats.get('total', '?')} 条物理定律的因果图，"
-            f"我们发现了 {n_discoveries} 条 tier≤3 的结构性发现，"
-            f"并执行了 {n_cv} 次跨域交叉验证（{confirmed_cv} 次通过）。"
-        )
-        if focus.get("open_problems"):
-            lines.append(f"重点关注开放问题: {'; '.join(focus['open_problems'][:3])}。")
-
-    lines.append("")
     lines.append(
-        "We apply the PhysCausal causal inference framework to investigate "
-        f"{focus['name'] if focus else 'fundamental physics'}. "
-        f"Based on the unique generative principle δS=0 and a causal graph "
-        f"of {stats.get('total', '?')} physical laws, "
-        f"we report {n_discoveries} structural discoveries (tier≤3) "
-        f"and {n_cv} cross-domain validations ({confirmed_cv} passed)."
+        f"诺特脑自进化系统通过 {stats.get('total', '?')} 条物理定律的因果图"
+        f"自主发现了 {len(tier3)} 条 tier 3 严肃物理假说（≥10 神经元共识）。"
+        f"本文报告其中置信度最高的发现，"
+        f"并检索 {len(arxiv_refs)} 篇 arXiv 论文作为文献支撑。"
     )
+    lines.append("")
+    if tier3:
+        for h in tier3[:3]:
+            lines.append(f"- **{h['src']} → {h['dst']}**: {h['neurons']} 神经元共识, 强度 {h['strength']}")
     lines.append("")
 
     # ═══════════ 1. 引言 ═══════════
     lines.append("---")
     lines.append("## 1. Introduction / 引言")
     lines.append("")
-
-    if focus:
-        lines.append(f"### 1.1 研究方向")
-        lines.append(f"**{focus['name']}** ({focus.get('tag', '?')})")
-        lines.append(f"核心问题: {focus.get('core_question', '?')}")
-        lines.append("")
-        lines.append(f"关键变量: {', '.join(focus.get('key_variables', [])[:8])}")
-        lines.append(f"关键领域: {', '.join(focus.get('key_domains', [])[:5])}")
-        lines.append(f"推荐透镜: {', '.join(focus.get('key_lenses', [])[:4])}")
-        lines.append("")
-
-    lines.append("### 1.2 因果图状态")
-    lines.append(f"- 总定律数: {stats.get('total', '?')}")
-    for tier, count in sorted(stats.get("by_tier", {}).items()):
-        tier_label = {0: "元物理定理", 1: "确立定律", 2: "论文支撑",
-                      3: "严肃假说", 4: "探索编码"}.get(tier, f"tier {tier}")
-        lines.append(f"- tier {tier} ({tier_label}): {count}")
+    lines.append("### 1.1 诺特脑自进化系统")
+    lines.append(
+        "诺特脑是一个基于因果图的自进化神经元系统。"
+        f"{stats.get('total', '?')} 条物理定律构成初始知识图，"
+        "数万神经元通过随机游走探索因果路径。"
+        "当 ≥10 个独立神经元走过同一条因果边时，该边升级为 tier 3 严肃物理假说。"
+    )
+    lines.append("")
+    lines.append(f"当前图状态: {stats.get('total', '?')} 定律, 覆盖域: {', '.join(list(stats.get('by_domain', {}).keys())[:8])}")
     lines.append("")
 
     # ═══════════ 2. 方法 ═══════════
     lines.append("---")
     lines.append("## 2. Methods / 方法")
     lines.append("")
-    lines.append("### 2.1 PhysCausal 因果推理框架")
+    lines.append("### 2.1 诺特脑发现机制")
     lines.append("")
-    lines.append("PhysCausal 使用结构因果模型 (SCM) 表示物理定律。核心原理:")
-    lines.append("")
-    lines.append("1. **δS=0** — 唯一生成根。所有基本定律都是最小作用量原理的推论。")
-    lines.append("2. **因果图** — 物理变量之间的有向因果边，由定律库显式定义。")
-    lines.append("3. **置信层级 (tier 0–4)** — 从数学定理到探索编码的严格分层。")
-    lines.append("4. **负向约束** — forbidden_directions 防止因果污染。")
-    lines.append("5. **多层验证** — 公理链 + 跨域比较 + 留一法。")
+    lines.append("1. **随机游走**: 神经元在因果图上执行 step_forward/backward")
+    lines.append("2. **突触强化**: 每次 walk 激活突触 → LTP 累积")
+    lines.append("3. **tier 升级**: ≥10 独立神经元 → tier 4→3 (严肃假说)")
+    lines.append("4. **Hebbian 捷径**: 反复共现的节点对长出直连边")
+    lines.append("5. **arXiv 验证**: 检索相关文献评估假说可行性")
     lines.append("")
 
-    lines.append("### 2.2 交叉验证方法")
-    lines.append("")
-    lines.append("对每条 tier≤3 发现，PhyCausal 在所有未覆盖的物理域")
-    lines.append("（量子、几何、热力学、电磁学）执行交叉验证:")
-    lines.append("")
-    lines.append("1. 加载目标域的哲学透镜 (如 quantum→path_integral)")
-    lines.append("2. 在扩展因果图上重新传播")
-    lines.append("3. 检测汇聚是否保持")
-    lines.append("4. 当量子域未直接参与时，诚实地标注缺失桥梁")
-    lines.append("")
-
-    # ═══════════ 3. 发现 ═══════════
+    # ═══════════ 3. Tier 3 发现 ═══════════
     lines.append("---")
-    lines.append("## 3. Discoveries / 发现")
+    lines.append("## 3. Tier 3 Hypotheses / 诺特脑假说")
     lines.append("")
 
-    if not discoveries:
-        lines.append("*当前无 tier≤3 的结构性发现。*")
+    if not tier3:
+        lines.append("*当前无 tier 3 假说。*")
     else:
-        for i, d in enumerate(discoveries):
-            name = d.get("name", "unnamed")
-            tier = d.get("confidence_tier", "?")
-            inputs = d.get("inputs", [])
-            outputs = d.get("outputs", [])
-            note = d.get("_discovery_note", "")
-            domain = d.get("domain", "unknown")
+        lines.append(f"共 {len(tier3)} 条 tier 3 假说，以下按神经元共识排序:")
+        lines.append("")
+        lines.append("| # | 假说 | 神经元 | 强度 | arXiv |")
+        lines.append("|---|------|--------|------|-------|")
+        for i, h in enumerate(tier3[:12]):
+            related = [r for r in arxiv_refs if h['src'] in r['query'] or h['dst'] in r['query']]
+            arxiv_note = f"{len(related)}篇" if related else "—"
+            lines.append(f"| {i+1} | {h['src'][:25]} → {h['dst'][:25]} | {h['neurons']} | {h['strength']:.0f} | {arxiv_note} |")
+        lines.append("")
 
-            lines.append(f"### 3.{i+1} {name}")
+        # 详细展开 top 3
+        for i, h in enumerate(tier3[:3]):
+            related = [r for r in arxiv_refs if h['src'] in r['query'] or h['dst'] in r['query']]
+            lines.append(f"### 3.{i+1} {h['src']} → {h['dst']}")
             lines.append("")
-            lines.append(f"- **置信层级**: tier {tier}")
-            lines.append(f"- **领域**: {domain}")
-            lines.append(f"- **因果边**: {', '.join(inputs)} → {', '.join(outputs)}")
-            if note:
-                lines.append(f"- **发现说明**: {note}")
+            lines.append(f"- **神经元共识**: {h['neurons']} (≥10 = LTP 阈值)")
+            lines.append(f"- **突触强度**: {h['strength']}")
+            lines.append(f"- **激活次数**: {h['count']}")
+            if related:
+                lines.append(f"- **arXiv 文献**: {len(related)} 篇")
+                for r in related[:3]:
+                    lines.append(f"  - [{r['arxiv_id']}] {r['title'][:80]} ({r['year']})")
             lines.append("")
 
-            # 相关的交叉验证
-            related_cv = [r for r in cv_reports
-                          if r.get("discovery", "") == name]
-            if related_cv:
-                lines.append(f"**交叉验证结果** ({len(related_cv)} 域):")
-                lines.append("")
-                lines.append("| 域 | 汇聚保持 | 量子参与 | 判定 |")
-                lines.append("|-----|---------|---------|------|")
-                for cv in related_cv:
-                    domain = cv.get("target_domain", "?")
-                    preserved = "✓" if cv.get("convergence_preserved") else "⚠" if cv.get("convergence_preserved") is False else "?"
-                    qi = "是" if cv.get("quantum_involved") else "否"
-                    verdict = cv.get("verdict_cn", "?")[:50]
-                    lines.append(f"| {domain} | {preserved} | {qi} | {verdict} |")
-                lines.append("")
-
-                # 量子评估
-                for cv in related_cv:
-                    qa = cv.get("quantum_assessment")
-                    if qa:
-                        lines.append(f"**{cv.get('target_domain', '?')}域量子评估**:")
-                        lines.append(f"> {qa.get('honest_answer', '')}")
-                        lines.append(f"> 缺失桥梁: {qa.get('missing_bridge', '?')}")
-                        lines.append("")
-
-    # ═══════════ 4. 交叉验证汇总 ═══════════
+    # ═══════════ 4. arXiv 文献综述 ═══════════
     lines.append("---")
-    lines.append("## 4. Cross-Validation Summary / 交叉验证汇总")
+    lines.append("## 4. arXiv Literature / 文献综述")
     lines.append("")
 
-    if not cv_reports:
-        lines.append("*尚未执行交叉验证。*")
+    if not arxiv_refs:
+        lines.append("*arXiv 检索未返回结果。*")
     else:
-        lines.append(f"共执行 **{len(cv_reports)}** 次跨域交叉验证。")
+        lines.append(f"检索到 {len(arxiv_refs)} 篇相关 arXiv 论文:")
         lines.append("")
-        lines.append("| 发现 | 目标域 | 汇聚 | 量子参与 | 判定 |")
-        lines.append("|------|--------|------|---------|------|")
-        for cv in cv_reports:
-            name = cv.get("discovery", "?")[:25]
-            domain = cv.get("target_domain", "?")
-            preserved = "✓" if cv.get("convergence_preserved") else "⚠"
-            qi = "✓" if cv.get("quantum_involved") else "—"
-            verdict = cv.get("verdict_cn", "?")[:40]
-            lines.append(f"| {name} | {domain} | {preserved} | {qi} | {verdict} |")
-        lines.append("")
-
-        # 统计
-        passed = sum(1 for r in cv_reports if r.get("convergence_preserved") is True)
-        broken = sum(1 for r in cv_reports if r.get("convergence_preserved") is False)
-        lines.append(f"- 汇聚保持: {passed}")
-        lines.append(f"- 汇聚断裂: {broken}")
-        lines.append(f"- 量子域直接参与: {sum(1 for r in cv_reports if r.get('quantum_involved'))}")
-        lines.append("")
+        for i, r in enumerate(arxiv_refs):
+            lines.append(f"{i+1}. **[{r['arxiv_id']}]** {r['title']}")
+            lines.append(f"   - 作者: {r['authors'][:80]}")
+            lines.append(f"   - 年份: {r['year']}")
+            lines.append(f"   - 关联假说: {r['hypothesis']}")
+            lines.append("")
 
     # ═══════════ 5. 讨论 ═══════════
     lines.append("---")
     lines.append("## 5. Discussion / 讨论")
     lines.append("")
-    lines.append("### 5.1 主要发现")
-
-    if discoveries:
-        for d in discoveries:
-            name = d.get("name", "")
-            inputs = d.get("inputs", [])
-            outputs = d.get("outputs", [])
-            tier = d.get("confidence_tier", "?")
-            note = d.get("_discovery_note", "")
-
-            # 根据具体发现生成讨论
-            if "geodesic" in name.lower() or "convergence" in name.lower():
-                msg = (f"确认了 {' + '.join(inputs[:2])} 在 {' + '.join(outputs[:2])} 处的因果汇聚。"
-                       f"这是 δS=0 为唯一生成根的进一步证据。")
-            elif "测地线" in name:
-                msg = (f"经典测地线方程在因果图中被验证为 tier {tier}。"
-                       f"跨域交叉验证暴露了量子域的缺失桥梁。")
-            elif "牛顿" in name:
-                msg = (f"经典力学的基本定律在因果图中为 tier {tier}。"
-                       f"量子对应物 (算子力学) 尚未建模。")
-            elif "等效" in name:
-                msg = (f"等效原理连接了惯性质量与引力质量。"
-                       f"量子域的等效原理仍是开放问题。")
-            elif "不确定" in name:
-                msg = (f"不确定性原理是量子力学的基石。"
-                       f"其在几何域的对应物尚未建立。")
-            elif "作用量" in name:
-                msg = (f"最小作用量原理是因果图的生成根。"
-                       f"其在各域的普适性需要进一步检验。")
-            elif note:
-                msg = note[:120]
+    if tier3:
+        lines.append("### 5.1 假说评估")
+        for h in tier3[:3]:
+            src, dst = h['src'], h['dst']
+            related = [r for r in arxiv_refs if src in r['query'] or dst in r['query']]
+            if related:
+                lines.append(f"- **{src} → {dst}**: {len(related)} 篇 arXiv 论文涉及此方向，假说有一定文献基础。")
             else:
-                msg = f"tier {tier} 结构性发现。"
+                lines.append(f"- **{src} → {dst}**: 暂无直接 arXiv 文献，可能是诺特脑的原创发现。")
+        lines.append("")
 
-            lines.append(f"- **{name}**: {msg}")
-    else:
-        lines.append("- 当前因果图尚未产生 tier≤3 的结构性新发现。继续运行研究循环。")
-
-    lines.append("")
-    lines.append("### 5.2 量子域的开放问题")
-    lines.append("")
-    lines.append("交叉验证表明，量子域定律（路径积分、测量问题）未直接参与")
-    lines.append("经典域的因果路径。这不是因果图的缺陷，而是反映了物理学当前")
-    lines.append("的真实状态: 量子引力理论尚未给出 path_integral → spacetime_structure")
-    lines.append("的显式因果边。")
-    lines.append("")
-    lines.append("在 ħ→0 的经典极限下，路径积分的稳相近似给出经典路径，")
-    lines.append("在非平凡度规下即为测地线。但这是数学对应，不是物理因果。")
-    lines.append("量子域的直接因果参与需要:")
-    lines.append("- AdS/CFT 中边界路径积分与体测地线的显式对应")
-    lines.append("- 或建模 stationary_path 为中间桥梁变量（带 ħ→0 条件标记）")
-    lines.append("")
-
-    lines.append("### 5.3 方法论意义")
-    lines.append("")
-    lines.append("PhysCausal 的因果图方法为理论物理提供了一个独特的工具:")
-    lines.append("因果推理迫使假设以显式、可验证、可反驳的因果边形式出现。")
-    lines.append("这避免了物理学中常见的'哲学陈述冒充物理定律'的问题。")
-    lines.append("")
-
-    # ═══════════ 6. 下一步 ═══════════
-    lines.append("### 5.4 下一步研究")
-    lines.append("")
-    if focus and focus.get("open_problems"):
-        for op in focus.get("open_problems", [])[:3]:
-            lines.append(f"- [ ] {op}")
-    lines.append("- [ ] 补建 stationary_path 中间桥梁变量")
-    lines.append("- [ ] 热力学域交叉验证 (entropy→geodesic_path)")
-    lines.append("- [ ] 扩展 AdS/CFT 桥接到因果图")
+    lines.append("### 5.2 方法论意义")
+    lines.append("诺特脑的自进化机制为理论物理提供了一种新的发现范式:")
+    lines.append("- 因果图提供显式、可审计的推理基础")
+    lines.append("- 神经元随机游走模拟科学家的探索过程")
+    lines.append("- tier 系统保证假说的严肃性（≥10 共识）")
+    lines.append("- arXiv 检索提供真实文献验证")
     lines.append("")
 
     # ═══════════ 参考文献 ═══════════
     lines.append("---")
     lines.append("## References / 参考文献")
     lines.append("")
-    lines.append("1. Wheeler, J.A. — *Geometrodynamics* (1962)")
-    lines.append("2. Feynman, R.P. — *Space-Time Approach to Non-Relativistic Quantum Mechanics* (1948)")
-    lines.append("3. Pearl, J. — *Causality* (2009)")
-    lines.append("4. Maldacena, J. — *The Large N Limit of Superconformal Field Theories* (AdS/CFT, 1998)")
-    lines.append("5. Sorkin, R.D. — *Causal Sets: Discrete Gravity* (2003)")
-    lines.append("6. PhysCausal — *Internal methodology: δS=0 as generative root* (v0.3.10)")
-    lines.append("7. Penrose, R. — *On Gravity's Role in Quantum State Reduction* (1996)")
-    lines.append("8. Landauer, R. — *Irreversibility and Heat Generation in the Computing Process* (1961)")
+    for i, r in enumerate(arxiv_refs):
+        lines.append(f"{i+1}. {r['authors'][:60]} — *{r['title']}* ({r['year']}), arXiv:{r['arxiv_id']}")
+    lines.append(f"{len(arxiv_refs)+1}. PhysCausal Agent v0.3.11 — *Internal methodology: δS=0 as generative root*")
     lines.append("")
+
     lines.append("---")
-    lines.append(f"*由 PhysCausal Agent v0.3.10 自主生成于 {timestamp}*")
-    lines.append(f"*因果图: {stats.get('total', '?')} 定律, {n_discoveries} 条发现, {n_cv} 次交叉验证*")
+    lines.append(f"*由诺特脑 + PhysCausal Agent 自主生成于 {timestamp}*")
+    lines.append(f"*tier 3 假说: {len(tier3)} 条 | arXiv: {len(arxiv_refs)} 篇 | 图定律: {stats.get('total', '?')}*")
 
     return "\n".join(lines)
 

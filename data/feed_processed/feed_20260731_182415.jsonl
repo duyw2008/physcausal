@@ -1,0 +1,3 @@
+{"source": "arxiv", "type": "edge", "data": {"src": "evolutionary_channel", "dst": "binary_black_hole_subpopulation", "law": "arxiv:2607.28622v1", "domain": "arxiv_research", "initial_s": 0.06999999999999999}, "ts": 1785493332.5593}
+{"source": "arxiv", "type": "edge", "data": {"src": "black_hole_mass", "dst": "gravitational_waveform", "law": "arxiv:2607.28622v1", "domain": "arxiv_research", "initial_s": 0.06}, "ts": 1785493332.559443}
+{"source": "arxiv", "type": "edge", "data": {"src": "source_parameters", "dst": "waveform_template", "law": "arxiv:2607.28622v1", "domain": "arxiv_research", "initial_s": 0.06}, "ts": 1785493332.5594776}

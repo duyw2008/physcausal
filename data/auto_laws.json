@@ -26,7 +26,7 @@
   },
   {
     "name": "测地线方程",
-    "domain": "广义相对论 / 微分几何",
+    "domain": "general_relativity",
     "latex": "\\frac{d^2 x^\\mu}{d \\lambda^2} + \\Gamma^\\mu_{\\alpha \\beta} \\frac{d x^\\alpha}{d \\lambda} \\frac{d x^\\beta}{d \\lambda} = 0",
     "inputs": [
       "x^\\mu (坐标)",
@@ -46,7 +46,7 @@
   },
   {
     "name": "牛顿第二定律",
-    "domain": "经典力学",
+    "domain": "mechanics",
     "latex": "F = ma",
     "inputs": [
       "m",
@@ -68,27 +68,8 @@
     "confidence_tier": 1
   },
   {
-    "name": "牛顿第二定律",
-    "domain": "经典力学",
-    "latex": "\\vec{F} = m \\vec{a}",
-    "inputs": [
-      "质量 m",
-      "加速度 a"
-    ],
-    "outputs": [
-      "力 F"
-    ],
-    "causal_direction": [
-      [
-        "力",
-        "加速度"
-      ]
-    ],
-    "confidence_tier": 1
-  },
-  {
     "name": "未在给定定律",
-    "domain": "未知",
+    "domain": "unknown",
     "latex": "\\text{未定义}",
     "inputs": [],
     "outputs": [],
@@ -96,31 +77,8 @@
     "confidence_tier": 1
   },
   {
-    "name": "牛顿第二定律",
-    "domain": "经典力学",
-    "latex": "F = ma",
-    "inputs": [
-      "m (质量)",
-      "a (加速度)"
-    ],
-    "outputs": [
-      "F (力)"
-    ],
-    "causal_direction": [
-      [
-        "质量",
-        "力"
-      ],
-      [
-        "加速度",
-        "力"
-      ]
-    ],
-    "confidence_tier": 1
-  },
-  {
     "name": "等效原理",
-    "domain": "广义相对论",
+    "domain": "general_relativity",
     "latex": "m_i = m_g",
     "inputs": [
       "惯性质量 m_i",
@@ -139,7 +97,7 @@
   },
   {
     "name": "不确定性原理",
-    "domain": "量子力学",
+    "domain": "quantum",
     "latex": "\\Delta x \\cdot \\Delta p \\ge \\frac{\\hbar}{2}",
     "inputs": [
       "位置不确定度Δx",
@@ -162,7 +120,7 @@
   },
   {
     "name": "最小作用量原理",
-    "domain": "经典力学 / 分析力学",
+    "domain": "mechanics",
     "latex": "\\delta S = \\delta \\int_{t_1}^{t_2} L(q, \\dot{q}, t) \\, dt = 0",
     "inputs": [
       "拉格朗日量 L",
@@ -484,7 +442,7 @@
   },
   {
     "name": "诺特定理",
-    "domain": "理论物理（分析力学、场论）",
+    "domain": "theoretical_physics",
     "latex": "\\frac{d}{dt}\\left(\\frac{\\partial L}{\\partial \\dot{q}_i}\\right) - \\frac{\\partial L}{\\partial q_i} = 0 \\quad \\text{且对称性对应守恒量}",
     "inputs": [
       "拉格朗日量L",
@@ -494,70 +452,6 @@
     ],
     "outputs": [
       "守恒量（如能量、动量、角动量）"
-    ],
-    "causal_direction": [
-      [
-        "连续对称性",
-        "守恒定律"
-      ]
-    ],
-    "confidence_tier": 1
-  },
-  {
-    "name": "牛顿第二定律",
-    "domain": "经典力学",
-    "latex": "\\vec{F} = m \\vec{a} = m \\frac{d\\vec{v}}{dt} = \\frac{d\\vec{p}}{dt}",
-    "inputs": [
-      "质量 m",
-      "加速度 a 或力 F"
-    ],
-    "outputs": [
-      "力 F 或动量变化率 dp/dt"
-    ],
-    "causal_direction": [
-      [
-        "外力",
-        "动量变化"
-      ],
-      [
-        "质量与加速度",
-        "力"
-      ]
-    ],
-    "confidence_tier": 1
-  },
-  {
-    "name": "诺特定理",
-    "domain": "理论物理",
-    "latex": "\\frac{d}{dt}Q = 0 \\quad \\text{其中} \\quad Q = \\int \\left( \\frac{\\partial \\mathcal{L}}{\\partial (\\partial_\\mu \\phi)} \\delta \\phi - J^\\mu \\right) d^3x",
-    "inputs": [
-      "拉格朗日密度 L",
-      "场 φ",
-      "无穷小变换参数"
-    ],
-    "outputs": [
-      "守恒流 J^μ",
-      "守恒荷 Q"
-    ],
-    "causal_direction": [
-      [
-        "连续对称性",
-        "守恒定律"
-      ]
-    ],
-    "confidence_tier": 1
-  },
-  {
-    "name": "诺特定理",
-    "domain": "理论物理",
-    "latex": "\\text{每个连续对称性对应一个守恒量：} \\frac{dQ}{dt}=0 \\text{，其中 } Q = \\int j^0 d^3x",
-    "inputs": [
-      "连续对称性",
-      "拉格朗日量"
-    ],
-    "outputs": [
-      "守恒流",
-      "守恒荷"
     ],
     "causal_direction": [
       [
@@ -1194,5 +1088,4499 @@
     ],
     "confidence_tier": 1,
     "_discovery_note": "自由能≤能量: F = E - TS, 熵非负 → F≤E。耗散将能量转化为自由能中不可用的部分。"
+  },
+  {
+    "name": "ClassicalQuantumBridge",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "hbar"
+    ],
+    "outputs": [
+      "quantum_scale"
+    ],
+    "causal_direction": [
+      [
+        "hbar",
+        "quantum_scale"
+      ]
+    ],
+    "confidence_tier": 1,
+    "_discovery_note": "ħ→0 极限恢复经典力学。ħ 是经典↔量子的尺度桥。Ehrenfest定理: d⟨Â⟩/dt = ⟨∂Â/∂t⟩ + (i/ħ)⟨[Ĥ,Â]⟩ → ħ→0 → d⟨Â⟩/dt = ⟨∂Â/∂t⟩ = 经典运动方程。"
+  },
+  {
+    "name": "ClassicalRelativisticBridge",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "speed_of_light"
+    ],
+    "outputs": [
+      "relativistic_scale"
+    ],
+    "causal_direction": [
+      [
+        "speed_of_light",
+        "relativistic_scale"
+      ]
+    ],
+    "confidence_tier": 1,
+    "_discovery_note": "c→∞ 极限恢复牛顿力学。γ = 1/√(1-v²/c²) → γ→1 when c→∞。时间膨胀、长度收缩在c→∞下消失。c是经典↔相对论的尺度桥。"
+  },
+  {
+    "name": "CorrespondencePrinciple",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "quantum_number"
+    ],
+    "outputs": [
+      "classical_limit"
+    ],
+    "causal_direction": [
+      [
+        "quantum_number",
+        "classical_limit"
+      ]
+    ],
+    "confidence_tier": 1,
+    "_discovery_note": "Bohr对应原理: 量子数n→∞时量子行为趋近经典。⟨r⟩_n ∝ n² → 大n时轨道趋近连续。WKB近似在ħ→0极限下恢复经典轨迹。"
+  },
+  {
+    "name": "EhrenfestTheorem",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "quantum_expectation"
+    ],
+    "outputs": [
+      "classical_equation"
+    ],
+    "causal_direction": [
+      [
+        "quantum_expectation",
+        "classical_equation"
+      ]
+    ],
+    "confidence_tier": 1,
+    "_discovery_note": "Ehrenfest定理: d⟨x⟩/dt = ⟨p⟩/m, d⟨p⟩/dt = -⟨∂V/∂x⟩。量子期望值遵循经典运动方程。这是量子→经典过渡的数学桥梁。"
+  },
+  {
+    "name": "WKB_ClassicalLimit",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "wave_function",
+      "hbar"
+    ],
+    "outputs": [
+      "classical_trajectory"
+    ],
+    "causal_direction": [
+      [
+        "wave_function",
+        "classical_trajectory"
+      ],
+      [
+        "hbar",
+        "classical_trajectory"
+      ]
+    ],
+    "confidence_tier": 1,
+    "_discovery_note": "WKB近似: ψ ~ exp(iS/ħ) → ħ→0 → S满足Hamilton-Jacobi方程 = 经典轨迹。波函数在ħ→0极限下退化为经典粒子轨迹。连接Schrödinger方程和经典力学。"
+  },
+  {
+    "name": "ResonantElementBandwidthLimitation",
+    "domain": "electromagnetism",
+    "latex": "",
+    "inputs": [
+      "resonant_elements"
+    ],
+    "outputs": [
+      "usable_frequency_bandwidth"
+    ],
+    "causal_direction": [
+      [
+        "resonant_elements",
+        "usable_frequency_bandwidth"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "FrequencyAgileTuning",
+    "domain": "electromagnetism",
+    "latex": "",
+    "inputs": [
+      "frequency_agile_metamaterial_design"
+    ],
+    "outputs": [
+      "real_time_tuning_of_frequency_response"
+    ],
+    "causal_direction": [
+      [
+        "frequency_agile_metamaterial_design",
+        "real_time_tuning_of_frequency_response"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ElectricallyControlledPersistentTuning",
+    "domain": "electromagnetism",
+    "latex": "",
+    "inputs": [
+      "transient_electrical_stimulus"
+    ],
+    "outputs": [
+      "persistent_modification_of_metamaterial_response"
+    ],
+    "causal_direction": [
+      [
+        "transient_electrical_stimulus",
+        "persistent_modification_of_metamaterial_response"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "Multistep parametric interaction",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "phase_matching",
+      "second_order_nonlinear_susceptibility"
+    ],
+    "outputs": [
+      "multistep_parametric_processes"
+    ],
+    "causal_direction": [
+      [
+        "phase_matching",
+        "multistep_parametric_processes"
+      ],
+      [
+        "second_order_nonlinear_susceptibility",
+        "multistep_parametric_processes"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "Multi-frequency generation via multistep parametric processes",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "multistep_parametric_processes"
+    ],
+    "outputs": [
+      "multi_frequency_generation"
+    ],
+    "causal_direction": [
+      [
+        "multistep_parametric_processes",
+        "multi_frequency_generation"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "Multi-color optical parametric soliton generation",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "parametric_interactions"
+    ],
+    "outputs": [
+      "multi_color_optical_parametric_solitons"
+    ],
+    "causal_direction": [
+      [
+        "parametric_interactions",
+        "multi_color_optical_parametric_solitons"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "SecondHarmonicGenerationDependenceOnStructure",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "molecular_structure",
+      "tissue_structure"
+    ],
+    "outputs": [
+      "second_harmonic_generation_efficiency"
+    ],
+    "causal_direction": [
+      [
+        "molecular_structure",
+        "second_harmonic_generation_efficiency"
+      ],
+      [
+        "tissue_structure",
+        "second_harmonic_generation_efficiency"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "Critical exponent of metal-TI transition",
+    "domain": "condensed_matter",
+    "latex": "",
+    "inputs": [
+      "disorder_strength"
+    ],
+    "outputs": [
+      "localization_length_critical_exponent"
+    ],
+    "causal_direction": [
+      [
+        "disorder_strength",
+        "localization_length_critical_exponent"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "Critical exponent of metal-TAI transition",
+    "domain": "condensed_matter",
+    "latex": "",
+    "inputs": [
+      "disorder_strength"
+    ],
+    "outputs": [
+      "metal_tai_transition_critical_exponent"
+    ],
+    "causal_direction": [
+      [
+        "disorder_strength",
+        "metal_tai_transition_critical_exponent"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "Rashba spin-orbit coupling form from symmetry",
+    "domain": "condensed_matter",
+    "latex": "",
+    "inputs": [
+      "c4v_point_group_symmetry"
+    ],
+    "outputs": [
+      "rashba_spin_orbit_coupling_form"
+    ],
+    "causal_direction": [
+      [
+        "c4v_point_group_symmetry",
+        "rashba_spin_orbit_coupling_form"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "GateVoltageStrainModifiesDiracVelocity",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "gate_voltage"
+    ],
+    "outputs": [
+      "strain",
+      "dirac_velocity"
+    ],
+    "causal_direction": [
+      [
+        "gate_voltage",
+        "strain"
+      ],
+      [
+        "strain",
+        "dirac_velocity"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "DiracVelocityModulatesSpinInterference",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "dirac_velocity"
+    ],
+    "outputs": [
+      "spin_eigenstate_interference"
+    ],
+    "causal_direction": [
+      [
+        "dirac_velocity",
+        "spin_eigenstate_interference"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "SpinInterferenceModulatesCurrent",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "spin_eigenstate_interference"
+    ],
+    "outputs": [
+      "current"
+    ],
+    "causal_direction": [
+      [
+        "spin_eigenstate_interference",
+        "current"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "LorentzForceNonlinearity",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "magnetic_lorentz_force",
+      "aperture_geometry"
+    ],
+    "outputs": [
+      "second_harmonic_generation"
+    ],
+    "causal_direction": [
+      [
+        "magnetic_lorentz_force",
+        "second_harmonic_generation"
+      ],
+      [
+        "aperture_geometry",
+        "second_harmonic_generation"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ExtraordinaryTransmission",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "aperture_geometry",
+      "metal_substrate_thickness",
+      "slit_size",
+      "slit_separation"
+    ],
+    "outputs": [
+      "pump_transmission_efficiency"
+    ],
+    "causal_direction": [
+      [
+        "aperture_geometry",
+        "pump_transmission_efficiency"
+      ],
+      [
+        "metal_substrate_thickness",
+        "pump_transmission_efficiency"
+      ],
+      [
+        "slit_size",
+        "pump_transmission_efficiency"
+      ],
+      [
+        "slit_separation",
+        "pump_transmission_efficiency"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "CavityEffectAndSurfacePlasmonEnhancement",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "cavity_effects",
+      "surface_plasmon_generation"
+    ],
+    "outputs": [
+      "second_harmonic_generation"
+    ],
+    "causal_direction": [
+      [
+        "cavity_effects",
+        "second_harmonic_generation"
+      ],
+      [
+        "surface_plasmon_generation",
+        "second_harmonic_generation"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "PumpPulseDurationToConversionEfficiency",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "incident_pump_pulse_duration"
+    ],
+    "outputs": [
+      "second_harmonic_conversion_efficiency"
+    ],
+    "causal_direction": [
+      [
+        "incident_pump_pulse_duration",
+        "second_harmonic_conversion_efficiency"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ResonanceToSecondHarmonic",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "resonance"
+    ],
+    "outputs": [
+      "second_harmonic_signal"
+    ],
+    "causal_direction": [
+      [
+        "resonance",
+        "second_harmonic_signal"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "EnhancedTransmissionAndNonlinearProcessesToApplications",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "enhanced_transmission",
+      "nonlinear_processes"
+    ],
+    "outputs": [
+      "photolithography",
+      "scanning_microscopy",
+      "high_density_optical_data_storage"
+    ],
+    "causal_direction": [
+      [
+        "enhanced_transmission",
+        "photolithography"
+      ],
+      [
+        "enhanced_transmission",
+        "scanning_microscopy"
+      ],
+      [
+        "enhanced_transmission",
+        "high_density_optical_data_storage"
+      ],
+      [
+        "nonlinear_processes",
+        "photolithography"
+      ],
+      [
+        "nonlinear_processes",
+        "scanning_microscopy"
+      ],
+      [
+        "nonlinear_processes",
+        "high_density_optical_data_storage"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "PhaseMatchingCondition",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "phase_matching_condition"
+    ],
+    "outputs": [
+      "parametric_interaction_efficiency"
+    ],
+    "causal_direction": [
+      [
+        "phase_matching_condition",
+        "parametric_interaction_efficiency"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "QuasiPhaseMatching",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "sign_varying_second_order_nonlinear_susceptibility"
+    ],
+    "outputs": [
+      "phase_matching"
+    ],
+    "causal_direction": [
+      [
+        "sign_varying_second_order_nonlinear_susceptibility",
+        "phase_matching"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MultistepParametricInteraction",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "multiple_phase_matching"
+    ],
+    "outputs": [
+      "multifrequency_generation"
+    ],
+    "causal_direction": [
+      [
+        "multiple_phase_matching",
+        "multifrequency_generation"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ParametricSolitonGeneration",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "multistep_parametric_interaction"
+    ],
+    "outputs": [
+      "multicolor_optical_parametric_solitons"
+    ],
+    "causal_direction": [
+      [
+        "multistep_parametric_interaction",
+        "multicolor_optical_parametric_solitons"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "TopologicalInsulatorSurfaceStates",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "topology",
+      "crystal_sublattice_misalignment"
+    ],
+    "outputs": [
+      "spin_structure_complexity",
+      "non_helical_spin_polarization"
+    ],
+    "causal_direction": [
+      [
+        "topology",
+        "surface_states"
+      ],
+      [
+        "crystal_sublattice_misalignment",
+        "spin_structure_complexity"
+      ],
+      [
+        "crystal_sublattice_misalignment",
+        "non_helical_spin_polarization"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "DiracCrossingPositionDependence",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "interface_orientation"
+    ],
+    "outputs": [
+      "dirac_crossing_position"
+    ],
+    "causal_direction": [
+      [
+        "interface_orientation",
+        "dirac_crossing_position"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ContactPotentialAndChargeRedistribution",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "dirac_crossing_position_difference"
+    ],
+    "outputs": [
+      "contact_potential",
+      "surface_charge_redistribution"
+    ],
+    "causal_direction": [
+      [
+        "dirac_crossing_position_difference",
+        "contact_potential"
+      ],
+      [
+        "contact_potential",
+        "surface_charge_redistribution"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "InterferenceFromSublattices",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "coherent_emission_from_two_sublattices"
+    ],
+    "outputs": [
+      "interference_pattern_in_spin_resolved_arpes"
+    ],
+    "causal_direction": [
+      [
+        "coherent_emission_from_two_sublattices",
+        "interference_pattern_in_spin_resolved_arpes"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "YukawaCouplingContinuity",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "yukawa_coupling"
+    ],
+    "outputs": [
+      "continuous_transition"
+    ],
+    "causal_direction": [
+      [
+        "yukawa_coupling",
+        "continuous_transition"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "GaugeFieldContinuity",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "fluctuating_gauge_field"
+    ],
+    "outputs": [
+      "continuous_transition"
+    ],
+    "causal_direction": [
+      [
+        "fluctuating_gauge_field",
+        "continuous_transition"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "DimensionalRegularizationCriticalExponents",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "space_time_dimensions"
+    ],
+    "outputs": [
+      "critical_exponents",
+      "universal_mass_ratio"
+    ],
+    "causal_direction": [
+      [
+        "space_time_dimensions",
+        "critical_exponents"
+      ],
+      [
+        "space_time_dimensions",
+        "universal_mass_ratio"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "SnellsLawNegativeRefraction",
+    "domain": "acoustics",
+    "latex": "",
+    "inputs": [
+      "refractive_index",
+      "incident_angle"
+    ],
+    "outputs": [
+      "transmission_angle"
+    ],
+    "causal_direction": [
+      [
+        "refractive_index",
+        "transmission_angle"
+      ],
+      [
+        "incident_angle",
+        "transmission_angle"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "EffectiveParameterExtraction",
+    "domain": "acoustics",
+    "latex": "",
+    "inputs": [
+      "reflection_coefficient",
+      "transmission_coefficient"
+    ],
+    "outputs": [
+      "effective_refractive_index"
+    ],
+    "causal_direction": [
+      [
+        "reflection_coefficient",
+        "effective_refractive_index"
+      ],
+      [
+        "transmission_coefficient",
+        "effective_refractive_index"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MetamaterialStructureRefractiveIndex",
+    "domain": "acoustics",
+    "latex": "",
+    "inputs": [
+      "labyrinthine_structure"
+    ],
+    "outputs": [
+      "negative_refractive_index"
+    ],
+    "causal_direction": [
+      [
+        "labyrinthine_structure",
+        "negative_refractive_index"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "BroadbandNegativeIndex",
+    "domain": "acoustics",
+    "latex": "",
+    "inputs": [
+      "labyrinthine_metamaterial_structure"
+    ],
+    "outputs": [
+      "broadband_negative_refraction"
+    ],
+    "causal_direction": [
+      [
+        "labyrinthine_metamaterial_structure",
+        "broadband_negative_refraction"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "GainCompensationOfLosses",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "gain_medium_placement",
+      "pump_intensity"
+    ],
+    "outputs": [
+      "loss_compensation",
+      "amplification"
+    ],
+    "causal_direction": [
+      [
+        "gain_medium_placement",
+        "amplification"
+      ],
+      [
+        "pump_intensity",
+        "amplification"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "NegativeRefractiveIndexCondition",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "gain_compensation",
+      "metamaterial_structure"
+    ],
+    "outputs": [
+      "negative_real_refractive_index",
+      "negative_imaginary_refractive_index"
+    ],
+    "causal_direction": [
+      [
+        "gain_compensation",
+        "negative_real_refractive_index"
+      ],
+      [
+        "gain_compensation",
+        "negative_imaginary_refractive_index"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "FigureOfMeritDivergence",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "negative_real_refractive_index",
+      "negative_imaginary_refractive_index"
+    ],
+    "outputs": [
+      "figure_of_merit_divergence"
+    ],
+    "causal_direction": [
+      [
+        "negative_real_refractive_index",
+        "figure_of_merit_divergence"
+      ],
+      [
+        "negative_imaginary_refractive_index",
+        "figure_of_merit_divergence"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "KKGaugeLimit",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "smooth_compactification"
+    ],
+    "outputs": [
+      "u1_gauge_only"
+    ],
+    "causal_direction": [
+      [
+        "smooth_compactification",
+        "u1_gauge_only"
+      ]
+    ],
+    "confidence_tier": 1,
+    "_discovery_note": "Witten (1981): 光滑紧致化5D度规的等距群只能是U(1)。5D广义协变性约化到4D最多给出一个U(1)规范场。标准模型需要SU(3)×SU(2)×U(1)，纯KK几何出不了非阿贝尔规范群。这是标准KK理论最致命的限制。"
+  },
+  {
+    "name": "KKChiralNoGo",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "smooth_compactification"
+    ],
+    "outputs": [
+      "non_chiral_fermions"
+    ],
+    "causal_direction": [
+      [
+        "smooth_compactification",
+        "non_chiral_fermions"
+      ]
+    ],
+    "confidence_tier": 1,
+    "_discovery_note": "Witten no-go定理 (1985): 在光滑紧致化流形上的KK理论必然产生左右对称的费米子谱——无法产生手征不对称。标准模型的中微子只有左手分量，这是KK框架无法解释的。弦论用orbifold/Calabi-Yau奇点绕过此限制。"
+  },
+  {
+    "name": "KKDilatonProblem",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "compact_dimension"
+    ],
+    "outputs": [
+      "massless_scalar_field"
+    ],
+    "causal_direction": [
+      [
+        "compact_dimension",
+        "massless_scalar_field"
+      ]
+    ],
+    "confidence_tier": 1,
+    "_discovery_note": "5D度规紧致化必然产生一个无质量标量场(伸缩子dilaton)——对应额外维的尺度涨落。它媒介长程第五力，强度与引力同级。实验从未观测到，意味着必须有额外机制给它质量(模量稳定)。这是所有额外维理论的共同问题。"
+  },
+  {
+    "name": "KKModuliStability",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "compact_dimension"
+    ],
+    "outputs": [
+      "unstabilized_radius"
+    ],
+    "causal_direction": [
+      [
+        "compact_dimension",
+        "unstabilized_radius"
+      ]
+    ],
+    "confidence_tier": 2,
+    "_discovery_note": "KK理论自身无法解释为什么额外维紧致化在普朗克尺度——半径R是模量(moduli)，没有势能极小点。量子涨落会让它要么膨胀(解紧致化)要么坍缩。需要额外机制(如flux compactification)稳定模量。弦论用通量紧致化部分解决了此问题。"
+  },
+  {
+    "name": "TemperatureSoundSpeed",
+    "domain": "acoustics",
+    "latex": "",
+    "inputs": [
+      "temperature"
+    ],
+    "outputs": [
+      "sound_speed"
+    ],
+    "causal_direction": [
+      [
+        "temperature",
+        "sound_speed"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "TemperatureBlackbodyRadiation",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "temperature"
+    ],
+    "outputs": [
+      "blackbody_spectrum"
+    ],
+    "causal_direction": [
+      [
+        "temperature",
+        "blackbody_spectrum"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "TemperatureResistance",
+    "domain": "electromagnetism",
+    "latex": "",
+    "inputs": [
+      "temperature"
+    ],
+    "outputs": [
+      "electrical_resistance"
+    ],
+    "causal_direction": [
+      [
+        "temperature",
+        "electrical_resistance"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "TemperatureViscosity",
+    "domain": "fluids",
+    "latex": "",
+    "inputs": [
+      "temperature"
+    ],
+    "outputs": [
+      "fluid_viscosity"
+    ],
+    "causal_direction": [
+      [
+        "temperature",
+        "fluid_viscosity"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "TemperatureThermalExpansion",
+    "domain": "mechanics",
+    "latex": "",
+    "inputs": [
+      "temperature"
+    ],
+    "outputs": [
+      "thermal_strain"
+    ],
+    "causal_direction": [
+      [
+        "temperature",
+        "thermal_strain"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "TimePeriodOscillation",
+    "domain": "acoustics",
+    "latex": "",
+    "inputs": [
+      "time"
+    ],
+    "outputs": [
+      "period"
+    ],
+    "causal_direction": [
+      [
+        "time",
+        "period"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "TimeRCCircuit",
+    "domain": "electromagnetism",
+    "latex": "",
+    "inputs": [
+      "time"
+    ],
+    "outputs": [
+      "rc_time_constant"
+    ],
+    "causal_direction": [
+      [
+        "time",
+        "rc_time_constant"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "TimeRelaxation",
+    "domain": "thermodynamics",
+    "latex": "",
+    "inputs": [
+      "time"
+    ],
+    "outputs": [
+      "relaxation_time"
+    ],
+    "causal_direction": [
+      [
+        "time",
+        "relaxation_time"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "WavelengthAntennaLength",
+    "domain": "electromagnetism",
+    "latex": "",
+    "inputs": [
+      "wavelength"
+    ],
+    "outputs": [
+      "antenna_length"
+    ],
+    "causal_direction": [
+      [
+        "wavelength",
+        "antenna_length"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "WavelengthThermalDeBroglie",
+    "domain": "thermodynamics",
+    "latex": "",
+    "inputs": [
+      "wavelength",
+      "temperature"
+    ],
+    "outputs": [
+      "thermal_wavelength"
+    ],
+    "causal_direction": [
+      [
+        "wavelength",
+        "thermal_wavelength"
+      ],
+      [
+        "temperature",
+        "thermal_wavelength"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "WavelengthResolutionLimit",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "wavelength"
+    ],
+    "outputs": [
+      "resolution_limit"
+    ],
+    "causal_direction": [
+      [
+        "wavelength",
+        "resolution_limit"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "WavelengthCavityResonance",
+    "domain": "acoustics",
+    "latex": "",
+    "inputs": [
+      "wavelength"
+    ],
+    "outputs": [
+      "cavity_mode"
+    ],
+    "causal_direction": [
+      [
+        "wavelength",
+        "cavity_mode"
+      ]
+    ],
+    "confidence_tier": 1
+  },
+  {
+    "name": "EntropyUniversalSink",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "kinetic_energy_loss",
+      "information_erased",
+      "environment_coupling",
+      "phase_coherence",
+      "dynamic_pressure",
+      "subsystem_boundary",
+      "time"
+    ],
+    "outputs": [
+      "entropy"
+    ],
+    "causal_direction": [
+      [
+        "kinetic_energy_loss",
+        "entropy"
+      ],
+      [
+        "information_erased",
+        "entropy"
+      ],
+      [
+        "environment_coupling",
+        "entropy"
+      ],
+      [
+        "phase_coherence",
+        "entropy"
+      ]
+    ],
+    "confidence_tier": 2,
+    "_discovery_note": "Noether自主发现 (2026-06-11): entropy是因果图中的普适汇点。13条路径、7个域汇聚于entropy。无论从量子(退相干)、流体(耗散)、信息(擦除)、或统一(环境耦合)出发，因果传播最终抵达entropy。这是第二定律在因果图上的结构证明——统计行为是整个因果网络的拓扑必然。方法: propagate全图扫描(max_depth=6, max_tier=2)，纯因果图拓扑分析。"
+  },
+  {
+    "name": "BekensteinHawkingEntropy",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "entropy"
+    ],
+    "outputs": [
+      "horizon_area"
+    ],
+    "causal_direction": [
+      [
+        "entropy",
+        "horizon_area"
+      ]
+    ],
+    "confidence_tier": 2,
+    "_discovery_note": "Bekenstein-Hawking: S = A/4G。黑洞熵正比于视界面积。熵→面积——这是entropy的一个新出口：不仅通向order_parameter和free_energy，还通向时空几何。自引力系统中熵极大的状态不是均匀气体，而是黑洞。"
+  },
+  {
+    "name": "HorizonAreaSpacetime",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "horizon_area"
+    ],
+    "outputs": [
+      "spacetime_curvature"
+    ],
+    "causal_direction": [
+      [
+        "horizon_area",
+        "spacetime_curvature"
+      ]
+    ],
+    "confidence_tier": 2,
+    "_discovery_note": "视界面积→时空曲率: 黑洞视界是极端时空弯曲的边界。R_s = 2GM/c^2, 面积A = 4πR_s^2。视界面积直接度量时空弯曲程度。"
+  },
+  {
+    "name": "NewPhysicsContributionToBDecays",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "new_physics_parameters"
+    ],
+    "outputs": [
+      "b_to_v1_v2_decay_rates"
+    ],
+    "causal_direction": [
+      [
+        "new_physics_parameters",
+        "b_to_v1_v2_decay_rates"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "TimeDependentAngularAnalysisBounds",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "time_dependent_angular_analysis"
+    ],
+    "outputs": [
+      "bounds_on_new_physics_parameters"
+    ],
+    "causal_direction": [
+      [
+        "time_dependent_angular_analysis",
+        "bounds_on_new_physics_parameters"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "NewPhysicsScaleEstimation",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "bounds_on_new_physics_parameters"
+    ],
+    "outputs": [
+      "new_physics_scale"
+    ],
+    "causal_direction": [
+      [
+        "bounds_on_new_physics_parameters",
+        "new_physics_scale"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "AngularAnalysisNewPhysicsTest",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "angular_observables",
+      "decay_amplitudes"
+    ],
+    "outputs": [
+      "new_physics_signals"
+    ],
+    "causal_direction": [
+      [
+        "angular_observables",
+        "new_physics_signals"
+      ],
+      [
+        "decay_amplitudes",
+        "new_physics_signals"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "StrongPhaseIndependence",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "new_physics_observables"
+    ],
+    "outputs": [
+      "nonzero_value_even_without_strong_phase"
+    ],
+    "causal_direction": [
+      [
+        "new_physics_observables",
+        "nonzero_value_even_without_strong_phase"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "NewPhysicsParameterLowerBound",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "new_physics_signal"
+    ],
+    "outputs": [
+      "lower_limit_on_new_physics_parameters"
+    ],
+    "causal_direction": [
+      [
+        "new_physics_signal",
+        "lower_limit_on_new_physics_parameters"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "NewPhysicsEffectOnMixingPhase",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "new_physics_parameters"
+    ],
+    "outputs": [
+      "effect_on_b0_mixing_phase_measurement"
+    ],
+    "causal_direction": [
+      [
+        "new_physics_parameters",
+        "effect_on_b0_mixing_phase_measurement"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "WieferichPrimeCondition",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "prime_p",
+      "base_v"
+    ],
+    "outputs": [
+      "congruence_condition"
+    ],
+    "causal_direction": [
+      [
+        "prime_p",
+        "congruence_condition"
+      ],
+      [
+        "base_v",
+        "congruence_condition"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "DensityOfNonWieferichPrimes",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "upper_bound_on_wieferich_primes"
+    ],
+    "outputs": [
+      "density_of_nonwieferich_primes"
+    ],
+    "causal_direction": [
+      [
+        "upper_bound_on_wieferich_primes",
+        "density_of_nonwieferich_primes"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ToroidalFieldSuppressesElectronTurbulence",
+    "domain": "fluids",
+    "latex": "",
+    "inputs": [
+      "toroidal_magnetic_field"
+    ],
+    "outputs": [
+      "turbulent_electron_heat_flux"
+    ],
+    "causal_direction": [
+      [
+        "toroidal_magnetic_field",
+        "turbulent_electron_heat_flux"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "TorqueStabilizesIonTurbulence",
+    "domain": "fluids",
+    "latex": "",
+    "inputs": [
+      "torque"
+    ],
+    "outputs": [
+      "ion_scale_turbulence"
+    ],
+    "causal_direction": [
+      [
+        "torque",
+        "ion_scale_turbulence"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "IonTurbulenceAffectsIonHeatTransport",
+    "domain": "fluids",
+    "latex": "",
+    "inputs": [
+      "ion_scale_turbulence"
+    ],
+    "outputs": [
+      "ion_heat_transport"
+    ],
+    "causal_direction": [
+      [
+        "ion_scale_turbulence",
+        "ion_heat_transport"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "NeoclassicalTransportAtLowCollisionality",
+    "domain": "fluids",
+    "latex": "",
+    "inputs": [
+      "plasma_collisionality"
+    ],
+    "outputs": [
+      "ion_heat_transport"
+    ],
+    "causal_direction": [
+      [
+        "plasma_collisionality",
+        "ion_heat_transport"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ToroidalFieldImprovesEnergyConfinement",
+    "domain": "fluids",
+    "latex": "",
+    "inputs": [
+      "toroidal_magnetic_field"
+    ],
+    "outputs": [
+      "thermal_energy_confinement"
+    ],
+    "causal_direction": [
+      [
+        "toroidal_magnetic_field",
+        "thermal_energy_confinement"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "HighMagneticFieldSaturation",
+    "domain": "fluids",
+    "latex": "",
+    "inputs": [
+      "toroidal_magnetic_field"
+    ],
+    "outputs": [
+      "thermal_insulation_improvement"
+    ],
+    "causal_direction": [
+      [
+        "toroidal_magnetic_field",
+        "thermal_insulation_improvement"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MagnetosphericAccretionBrGammaRelation",
+    "domain": "astrophysics",
+    "latex": "",
+    "inputs": [
+      "magnetospheric_accretion_rate"
+    ],
+    "outputs": [
+      "br_gamma_emission_intensity"
+    ],
+    "causal_direction": [
+      [
+        "magnetospheric_accretion_rate",
+        "br_gamma_emission_intensity"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "BrGammaEmissionRegionSizeMagnetosphericTruncation",
+    "domain": "astrophysics",
+    "latex": "",
+    "inputs": [
+      "magnetospheric_truncation_radius"
+    ],
+    "outputs": [
+      "br_gamma_emission_region_half_flux_radius"
+    ],
+    "causal_direction": [
+      [
+        "magnetospheric_truncation_radius",
+        "br_gamma_emission_region_half_flux_radius"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "CorotationRadiusBrGammaOrigin",
+    "domain": "astrophysics",
+    "latex": "",
+    "inputs": [
+      "corotation_radius"
+    ],
+    "outputs": [
+      "br_gamma_emission_origin_location"
+    ],
+    "causal_direction": [
+      [
+        "corotation_radius",
+        "br_gamma_emission_origin_location"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "OutflowExtendedEmissionRelation",
+    "domain": "astrophysics",
+    "latex": "",
+    "inputs": [
+      "outflow_strength"
+    ],
+    "outputs": [
+      "extended_br_gamma_emission_component"
+    ],
+    "causal_direction": [
+      [
+        "outflow_strength",
+        "extended_br_gamma_emission_component"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "PrimeDifferenceSignEquidistribution",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "prime_p",
+      "offset_l"
+    ],
+    "outputs": [
+      "sign_of_difference"
+    ],
+    "causal_direction": [
+      [
+        "prime_p",
+        "sign_of_difference"
+      ],
+      [
+        "offset_l",
+        "sign_of_difference"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ScalarCurvatureStability",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "riemannian_manifold_sequence",
+      "nonnegative_scalar_curvature"
+    ],
+    "outputs": [
+      "limit_space_geometry"
+    ],
+    "causal_direction": [
+      [
+        "riemannian_manifold_sequence",
+        "limit_space_geometry"
+      ],
+      [
+        "nonnegative_scalar_curvature",
+        "limit_space_geometry"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "CompactnessUnderScalarCurvature",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "compact_riemannian_manifold",
+      "nonnegative_scalar_curvature"
+    ],
+    "outputs": [
+      "geometric_compactness"
+    ],
+    "causal_direction": [
+      [
+        "compact_riemannian_manifold",
+        "geometric_compactness"
+      ],
+      [
+        "nonnegative_scalar_curvature",
+        "geometric_compactness"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "SpacetimeEmergence",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "non_spatiotemporal_structure"
+    ],
+    "outputs": [
+      "classical_spacetime"
+    ],
+    "causal_direction": [
+      [
+        "non_spatiotemporal_structure",
+        "classical_spacetime"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "QuantumGravitySpacetimeLoss",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "quantum_gravity_approach"
+    ],
+    "outputs": [
+      "spacetime_loss"
+    ],
+    "causal_direction": [
+      [
+        "quantum_gravity_approach",
+        "spacetime_loss"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "StrainEffectOnCurrent",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "strain"
+    ],
+    "outputs": [
+      "on_current"
+    ],
+    "causal_direction": [
+      [
+        "strain",
+        "on_current"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "StrainEffectOnThresholdVoltage",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "strain"
+    ],
+    "outputs": [
+      "threshold_voltage"
+    ],
+    "causal_direction": [
+      [
+        "strain",
+        "threshold_voltage"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "StrainEffectOnSubthresholdSlope",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "strain"
+    ],
+    "outputs": [
+      "subthreshold_slope"
+    ],
+    "causal_direction": [
+      [
+        "strain",
+        "subthreshold_slope"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "StrainEffectOnLeakageCurrent",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "strain"
+    ],
+    "outputs": [
+      "leakage_current"
+    ],
+    "causal_direction": [
+      [
+        "strain",
+        "leakage_current"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "StrainEffectOnShortChannelEffects",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "strain"
+    ],
+    "outputs": [
+      "short_channel_effects"
+    ],
+    "causal_direction": [
+      [
+        "strain",
+        "short_channel_effects"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "DoubleGateStructureEffectOnPerformance",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "double_gate_structure"
+    ],
+    "outputs": [
+      "on_current",
+      "leakage_current",
+      "threshold_voltage",
+      "subthreshold_slope",
+      "short_channel_effects"
+    ],
+    "causal_direction": [
+      [
+        "double_gate_structure",
+        "on_current"
+      ],
+      [
+        "double_gate_structure",
+        "leakage_current"
+      ],
+      [
+        "double_gate_structure",
+        "threshold_voltage"
+      ],
+      [
+        "double_gate_structure",
+        "subthreshold_slope"
+      ],
+      [
+        "double_gate_structure",
+        "short_channel_effects"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "StressStrainDecomposition",
+    "domain": "mechanics",
+    "latex": "",
+    "inputs": [
+      "stress",
+      "strain"
+    ],
+    "outputs": [
+      "pressure",
+      "deviatoric_stress",
+      "volumetric_strain",
+      "deviatoric_strain"
+    ],
+    "causal_direction": [
+      [
+        "stress",
+        "pressure"
+      ],
+      [
+        "stress",
+        "deviatoric_stress"
+      ],
+      [
+        "strain",
+        "volumetric_strain"
+      ],
+      [
+        "strain",
+        "deviatoric_strain"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ConstitutiveRelationDecomposition",
+    "domain": "mechanics",
+    "latex": "",
+    "inputs": [
+      "constitutive_relation",
+      "compliance_relation"
+    ],
+    "outputs": [
+      "decomposed_constitutive_relation",
+      "decomposed_compliance_relation"
+    ],
+    "causal_direction": [
+      [
+        "constitutive_relation",
+        "decomposed_constitutive_relation"
+      ],
+      [
+        "compliance_relation",
+        "decomposed_compliance_relation"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "LorentzTransformationAs4VectorScalarProduct",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "lorentz_transformation_parameters"
+    ],
+    "outputs": [
+      "lorentz_transformation_equations"
+    ],
+    "causal_direction": [
+      [
+        "lorentz_transformation_parameters",
+        "lorentz_transformation_equations"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "InvariantLengthInterval",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "lorentz_invariant_formalism"
+    ],
+    "outputs": [
+      "invariant_length_intervals"
+    ],
+    "causal_direction": [
+      [
+        "lorentz_invariant_formalism",
+        "invariant_length_intervals"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "LorentzForceLawFrom4VectorPotential",
+    "domain": "electromagnetism",
+    "latex": "",
+    "inputs": [
+      "four_vector_electromagnetic_potential"
+    ],
+    "outputs": [
+      "lorentz_force_law"
+    ],
+    "causal_direction": [
+      [
+        "four_vector_electromagnetic_potential",
+        "lorentz_force_law"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MagneticFieldFrom4VectorPotential",
+    "domain": "electromagnetism",
+    "latex": "",
+    "inputs": [
+      "spatial_derivatives_of_four_vector_potential"
+    ],
+    "outputs": [
+      "magnetic_field"
+    ],
+    "causal_direction": [
+      [
+        "spatial_derivatives_of_four_vector_potential",
+        "magnetic_field"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "FaradayLenzLawFrom4VectorPotential",
+    "domain": "electromagnetism",
+    "latex": "",
+    "inputs": [
+      "four_vector_electromagnetic_potential"
+    ],
+    "outputs": [
+      "faraday_lenz_law"
+    ],
+    "causal_direction": [
+      [
+        "four_vector_electromagnetic_potential",
+        "faraday_lenz_law"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "LorentzTransformation",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "four_vector_scalar_product"
+    ],
+    "outputs": [
+      "lorentz_transformation_equations"
+    ],
+    "causal_direction": [
+      [
+        "four_vector_scalar_product",
+        "lorentz_transformation_equations"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "RelativisticLorentzForceTimeComponent",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "lorentz_force_law"
+    ],
+    "outputs": [
+      "time_component_of_relativistic_generalization"
+    ],
+    "causal_direction": [
+      [
+        "lorentz_force_law",
+        "time_component_of_relativistic_generalization"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ContinuousGravitationalWaveEmissionFromNonAxisymmetricNeutronStars",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "non_axisymmetric_deformation",
+      "rotation"
+    ],
+    "outputs": [
+      "continuous_gravitational_waves"
+    ],
+    "causal_direction": [
+      [
+        "non_axisymmetric_deformation",
+        "continuous_gravitational_waves"
+      ],
+      [
+        "rotation",
+        "continuous_gravitational_waves"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MatchedFilterSearchSensitivity",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "matched_filter_technique",
+      "frequency_time_derivative_coverage"
+    ],
+    "outputs": [
+      "search_sensitivity"
+    ],
+    "causal_direction": [
+      [
+        "matched_filter_technique",
+        "search_sensitivity"
+      ],
+      [
+        "frequency_time_derivative_coverage",
+        "search_sensitivity"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "SpinDownLimitRelation",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "spin_down_power"
+    ],
+    "outputs": [
+      "gravitational_wave_strain_amplitude_upper_limit"
+    ],
+    "causal_direction": [
+      [
+        "spin_down_power",
+        "gravitational_wave_strain_amplitude_upper_limit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "GravitationalWaveStrainAmplitudeUpperLimit",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "detector_data",
+      "search_pipeline"
+    ],
+    "outputs": [
+      "strain_amplitude_upper_limit"
+    ],
+    "causal_direction": [
+      [
+        "detector_data",
+        "strain_amplitude_upper_limit"
+      ],
+      [
+        "search_pipeline",
+        "strain_amplitude_upper_limit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "GlitchCausesTransientGravitationalWaves",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "pulsar_glitch",
+      "neutron_star_deformation"
+    ],
+    "outputs": [
+      "gravitational_wave_emission"
+    ],
+    "causal_direction": [
+      [
+        "pulsar_glitch",
+        "gravitational_wave_emission"
+      ],
+      [
+        "neutron_star_deformation",
+        "gravitational_wave_emission"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "FModeOscillationCausesBurstEmission",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "fundamental_mode_oscillation"
+    ],
+    "outputs": [
+      "burst_like_gravitational_wave_emission"
+    ],
+    "causal_direction": [
+      [
+        "fundamental_mode_oscillation",
+        "burst_like_gravitational_wave_emission"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "QuadrupolarDeformationCausesQuasiMonotonicTransients",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "quasi_static_quadrupolar_deformation"
+    ],
+    "outputs": [
+      "quasi_monochromatic_gravitational_wave_transient"
+    ],
+    "causal_direction": [
+      [
+        "quasi_static_quadrupolar_deformation",
+        "quasi_monochromatic_gravitational_wave_transient"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "GlitchEnergyScaleSetsStrainUpperLimit",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "glitch_energy_scale"
+    ],
+    "outputs": [
+      "gravitational_strain_amplitude_upper_limit"
+    ],
+    "causal_direction": [
+      [
+        "glitch_energy_scale",
+        "gravitational_strain_amplitude_upper_limit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "DetectorSensitivityImprovesProbePotential",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "detector_sensitivity"
+    ],
+    "outputs": [
+      "gravitational_wave_probe_capability"
+    ],
+    "causal_direction": [
+      [
+        "detector_sensitivity",
+        "gravitational_wave_probe_capability"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "EccentricityFormationChannel",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "orbital_eccentricity"
+    ],
+    "outputs": [
+      "binary_formation_channel"
+    ],
+    "causal_direction": [
+      [
+        "orbital_eccentricity",
+        "binary_formation_channel"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "EccentricityGravitationalWaveform",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "orbital_eccentricity"
+    ],
+    "outputs": [
+      "gravitational_waveform_characteristics"
+    ],
+    "causal_direction": [
+      [
+        "orbital_eccentricity",
+        "gravitational_waveform_characteristics"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "SearchSensitivityEccentricity",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "eccentricity",
+      "total_mass"
+    ],
+    "outputs": [
+      "search_sensitivity"
+    ],
+    "causal_direction": [
+      [
+        "eccentricity",
+        "search_sensitivity"
+      ],
+      [
+        "total_mass",
+        "search_sensitivity"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MergerRateUpperLimit",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "eccentricity",
+      "total_mass"
+    ],
+    "outputs": [
+      "merger_rate_density"
+    ],
+    "causal_direction": [
+      [
+        "eccentricity",
+        "merger_rate_density"
+      ],
+      [
+        "total_mass",
+        "merger_rate_density"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "GravitationalWaveEmissionFromBinaryCoalescence",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "binary_black_hole_masses",
+      "binary_black_hole_spins",
+      "binary_eccentricity"
+    ],
+    "outputs": [
+      "gravitational_wave_signal"
+    ],
+    "causal_direction": [
+      [
+        "binary_black_hole_masses",
+        "gravitational_wave_signal"
+      ],
+      [
+        "binary_black_hole_spins",
+        "gravitational_wave_signal"
+      ],
+      [
+        "binary_eccentricity",
+        "gravitational_wave_signal"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "KerrRingdownModeRelation",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "remnant_black_hole_mass",
+      "remnant_black_hole_spin"
+    ],
+    "outputs": [
+      "quasinormal_mode_frequencies"
+    ],
+    "causal_direction": [
+      [
+        "remnant_black_hole_mass",
+        "quasinormal_mode_frequencies"
+      ],
+      [
+        "remnant_black_hole_spin",
+        "quasinormal_mode_frequencies"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "HawkingAreaLaw",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "initial_black_hole_horizon_areas"
+    ],
+    "outputs": [
+      "final_remnant_black_hole_horizon_area"
+    ],
+    "causal_direction": [
+      [
+        "initial_black_hole_horizon_areas",
+        "final_remnant_black_hole_horizon_area"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "WavelengthConversionBlockingReduction",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "wavelength_conversion_factor"
+    ],
+    "outputs": [
+      "blocking_probability"
+    ],
+    "causal_direction": [
+      [
+        "wavelength_conversion_factor",
+        "blocking_probability"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "WavelengthConvertibleNodeThreshold",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "wavelength_convertible_nodes_percentage"
+    ],
+    "outputs": [
+      "blocking_probability",
+      "network_cost"
+    ],
+    "causal_direction": [
+      [
+        "wavelength_convertible_nodes_percentage",
+        "blocking_probability"
+      ],
+      [
+        "wavelength_convertible_nodes_percentage",
+        "network_cost"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ForceFreeAlfvenModeInformationTransport",
+    "domain": "fluids",
+    "latex": "",
+    "inputs": [
+      "force_free_constraint",
+      "alfven_mode_characteristics"
+    ],
+    "outputs": [
+      "information_transport"
+    ],
+    "causal_direction": [
+      [
+        "force_free_constraint",
+        "alfven_mode_characteristics"
+      ],
+      [
+        "alfven_mode_characteristics",
+        "information_transport"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ForceFreeFastModeInformationTransport",
+    "domain": "fluids",
+    "latex": "",
+    "inputs": [
+      "force_free_constraint",
+      "fast_mode_characteristics"
+    ],
+    "outputs": [
+      "information_transport"
+    ],
+    "causal_direction": [
+      [
+        "force_free_constraint",
+        "fast_mode_characteristics"
+      ],
+      [
+        "fast_mode_characteristics",
+        "information_transport"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ForceFreeFastModeChargeCurrentRestriction",
+    "domain": "fluids",
+    "latex": "",
+    "inputs": [
+      "force_free_limit",
+      "fast_mode_short_wavelength_characteristics"
+    ],
+    "outputs": [
+      "charge_perturbation_transport",
+      "current_perturbation_transport"
+    ],
+    "causal_direction": [
+      [
+        "force_free_limit",
+        "fast_mode_short_wavelength_characteristics"
+      ],
+      [
+        "fast_mode_short_wavelength_characteristics",
+        "charge_perturbation_transport"
+      ],
+      [
+        "fast_mode_short_wavelength_characteristics",
+        "current_perturbation_transport"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ForceFreeMHDModeLimit",
+    "domain": "fluids",
+    "latex": "",
+    "inputs": [
+      "perfect_mhd_modes",
+      "zero_plasma_inertia_limit"
+    ],
+    "outputs": [
+      "force_free_mode_behavior"
+    ],
+    "causal_direction": [
+      [
+        "perfect_mhd_modes",
+        "force_free_mode_behavior"
+      ],
+      [
+        "zero_plasma_inertia_limit",
+        "force_free_mode_behavior"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ForceFreeBlackHoleCausalityViolation",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "force_free_constraint",
+      "black_hole_magnetosphere"
+    ],
+    "outputs": [
+      "causality_violation"
+    ],
+    "causal_direction": [
+      [
+        "force_free_constraint",
+        "causality_violation"
+      ],
+      [
+        "black_hole_magnetosphere",
+        "causality_violation"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "RadialVelocityPlanetDetection",
+    "domain": "mechanics",
+    "latex": "",
+    "inputs": [
+      "stellar_radial_velocity_variation"
+    ],
+    "outputs": [
+      "planetary_presence"
+    ],
+    "causal_direction": [
+      [
+        "stellar_radial_velocity_variation",
+        "planetary_presence"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "RossiterMcLaughlinEffect",
+    "domain": "mechanics",
+    "latex": "",
+    "inputs": [
+      "planet_transit",
+      "stellar_rotation",
+      "orbital_inclination"
+    ],
+    "outputs": [
+      "radial_velocity_anomaly"
+    ],
+    "causal_direction": [
+      [
+        "planet_transit",
+        "radial_velocity_anomaly"
+      ],
+      [
+        "stellar_rotation",
+        "radial_velocity_anomaly"
+      ],
+      [
+        "orbital_inclination",
+        "radial_velocity_anomaly"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "TransitPhotometryPlanetDetection",
+    "domain": "optics",
+    "latex": "",
+    "inputs": [
+      "planet_transit"
+    ],
+    "outputs": [
+      "stellar_flux_decrease"
+    ],
+    "causal_direction": [
+      [
+        "planet_transit",
+        "stellar_flux_decrease"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "CoarseGrainedEffectiveAction",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "condensate_order_parameter",
+      "lattice_potential",
+      "harmonic_trap_potential"
+    ],
+    "outputs": [
+      "coarse_grained_effective_action"
+    ],
+    "causal_direction": [
+      [
+        "condensate_order_parameter",
+        "coarse_grained_effective_action"
+      ],
+      [
+        "lattice_potential",
+        "coarse_grained_effective_action"
+      ],
+      [
+        "harmonic_trap_potential",
+        "coarse_grained_effective_action"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "VariationalPrinciple",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "coarse_grained_effective_action"
+    ],
+    "outputs": [
+      "coarse_grained_equations_of_motion"
+    ],
+    "causal_direction": [
+      [
+        "coarse_grained_effective_action",
+        "coarse_grained_equations_of_motion"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "CondensateNoncondensateCollisions",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "condensate_noncondensate_collisions"
+    ],
+    "outputs": [
+      "dissipative_term"
+    ],
+    "causal_direction": [
+      [
+        "condensate_noncondensate_collisions",
+        "dissipative_term"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "LandauCriterion",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "condensate_velocity",
+      "renormalized_sound_velocity"
+    ],
+    "outputs": [
+      "collisional_damping_rate_sign",
+      "landau_instability"
+    ],
+    "causal_direction": [
+      [
+        "condensate_velocity",
+        "collisional_damping_rate_sign"
+      ],
+      [
+        "renormalized_sound_velocity",
+        "collisional_damping_rate_sign"
+      ],
+      [
+        "collisional_damping_rate_sign",
+        "landau_instability"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "CollisionalDampingRateSignChange",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "condensate_velocity",
+      "renormalized_sound_velocity"
+    ],
+    "outputs": [
+      "collisional_damping_rate_sign"
+    ],
+    "causal_direction": [
+      [
+        "condensate_velocity",
+        "collisional_damping_rate_sign"
+      ],
+      [
+        "renormalized_sound_velocity",
+        "collisional_damping_rate_sign"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "GravitationalWaveDetectionSensitivity",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "total_mass",
+      "orbital_eccentricity",
+      "orbital_frequency"
+    ],
+    "outputs": [
+      "detection_sensitivity"
+    ],
+    "causal_direction": [
+      [
+        "total_mass",
+        "detection_sensitivity"
+      ],
+      [
+        "orbital_eccentricity",
+        "detection_sensitivity"
+      ],
+      [
+        "orbital_frequency",
+        "detection_sensitivity"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MergerRateUpperLimit_2",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "eccentricity_range",
+      "total_mass_range"
+    ],
+    "outputs": [
+      "merger_rate_density_upper_limit"
+    ],
+    "causal_direction": [
+      [
+        "eccentricity_range",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "total_mass_range",
+        "merger_rate_density_upper_limit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "HawkingAreaLaw_2",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "initial_black_hole_horizon_areas"
+    ],
+    "outputs": [
+      "remnant_black_hole_horizon_area"
+    ],
+    "causal_direction": [
+      [
+        "initial_black_hole_horizon_areas",
+        "remnant_black_hole_horizon_area"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "GravitationalWaveDetectionSensitivity_2",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "eccentricity",
+      "total_mass",
+      "orbital_frequency"
+    ],
+    "outputs": [
+      "detection_sensitivity"
+    ],
+    "causal_direction": [
+      [
+        "eccentricity",
+        "detection_sensitivity"
+      ],
+      [
+        "total_mass",
+        "detection_sensitivity"
+      ],
+      [
+        "orbital_frequency",
+        "detection_sensitivity"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MergerRateUpperLimit_3",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "eccentricity",
+      "total_mass",
+      "detection_results"
+    ],
+    "outputs": [
+      "merger_rate_density_upper_limit"
+    ],
+    "causal_direction": [
+      [
+        "eccentricity",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "total_mass",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "detection_results",
+        "merger_rate_density_upper_limit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "GravitationalWaveEmissionFromBinaryCoalescence_2",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "binary_black_hole_masses",
+      "binary_black_hole_spins",
+      "binary_black_hole_eccentricity"
+    ],
+    "outputs": [
+      "gravitational_wave_signal"
+    ],
+    "causal_direction": [
+      [
+        "binary_black_hole_masses",
+        "gravitational_wave_signal"
+      ],
+      [
+        "binary_black_hole_spins",
+        "gravitational_wave_signal"
+      ],
+      [
+        "binary_black_hole_eccentricity",
+        "gravitational_wave_signal"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MergerRateUpperLimit_4",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "eccentricity_range",
+      "total_mass",
+      "detection_results"
+    ],
+    "outputs": [
+      "merger_rate_density_upper_limit"
+    ],
+    "causal_direction": [
+      [
+        "eccentricity_range",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "total_mass",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "detection_results",
+        "merger_rate_density_upper_limit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "KerrBlackHoleRingdown",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "black_hole_mass",
+      "black_hole_spin"
+    ],
+    "outputs": [
+      "quasinormal_mode_frequencies"
+    ],
+    "causal_direction": [
+      [
+        "black_hole_mass",
+        "quasinormal_mode_frequencies"
+      ],
+      [
+        "black_hole_spin",
+        "quasinormal_mode_frequencies"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "HawkingAreaLaw_3",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "initial_black_hole_horizon_areas"
+    ],
+    "outputs": [
+      "final_black_hole_horizon_area"
+    ],
+    "causal_direction": [
+      [
+        "initial_black_hole_horizon_areas",
+        "final_black_hole_horizon_area"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "GravitationalWaveEccentricityDetection",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "orbital_eccentricity",
+      "gravitational_waveform"
+    ],
+    "outputs": [
+      "detection_sensitivity"
+    ],
+    "causal_direction": [
+      [
+        "orbital_eccentricity",
+        "detection_sensitivity"
+      ],
+      [
+        "gravitational_waveform",
+        "detection_sensitivity"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MassEccentricityMergerRate",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "total_mass",
+      "orbital_eccentricity"
+    ],
+    "outputs": [
+      "merger_rate_density"
+    ],
+    "causal_direction": [
+      [
+        "total_mass",
+        "merger_rate_density"
+      ],
+      [
+        "orbital_eccentricity",
+        "merger_rate_density"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "KerrRingdownModeRelation_2",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "kerr_black_hole_parameters"
+    ],
+    "outputs": [
+      "ringdown_frequencies",
+      "ringdown_damping_times"
+    ],
+    "causal_direction": [
+      [
+        "kerr_black_hole_parameters",
+        "ringdown_frequencies"
+      ],
+      [
+        "kerr_black_hole_parameters",
+        "ringdown_damping_times"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "GravitationalWaveEmissionFromBinaryCoalescence_3",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "black_hole_masses",
+      "black_hole_spins",
+      "orbital_eccentricity"
+    ],
+    "outputs": [
+      "gravitational_wave_signal"
+    ],
+    "causal_direction": [
+      [
+        "black_hole_masses",
+        "gravitational_wave_signal"
+      ],
+      [
+        "black_hole_spins",
+        "gravitational_wave_signal"
+      ],
+      [
+        "orbital_eccentricity",
+        "gravitational_wave_signal"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "KerrBlackHoleRingdown_2",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "remnant_black_hole_mass",
+      "remnant_black_hole_spin"
+    ],
+    "outputs": [
+      "ringdown_frequencies",
+      "ringdown_damping_times"
+    ],
+    "causal_direction": [
+      [
+        "remnant_black_hole_mass",
+        "ringdown_frequencies"
+      ],
+      [
+        "remnant_black_hole_spin",
+        "ringdown_frequencies"
+      ],
+      [
+        "remnant_black_hole_mass",
+        "ringdown_damping_times"
+      ],
+      [
+        "remnant_black_hole_spin",
+        "ringdown_damping_times"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "SearchSensitivityMassEccentricity",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "total_mass",
+      "orbital_eccentricity"
+    ],
+    "outputs": [
+      "search_sensitivity"
+    ],
+    "causal_direction": [
+      [
+        "total_mass",
+        "search_sensitivity"
+      ],
+      [
+        "orbital_eccentricity",
+        "search_sensitivity"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MergerRateUpperLimit_5",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "eccentricity_range",
+      "population_model"
+    ],
+    "outputs": [
+      "merger_rate_density_upper_limit"
+    ],
+    "causal_direction": [
+      [
+        "eccentricity_range",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "population_model",
+        "merger_rate_density_upper_limit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MergerRateUpperLimit_6",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "eccentricity_range",
+      "total_mass"
+    ],
+    "outputs": [
+      "merger_rate_density"
+    ],
+    "causal_direction": [
+      [
+        "eccentricity_range",
+        "merger_rate_density"
+      ],
+      [
+        "total_mass",
+        "merger_rate_density"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "KerrRingdownModeRelation_3",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "kerr_black_hole_parameters"
+    ],
+    "outputs": [
+      "ringdown_frequencies",
+      "damping_times"
+    ],
+    "causal_direction": [
+      [
+        "kerr_black_hole_parameters",
+        "ringdown_frequencies"
+      ],
+      [
+        "kerr_black_hole_parameters",
+        "damping_times"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "HawkingAreaLaw_4",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "black_hole_merger"
+    ],
+    "outputs": [
+      "total_event_horizon_area_increase"
+    ],
+    "causal_direction": [
+      [
+        "black_hole_merger",
+        "total_event_horizon_area_increase"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MergerRateUpperLimit_7",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "eccentricity_range",
+      "total_mass",
+      "detection_sensitivity"
+    ],
+    "outputs": [
+      "merger_rate_density_upper_limit"
+    ],
+    "causal_direction": [
+      [
+        "eccentricity_range",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "total_mass",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "detection_sensitivity",
+        "merger_rate_density_upper_limit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "HawkingAreaLaw_5",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "initial_black_hole_horizon_areas"
+    ],
+    "outputs": [
+      "final_remnant_horizon_area"
+    ],
+    "causal_direction": [
+      [
+        "initial_black_hole_horizon_areas",
+        "final_remnant_horizon_area"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MergerRateDensityUpperLimit",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "detection_assumptions",
+      "population_model"
+    ],
+    "outputs": [
+      "merger_rate_density_upper_limit"
+    ],
+    "causal_direction": [
+      [
+        "detection_assumptions",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "population_model",
+        "merger_rate_density_upper_limit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MergerRateUpperLimit_8",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "detection_sensitivity",
+      "population_model"
+    ],
+    "outputs": [
+      "merger_rate_density_upper_limit"
+    ],
+    "causal_direction": [
+      [
+        "detection_sensitivity",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "population_model",
+        "merger_rate_density_upper_limit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "EccentricityGravitationalWaveformEffect",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "orbital_eccentricity"
+    ],
+    "outputs": [
+      "gravitational_waveform"
+    ],
+    "causal_direction": [
+      [
+        "orbital_eccentricity",
+        "gravitational_waveform"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "SearchSensitivityMassEccentricity_2",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "total_mass",
+      "orbital_eccentricity",
+      "orbital_frequency"
+    ],
+    "outputs": [
+      "search_sensitivity"
+    ],
+    "causal_direction": [
+      [
+        "total_mass",
+        "search_sensitivity"
+      ],
+      [
+        "orbital_eccentricity",
+        "search_sensitivity"
+      ],
+      [
+        "orbital_frequency",
+        "search_sensitivity"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MergerRateUpperLimit_9",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "detection_assumption_quasi_circular",
+      "eccentricity_range",
+      "population_model"
+    ],
+    "outputs": [
+      "merger_rate_density_upper_limit"
+    ],
+    "causal_direction": [
+      [
+        "detection_assumption_quasi_circular",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "eccentricity_range",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "population_model",
+        "merger_rate_density_upper_limit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "SearchSensitivityEccentricity_2",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "search_method",
+      "binary_eccentricity",
+      "total_mass"
+    ],
+    "outputs": [
+      "detection_sensitivity"
+    ],
+    "causal_direction": [
+      [
+        "search_method",
+        "detection_sensitivity"
+      ],
+      [
+        "binary_eccentricity",
+        "detection_sensitivity"
+      ],
+      [
+        "total_mass",
+        "detection_sensitivity"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MergerRateUpperLimit_10",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "detection_results",
+      "population_model",
+      "eccentricity_range"
+    ],
+    "outputs": [
+      "merger_rate_density_upper_limit"
+    ],
+    "causal_direction": [
+      [
+        "detection_results",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "population_model",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "eccentricity_range",
+        "merger_rate_density_upper_limit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "KerrBlackHoleRingdown_3",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "black_hole_mass",
+      "black_hole_spin"
+    ],
+    "outputs": [
+      "ringdown_frequency",
+      "ringdown_damping_rate"
+    ],
+    "causal_direction": [
+      [
+        "black_hole_mass",
+        "ringdown_frequency"
+      ],
+      [
+        "black_hole_spin",
+        "ringdown_frequency"
+      ],
+      [
+        "black_hole_mass",
+        "ringdown_damping_rate"
+      ],
+      [
+        "black_hole_spin",
+        "ringdown_damping_rate"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "KerrBlackHoleRingdown_4",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "black_hole_mass",
+      "black_hole_spin"
+    ],
+    "outputs": [
+      "ringdown_frequencies",
+      "ringdown_damping_times"
+    ],
+    "causal_direction": [
+      [
+        "black_hole_mass",
+        "ringdown_frequencies"
+      ],
+      [
+        "black_hole_spin",
+        "ringdown_frequencies"
+      ],
+      [
+        "black_hole_mass",
+        "ringdown_damping_times"
+      ],
+      [
+        "black_hole_spin",
+        "ringdown_damping_times"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "KerrRingdownModeRelation_4",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "remnant_kerr_black_hole_parameters"
+    ],
+    "outputs": [
+      "ringdown_mode_frequencies"
+    ],
+    "causal_direction": [
+      [
+        "remnant_kerr_black_hole_parameters",
+        "ringdown_mode_frequencies"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MergerRateUpperLimit_11",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "eccentricity_range",
+      "total_mass_range",
+      "detection_results"
+    ],
+    "outputs": [
+      "merger_rate_density_upper_limit"
+    ],
+    "causal_direction": [
+      [
+        "eccentricity_range",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "total_mass_range",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "detection_results",
+        "merger_rate_density_upper_limit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "KerrRingdownModeRelation_5",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "kerr_black_hole_parameters"
+    ],
+    "outputs": [
+      "ringdown_frequencies",
+      "ringdown_overtones"
+    ],
+    "causal_direction": [
+      [
+        "kerr_black_hole_parameters",
+        "ringdown_frequencies"
+      ],
+      [
+        "kerr_black_hole_parameters",
+        "ringdown_overtones"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MergerRateUpperLimit_12",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "detection_results",
+      "population_model"
+    ],
+    "outputs": [
+      "merger_rate_density_upper_limit"
+    ],
+    "causal_direction": [
+      [
+        "detection_results",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "population_model",
+        "merger_rate_density_upper_limit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "HawkingAreaLaw_6",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "black_hole_merger"
+    ],
+    "outputs": [
+      "total_event_horizon_area"
+    ],
+    "causal_direction": [
+      [
+        "black_hole_merger",
+        "total_event_horizon_area"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "KerrRingdownModeRelation_6",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "remnant_kerr_black_hole_parameters"
+    ],
+    "outputs": [
+      "quasinormal_mode_frequencies"
+    ],
+    "causal_direction": [
+      [
+        "remnant_kerr_black_hole_parameters",
+        "quasinormal_mode_frequencies"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "HawkingAreaLaw_7",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "initial_black_hole_event_horizon_areas"
+    ],
+    "outputs": [
+      "remnant_black_hole_event_horizon_area"
+    ],
+    "causal_direction": [
+      [
+        "initial_black_hole_event_horizon_areas",
+        "remnant_black_hole_event_horizon_area"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MergerRateUpperLimit_13",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "detection_rate",
+      "population_model"
+    ],
+    "outputs": [
+      "merger_rate_density_upper_limit"
+    ],
+    "causal_direction": [
+      [
+        "detection_rate",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "population_model",
+        "merger_rate_density_upper_limit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "KerrBlackHoleRingdown_5",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "black_hole_mass",
+      "black_hole_spin"
+    ],
+    "outputs": [
+      "ringdown_frequency",
+      "ringdown_damping_time"
+    ],
+    "causal_direction": [
+      [
+        "black_hole_mass",
+        "ringdown_frequency"
+      ],
+      [
+        "black_hole_spin",
+        "ringdown_frequency"
+      ],
+      [
+        "black_hole_mass",
+        "ringdown_damping_time"
+      ],
+      [
+        "black_hole_spin",
+        "ringdown_damping_time"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "BinaryBlackHoleCoalescence",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "initial_masses",
+      "initial_spins",
+      "initial_eccentricity"
+    ],
+    "outputs": [
+      "gravitational_wave_signal"
+    ],
+    "causal_direction": [
+      [
+        "initial_masses",
+        "gravitational_wave_signal"
+      ],
+      [
+        "initial_spins",
+        "gravitational_wave_signal"
+      ],
+      [
+        "initial_eccentricity",
+        "gravitational_wave_signal"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "KerrRingdown",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "remnant_mass",
+      "remnant_spin"
+    ],
+    "outputs": [
+      "quasinormal_mode_frequencies"
+    ],
+    "causal_direction": [
+      [
+        "remnant_mass",
+        "quasinormal_mode_frequencies"
+      ],
+      [
+        "remnant_spin",
+        "quasinormal_mode_frequencies"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "HawkingAreaLaw_8",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "initial_horizon_areas"
+    ],
+    "outputs": [
+      "final_horizon_area"
+    ],
+    "causal_direction": [
+      [
+        "initial_horizon_areas",
+        "final_horizon_area"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MergerRateUpperLimitRelation",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "detection_assumptions",
+      "population_model",
+      "eccentricity_range"
+    ],
+    "outputs": [
+      "merger_rate_density_upper_limit"
+    ],
+    "causal_direction": [
+      [
+        "detection_assumptions",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "population_model",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "eccentricity_range",
+        "merger_rate_density_upper_limit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "KerrRingdownModeRelation_7",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "remnant_kerr_black_hole_parameters"
+    ],
+    "outputs": [
+      "quadrupolar_mode_frequency",
+      "first_overtone_frequency"
+    ],
+    "causal_direction": [
+      [
+        "remnant_kerr_black_hole_parameters",
+        "quadrupolar_mode_frequency"
+      ],
+      [
+        "remnant_kerr_black_hole_parameters",
+        "first_overtone_frequency"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MergerRateUpperLimit_14",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "eccentricity_range",
+      "total_mass"
+    ],
+    "outputs": [
+      "merger_rate_density_upper_limit"
+    ],
+    "causal_direction": [
+      [
+        "eccentricity_range",
+        "merger_rate_density_upper_limit"
+      ],
+      [
+        "total_mass",
+        "merger_rate_density_upper_limit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "HawkingAreaLaw_9",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "black_hole_merger"
+    ],
+    "outputs": [
+      "total_horizon_area_increase"
+    ],
+    "causal_direction": [
+      [
+        "black_hole_merger",
+        "total_horizon_area_increase"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MergerRateDensityEccentricity",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "binary_eccentricity",
+      "total_mass"
+    ],
+    "outputs": [
+      "merger_rate_density"
+    ],
+    "causal_direction": [
+      [
+        "binary_eccentricity",
+        "merger_rate_density"
+      ],
+      [
+        "total_mass",
+        "merger_rate_density"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "GravitationalWaveEccentricityDetection_2",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "orbital_eccentricity",
+      "waveform_model"
+    ],
+    "outputs": [
+      "detection_sensitivity"
+    ],
+    "causal_direction": [
+      [
+        "orbital_eccentricity",
+        "detection_sensitivity"
+      ],
+      [
+        "waveform_model",
+        "detection_sensitivity"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "FigureOfMeritDefinition",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "experimental_design",
+      "observational_constraints"
+    ],
+    "outputs": [
+      "figure_of_merit"
+    ],
+    "causal_direction": [
+      [
+        "experimental_design",
+        "figure_of_merit"
+      ],
+      [
+        "observational_constraints",
+        "figure_of_merit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "TwoDimensionalBandSpectrumPowerFactor",
+    "domain": "thermodynamics",
+    "latex": "",
+    "inputs": [
+      "two_dimensional_band_spectrum"
+    ],
+    "outputs": [
+      "power_factor"
+    ],
+    "causal_direction": [
+      [
+        "two_dimensional_band_spectrum",
+        "power_factor"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "TwoDimensionalBandSpectrumFigureOfMerit",
+    "domain": "thermodynamics",
+    "latex": "",
+    "inputs": [
+      "two_dimensional_band_spectrum"
+    ],
+    "outputs": [
+      "thermoelectric_figure_of_merit"
+    ],
+    "causal_direction": [
+      [
+        "two_dimensional_band_spectrum",
+        "thermoelectric_figure_of_merit"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "EccentricityGravitationalWaveEmission",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "orbital_eccentricity"
+    ],
+    "outputs": [
+      "gravitational_wave_emission_pattern"
+    ],
+    "causal_direction": [
+      [
+        "orbital_eccentricity",
+        "gravitational_wave_emission_pattern"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "PericenterPassageBurstRadiation",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "pericenter_passage"
+    ],
+    "outputs": [
+      "intense_bursts_of_gravitational_radiation"
+    ],
+    "causal_direction": [
+      [
+        "pericenter_passage",
+        "intense_bursts_of_gravitational_radiation"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "EccentricityBinaryOriginDetermination",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "orbital_eccentricity_in_gravitational_wave_signature"
+    ],
+    "outputs": [
+      "determination_of_binary_origin"
+    ],
+    "causal_direction": [
+      [
+        "orbital_eccentricity_in_gravitational_wave_signature",
+        "determination_of_binary_origin"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "PericenterPassageMatterGravityEnhancement",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "highly_dynamical_pericenter_passage"
+    ],
+    "outputs": [
+      "enhancement_of_matter_and_gravity_physics"
+    ],
+    "causal_direction": [
+      [
+        "highly_dynamical_pericenter_passage",
+        "enhancement_of_matter_and_gravity_physics"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "BlackHoleThreshold",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "compact_object_mass"
+    ],
+    "outputs": [
+      "black_hole_nature"
+    ],
+    "causal_direction": [
+      [
+        "compact_object_mass",
+        "black_hole_nature"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MultipolarStructureGravitationalWave",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "multipolar_structure_of_compact_object"
+    ],
+    "outputs": [
+      "gravitational_wave_inspiral_signal"
+    ],
+    "causal_direction": [
+      [
+        "multipolar_structure_of_compact_object",
+        "gravitational_wave_inspiral_signal"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "TidalDeformabilityGravitationalWave",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "tidal_deformability_of_compact_object"
+    ],
+    "outputs": [
+      "gravitational_wave_inspiral_signal"
+    ],
+    "causal_direction": [
+      [
+        "tidal_deformability_of_compact_object",
+        "gravitational_wave_inspiral_signal"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "RingdownSignalBlackHoleProperties",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "black_hole_properties"
+    ],
+    "outputs": [
+      "gravitational_wave_ringdown_signal"
+    ],
+    "causal_direction": [
+      [
+        "black_hole_properties",
+        "gravitational_wave_ringdown_signal"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "NearHorizonStructureEchoes",
+    "domain": "general_relativity",
+    "latex": "",
+    "inputs": [
+      "near_horizon_structure"
+    ],
+    "outputs": [
+      "gravitational_wave_echoes"
+    ],
+    "causal_direction": [
+      [
+        "near_horizon_structure",
+        "gravitational_wave_echoes"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "HiggsSelfCouplingScaling",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "gauge_coupling"
+    ],
+    "outputs": [
+      "higgs_self_coupling"
+    ],
+    "causal_direction": [
+      [
+        "gauge_coupling",
+        "higgs_self_coupling"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "WeakMixingAnglePrediction",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "gauge_group_representation"
+    ],
+    "outputs": [
+      "weak_mixing_angle"
+    ],
+    "causal_direction": [
+      [
+        "gauge_group_representation",
+        "weak_mixing_angle"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "HiggsMassPredictionOneDoublet",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "higgs_doublet_structure"
+    ],
+    "outputs": [
+      "higgs_mass"
+    ],
+    "causal_direction": [
+      [
+        "higgs_doublet_structure",
+        "higgs_mass"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "HiggsMassRelationToW",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "w_boson_mass"
+    ],
+    "outputs": [
+      "higgs_mass"
+    ],
+    "causal_direction": [
+      [
+        "w_boson_mass",
+        "higgs_mass"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "CurrentChargeRelativeToObserver",
+    "domain": "electromagnetism",
+    "latex": "",
+    "inputs": [
+      "current",
+      "observer_velocity"
+    ],
+    "outputs": [
+      "charge"
+    ],
+    "causal_direction": [
+      [
+        "current",
+        "charge"
+      ],
+      [
+        "observer_velocity",
+        "charge"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MagneticForceElectricOrigin",
+    "domain": "electromagnetism",
+    "latex": "",
+    "inputs": [
+      "electric_force"
+    ],
+    "outputs": [
+      "magnetic_force"
+    ],
+    "causal_direction": [
+      [
+        "electric_force",
+        "magnetic_force"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "CurrentRepresentationOppositeCharges",
+    "domain": "electromagnetism",
+    "latex": "",
+    "inputs": [
+      "current"
+    ],
+    "outputs": [
+      "positive_charge",
+      "negative_charge"
+    ],
+    "causal_direction": [
+      [
+        "current",
+        "positive_charge"
+      ],
+      [
+        "current",
+        "negative_charge"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "MagneticForceFromChargeMotion",
+    "domain": "electromagnetism",
+    "latex": "",
+    "inputs": [
+      "charge_motion",
+      "relative_velocity",
+      "electric_field"
+    ],
+    "outputs": [
+      "magnetic_force"
+    ],
+    "causal_direction": [
+      [
+        "charge_motion",
+        "magnetic_force"
+      ],
+      [
+        "relative_velocity",
+        "magnetic_force"
+      ],
+      [
+        "electric_field",
+        "magnetic_force"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "BiotSavartLawDerivation",
+    "domain": "electromagnetism",
+    "latex": "",
+    "inputs": [
+      "electric_force_law"
+    ],
+    "outputs": [
+      "biot_savart_law"
+    ],
+    "causal_direction": [
+      [
+        "electric_force_law",
+        "biot_savart_law"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "HiggsMassPredictionSingleDoublet",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "higgs_doublet_number"
+    ],
+    "outputs": [
+      "higgs_mass"
+    ],
+    "causal_direction": [
+      [
+        "higgs_doublet_number",
+        "higgs_mass"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "HiggsMassUpperBoundTwoDoublets",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "higgs_doublet_number"
+    ],
+    "outputs": [
+      "higgs_mass_upper_bound"
+    ],
+    "causal_direction": [
+      [
+        "higgs_doublet_number",
+        "higgs_mass_upper_bound"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "AffineConnectionElectromagneticSource",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "affine_non_symmetric_connection",
+      "connection_trace"
+    ],
+    "outputs": [
+      "electromagnetic_field"
+    ],
+    "causal_direction": [
+      [
+        "affine_non_symmetric_connection",
+        "connection_trace"
+      ],
+      [
+        "connection_trace",
+        "electromagnetic_field"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ProjectiveInvarianceBreaking",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "matter_fields"
+    ],
+    "outputs": [
+      "projective_invariance_breaking"
+    ],
+    "causal_direction": [
+      [
+        "matter_fields",
+        "projective_invariance_breaking"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "GravityEmergence",
+    "domain": "unification",
+    "latex": "",
+    "inputs": [
+      "projective_invariance_breaking"
+    ],
+    "outputs": [
+      "gravity_classical_field"
+    ],
+    "causal_direction": [
+      [
+        "projective_invariance_breaking",
+        "gravity_classical_field"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "OperatorSchmidtDecompositionDegeneracy",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "n1",
+      "n2"
+    ],
+    "outputs": [
+      "schmidt_rank"
+    ],
+    "causal_direction": [
+      [
+        "n1",
+        "schmidt_rank"
+      ],
+      [
+        "n2",
+        "schmidt_rank"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "QuantumFourierTransformCommunicationCost",
+    "domain": "quantum",
+    "latex": "",
+    "inputs": [
+      "schmidt_rank"
+    ],
+    "outputs": [
+      "communication_cost"
+    ],
+    "causal_direction": [
+      [
+        "schmidt_rank",
+        "communication_cost"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "ImpactFragmentGeneration",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "impact_events",
+      "kuiper_belt_object_surface"
+    ],
+    "outputs": [
+      "collisional_fragments"
+    ],
+    "causal_direction": [
+      [
+        "impact_events",
+        "collisional_fragments"
+      ],
+      [
+        "kuiper_belt_object_surface",
+        "collisional_fragments"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "DynamicalInstabilityEjection",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "dynamical_instability",
+      "collisional_fragments"
+    ],
+    "outputs": [
+      "ejected_fragments"
+    ],
+    "causal_direction": [
+      [
+        "dynamical_instability",
+        "ejected_fragments"
+      ],
+      [
+        "collisional_fragments",
+        "ejected_fragments"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "CosmicRayErosion",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "galactic_cosmic_rays",
+      "time"
+    ],
+    "outputs": [
+      "fragment_size"
+    ],
+    "causal_direction": [
+      [
+        "galactic_cosmic_rays",
+        "fragment_size"
+      ],
+      [
+        "time",
+        "fragment_size"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "StellarSystemEjectionEfficiency",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "stellar_system_type",
+      "ejection_efficiency"
+    ],
+    "outputs": [
+      "interstellar_object_frequency"
+    ],
+    "causal_direction": [
+      [
+        "stellar_system_type",
+        "ejection_efficiency"
+      ],
+      [
+        "ejection_efficiency",
+        "interstellar_object_frequency"
+      ]
+    ],
+    "confidence_tier": 3
+  },
+  {
+    "name": "KBOCompositionDetermination",
+    "domain": "modern",
+    "latex": "",
+    "inputs": [
+      "kuiper_belt_object_composition"
+    ],
+    "outputs": [
+      "fragment_composition"
+    ],
+    "causal_direction": [
+      [
+        "kuiper_belt_object_composition",
+        "fragment_composition"
+      ]
+    ],
+    "confidence_tier": 3
   }
 ]

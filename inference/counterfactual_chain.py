@@ -80,7 +80,7 @@ def propagate(variable: str, change: str, max_depth: int = 5,
     visited = set()
     queue = [(variable, change, 0, [f"{variable}{change}"])]
 
-    while queue and len(chain) < max_depth * 3:
+    while queue and len(chain) < max_depth * 10:
         var, chg, depth, path = queue.pop(0)
         if var in visited or depth >= max_depth:
             continue

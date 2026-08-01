@@ -4,45 +4,177 @@
 
 ---
 
-## v0.3.11 (2026-06-08) — 研究循环 v2 + 元认知 + 研究方向 + 论文生成
+## v1.3.0 (2026-07-05) — 假设节点: 元认知前提
 
-### 研究循环 v2 — 五短板补全 (creative/research_cycle.py)
-- 惊喜检测 `check_surprise()` — 验证分数异常波动警报 (阈值 30%)
-- 优先级排序 `prioritize_topics()` — 本体论权重 × 跨域 × 前沿得分
-- 鲁棒性检验 `robustness_test()` — 同假说 3 轮多变量验证
-- 留一法验证 `leave_one_out_validation()` — 移除定律检查因果图一致性
-- 发现归档 `archive_report()` — confirmed 假说 → 结构化报告
+### hyp-node: 脑能操作自己的假说
+- `_ensure_hyp_node(src, dst)`: 在图中创建 `hyp:src:dst` 节点, 双向 `self_models` 边连接 src 和 dst
+- `_sync_hyp_nodes()`: 每 10 代扫描 t3 边, 目标词重叠 ≥2 的自动建 hyp-node
+- 递归守卫: hyp 节点之间的边不再生成新 hyp 节点, 防止嵌套爆炸
+- 已纳入 `_rebuild_graph` 的 domain 保留列表 (`hypothesis`, `experiment`)
 
-### 元认知: suggest 命令 (meta_cognition/what_next.py + suggest_executor.py)
-- `suggest` — 交互式控制台: 扫描三条路径 (交叉验证/前沿探索/失调解析)
-- `suggest --run` — 一键执行 #1; `suggest --run-all` — 全交叉验证流水线
-- 量子评估: 当量子域未参与时诚实标注缺失桥梁
-- 完成追踪: 执行后自动标记, 下次不再出现
+### 三步元认知路线
+1. **hyp-node 存在**: 假说作为图实体, compose/coincidence/intervene 自然覆盖  ✅
+2. **激活检验**: hyp 节点获 baseline coincidence (+3), cell 自然注意到它     ✅
+3. **检验反馈**: intervene 结果反写源头假说 s 值 (effect×0.3)                 ✅
 
-### 大胆假设: speculate 命令 (creative/speculate.py)
-- 无约束假说生成 — 不检查 forbidden, 不要求公理链一致
-- 15 个物理直觉种子 (Penrose 坍缩/Kaluza-Klein/Berry phase...)
-- 全部标记 tier 4 探索编码; `speculate --save` 保存到 auto_laws
+### 睡眠修复
+- **bug**: `mirror_strengthen` 创建边时 `n:0` (int) 导致 `len(edge['n'])` 崩溃
+- **修复**: `n:0` → `n:set()`, 并在 `strengthen()` 加 `isinstance` 防御
+- **结构改进**: 睡眠检查从 50-gen 维护块内移到 `breathe()` 末尾独立执行 + try/except
 
-### 研究方向: focus 命令 (meta_cognition/research_directions.py)
-- 9 个方向: QG/QM/EM/IB/GU/CD + CU/CB/KS (3 个 PhysCausal 特有)
-- `focus` — 交互式选择; `focus <tag>` — 快捷设置
-- 聚焦偏置: 影响 innovate (变量权重 ×3) / suggest (+2~3 分) / watch (taste_score +1~1.5)
-
-### 论文生成: paper 命令 (creative/paper_writer.py)
-- 自动生成结构化 Markdown 论文
-- Abstract(中英双语) / 引言 / 方法 / 发现 / 交叉验证表 / 讨论 / 参考文献
-- 每发现独立讨论; 包含量子评估和下一步研究
-
-### 统计
-- 79 定律, 11 透镜, 6 条 tier≤3 发现, 17 次交叉验证
-- 179 测试全绿
+### 验证结果
+- 睡眠恢复, 每轮 ~100 composed 边 (之前 10-33)
+- hyp 节点参与 compose: 2276 条干净 hyp-composed 边
+- FSC/SL 相关 composed 边 2333 条
 
 ---
 
-## v0.3.11 (2026-06-08~10) — 物理学家涅槃: 六短板补全 + 混合路线
+## v1.2.0 (2026-07-01) — 从确定到概率
 
-### 研究循环 v2 — 五短板补全
+### 突触层: s值成为连接概率 (替代c值硬剪枝)
+- **睡眠改为s自然衰减**: 不再 `c<2→硬删`, 改为 `s×0.7` 全眼下缩放 + `s<0.01` 自然消失
+- **s值语义升级**: 从"附带统计量"提升为"连接概率" — s=0.3=30%传信号, s=9.0=几乎确定
+- **c值保留做统计**: c值从决策依据降为计数指标, 不再参与生死
+
+### 遗传机制: 删除出生归一化
+- 子代继承亲代绝对权重, 不再 `÷ sum(weights)` 压缩到1.0
+- 探索专家(GENOME_MAX=3.0)的子代保留高探索权重
+- 纯达尔文选择: 孩子像父母, 选择压力决定基因频率
+
+### 认知能力: 四个新增
+- **路径合成写边 (compose)**: A→B+B→C→A→C 作为真实图边, 细胞可见可走
+- **干预选EIG (主动推理)**: 屏蔽最低信息增益边, 走最高 — 从随机干预变成定向实验
+- **探索能量跟EIG挂钩**: 0.20+EIG×0.15, 探索高信息方向给更多生存能量
+- **predict()查询接口**: `EvoColony.predict_cli('概念')` 按s值排序输出因果预测
+
+### 基础设施
+- **快照v2**: 突触层持久化 (snapshot含synaptic activations), 重启不丢coincidence
+- **冷池重构**: Dict[node]替代扁平列表, 1GB→54MB, 按概念索引
+- **coincidence重访奖励**: EIG对熟悉节点+5%~50%概率提升
+- **compose边初始c=2+s=0.30**: 发现的因果链自带置信度
+- **探索novelty→能量通道**: 发现稀疏节点拿生存能量, 非仅dopamine
+- **脑3D**: 吸引子网络图 (c≥2边, 标记垄断标注, 拖拽缩放)
+
+### 文档
+- **FREE_ENERGY.md §12**: 变分自由能→自组织吸引子, 层级预测编码vs费曼脑替代方案
+- **PREDICTIVE_CODING.md**: 费曼脑=贝叶斯预测引擎的轻量映射, 零代码改动
+- 小世界网络分析: σ=6.85 (人脑3-10), 路径4.07, 聚类待上升
+
+### 关键实验数据 (8小时运行, gen 67600)
+- 突触: 223K→329K (+47%) | 路径: 25K→190K (+666%)
+- 模块: 0→61K | compose边: 0→44.5K
+- 冷池: 1003MB→54MB | 干预权重: 0.79→1.09
+- 探索: 稳住0.011~0.012 (未涨, 基因扩散需要更多代际)
+
+## v1.1.0 (2026-06-26) — 神经科学补全: 睡眠·STDP·E/I·临界性
+
+### 突触权重重构
+- 权重从"unique neuron计数"改为"预测质量 (dopamine)"
+- 已知路径 (1.5×) → 高strength, 新路径 (0.3×) → 低strength
+
+### 睡眠归一化 (SHY假说)
+- 替换旧重放: 全局c值÷2 + 弱边淘汰 + 反向重放捷径
+
+### STDP 时序可塑
+- Pre→Post强化, Post→Pre弱化 (50代窗口)
+
+### E/I 平衡 + 侧抑制 + 临界性
+- 抑制性细胞生态位, 赢家压制, 分支比→1.0 bonus
+
+### 内生稳态
+- 局部密度约束, 冷池择优唤醒, 移除突触预算, 负数下限保护
+
+### Bug修复
+- 噪声过滤撤回, receive_reward下限, 随机基因组5%
+
+### 文档
+- FREE_ENERGY.md / ARCHITECTURE.md / CHANGELOG.md → v1.1.0
+
+## v1.0.0 (2026-06-24) — 自由能驱动: Friston 原理完整实现
+
+### 自由能原则 (第三次架构跃迁)
+
+从"最大化高频边"到"最小化预测误差"的完整翻转。
+
+**变分自由能 (学习):**
+- 已知路径 reward 1.5× vs 新路径 0.3× (5:1 纯净信号)
+- 多层预测命中: 1步0.5 ~ 4+步2.0
+- Eureka 重定义: 只给已知+长+跨域路径 (×4.0)
+- 注册激励 +0.6 促建模
+
+**预期自由能 (行动):**
+- `_expected_info_gain()` — walk 前评估每条边的信息增益
+- 结构缺口(1.6×) / 域新颖度(1.15×) / 信息冗余(0.7×)
+- curiosity 调制: EIG^curiosity (放大/缩小探索倾向)
+
+**层级预测编码:**
+- `_eval_hierarchy()` — 深→浅=预测(已知奖励), 浅→深=误差(好奇↑)
+- 替代旧粗糙跨深度 bonus
+- 方向分化由 reward 梯度自发驱动
+
+**拓扑自组织:**
+- `_spawn_probes()` — 语义梯度偏置 (不再全图随机)
+- `_grow_shortcuts()` — Hebbian 生长 (已有, 加强)
+- `_deep_prune()` — 双向清理 causes+effects (修复单向bug)
+
+**稳态收紧:**
+- density>1.0 触发 (原2.0) / 对称释放 (消除0.5-2.0死区)
+- K 增长上限 ×1.2 (原1.5) / DENSITY_DEATH_K_HALF 0.5 (原0.7)
+- 死亡速率上限上调: 0.50 / 0.20
+
+**Bug 修复 (7个):**
+- split 基因子代强制随机 → 继承+突变
+- 密度死亡 3×K 满格 (原5×K)
+- 双重年龄递增 → 单次
+- MIN_SPLIT_REWARD 6.0→1.5 下限
+- deep_prune 单向→双向 causes 同步清理
+- freeze O(n²)→O(n)
+- wake 全量遍历→采样评估
+
+**文档更新:**
+- FREE_ENERGY.md — 完整理论总纲 (Friston→工程映射)
+- ARCHITECTURE.md — v1.0.0 架构 (含所有新机制)
+- README.md — v1.0.0 概述
+
+### v0.4.0 (2026-06-12) — 自进化: 从编程行为到自然选择
+
+### 进化殖民地 (第二次架构跃迁)
+
+一代 (GraphCell): 硬编码行为 (learn/teach/compress/review) — 灭绝或策略僵化
+二代 (EvolvableCell): 基因组 + 强化学习 + 自然选择 — 26500代四策略均衡
+
+### EvolvableCell — 基因组驱动
+- 6个原子操作: step_forward/backward, mark, echo, split, rest
+- 基因组 = 行为权重向量, 强化学习更新
+- 奖励梯度: 路径发现 2.0+长度 > 共振 0.3 > 探索 0.3 > 标记低保 0.15
+- 错误奖励 → 废物大脑 (分裂73.7%, 探索4.4%, tier3清零)
+- 正确奖励 → 四策略均衡 (探索32%, 标记14%, 分裂18%, 回声19%)
+
+### 三个关键设计决策
+1. **自私基因**: 子细胞随机基因组, 不继承父代 → 打破分裂统治
+2. **投票箱**: 衰减窗 100→300代, tier 0-2 不向殖民地开放
+3. **自喂养**: 路径枯竭 → 本地喂养 → arXiv → 图 335→487边 (+45%)
+
+### 知识扩展
+- feed_knowledge.py: +29 跨域桥接定律, 335→366边
+- condensed_matter: 3→8定律, 跨域变量 40→50
+- arXiv 动态喂养: 殖民地热点自动搜索论文
+
+### 文件新增
+- evolvable_cell.py, evo_colony.py, colony_ballot.py
+- gap_resolver.py, feed_knowledge.py
+- run_evo.py (长时间自主运行)
+- docs/SELF_EVOLUTION.md
+
+### 文档更新
+- ARCHITECTURE.md v0.4.0 重写
+- 定律: 228→257, 边: 335→366, 域: 11→14
+
+---
+
+## v0.3.11 (2026-06-08~11) — 物理学家涅槃: 全面补全 + 知识网络 + 自由能
+
+### 研究循环 v2 — 五短板补全 (creative/research_cycle.py)
 - 惊喜检测/优先级排序/鲁棒性检验/留一法验证/发现归档
 
 ### 元认知: suggest 命令
@@ -55,10 +187,10 @@
 - 9 个方向 + 聚焦偏置 (innovate/suggest/watch 三层生效)
 
 ### 因果链类比: analogy 命令
-- 软匹配因果链结构, 图嵌入 55 条跨域共鸣
+- 软匹配因果链结构, 图嵌入 57 条跨域共鸣
 - 混合路线第一步: graph_features.py (图拓扑 → 向量)
 
-### 物理学家身份: Noether (诺特)
+### 物理学家身份: 费曼 (诺特)
 - identity.py + talk.py 发言系统
 - ask 命令 DeepSeek API 接入, LLM 物理问答
 
@@ -67,44 +199,44 @@
 - 数据管道: data <csv> → 因果发现 + 定律比对
 - arXiv 摄入: ingest <topic> → 断言提取
 
+### 论文生成: paper 命令
+- 自动生成结构化 Markdown 论文 (Abstract→Refs)
+
 ### 学习优化: learn 命令
 - 11 对已知类比做正样本, 梯度下降学习特征权重
-- 关键维度: out_deg/branching/cat:quantum
 
-### 可视化: viz 命令
+### 可视化: viz/kgviz/fviz 命令
 - 驱动面板 + 类比连接图 + 因果链 ASCII 可视化
+- 知识网络交互图 (vis.js, 298节点/545边)
+- 前沿地图 (稀疏区/尺度裂缝/断头路)
 
 ### 持久记忆: memory 命令
 - 发现归档 + 跨 session 检索 + rest() 时自动整理
 
-### 知识库 (12 篇)
-- SYMMETRY_BREAKING/DISSIPATIVE_SYSTEMS/PHYSICAL_INTUITION/HYBRID_ARCHITECTURE
+### 知识网络: kg 命令 (meta_cognition/knowledge_graph.py)
+- 统一类型图: law/variable/CV/paper/analogy 五大节点
+- 7 层查询: connect(BFS) / contradictions / concept_emergence / tier_trace
+- NL 路由: ask 自然语言 → KG 自动查询 (中英变量映射)
 
-### 架构审计
-- 解耦循环导入, 清理死代码, shared 工具提取
+### 自然语言命令: agent_router.py
+- 25+ 命令通过 ask 统一入口 (chain/plan/analogy/focus/suggest/...)
+- KG 自动路由 → LLM 回退
 
-### 因果图
-- 28 auto-laws (退相干/耗散/对称破缺/信息耗散/相位退相干)
-- 耗散统一: 动能/相位/信息 → entropy 同一因果骨架
-- 179 测试全绿
+### 自由能: FREE_ENERGY.md + 因果边
+- F = E - TS, δF=0 ⇔ δS=0 (Legendre 变换)
+- 耗散统一: kinetic/phase/info → entropy (同一因果骨架)
+- 因果链: entropy → free_energy → equilibrium_state (4步贯通)
 
----
-
-## v0.3.10 (2026-06-07) — 因果规划 + 元学习 v2
-
-### 因果规划
-- `inference/causal_planner.py`: 反向搜索 + 路径评分 + forbidden/tier 过滤
-- `plan` 命令: `plan <start> <target>` 正向规划
-- `plan bridge <domain1> <domain2>` 领域桥接
-- mass→interference 找到 5 条路径, 最便宜代价 7.5
-
-### 元学习 v2
-- `reinforcement/meta_learner_v2.py`: 模式模板 + 跨域迁移
-- 从发现的汇聚模式提取模板, 在新领域中搜索同类
-- 自动发现 geodesic_path 跨 3 领域被 2 定律汇聚
+### 其他
+- 知识库 13 篇文档 | 11 条透镜 | 15 次交叉验证
+- NL 路由器 (概念→变量映射) | 对话记忆
+- 贝叶斯因子假说检验 | 多步推理
+- 架构审计: 解耦循环导入, 清理死代码, shared 工具提取
 
 ### 统计
-- 71 定律, 11 透镜, 179 测试全绿
+- 71 定律 11 领域 + auto-laws 53 条
+- 知识网络 298 节点 545 边, 7 层查询
+- 179 测试全绿
 
 ---
 
@@ -166,12 +298,10 @@
 
 ## v0.3.8 (2026-06-07) — 几何深度 + 负向约束补全 + 信息-熵桥
 
-## v0.3.8 (2026-06-07) — 几何深度 + 负向约束补全 + 信息-熵桥
-
 ### 元物理层重构
 - `least_action.py` — δS=0 确认为唯一生成性原理 (Tier 0)
-- Noether (对称→守恒)、Locality (光锥)、Entropy (统计涌现) 降为派生原则
-- 层级关系: δS=0 → Noether / Locality → Entropy
+- 费曼 (对称→守恒)、Locality (光锥)、Entropy (统计涌现) 降为派生原则
+- 层级关系: δS=0 → 费曼 / Locality → Entropy
 
 ### 新增定律 (9 条)
 - `EinsteinFieldEq` (GR): mass → spacetime_curvature — GR 核心方程

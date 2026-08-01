@@ -259,28 +259,46 @@ class AutonomousAgent:
             self.internal.rest()
             return None
 
-        # 根据内部状态选择哪个模块激活
-        # 均衡权重: 前沿/失调/联想三分天下, 结构/反思辅助
+        # ── 判断: 不是抽签, 而是评估每个行动的预期价值 ──
         s = self.internal
-        drives = {
-            "frontier":   s.novelty_drive * 1.5,      # 探索未知
-            "analogy":    s.curiosity_level * 1.2 + s.pattern_hunger * 1.0,  # 模式饥饿
-            "dissonance": s.coherence_drive * 1.3 + s.frustration * 0.5,     # 沮丧驱动
+        drive_base = {
+            "frontier":   s.novelty_drive * 1.5,
+            "analogy":    s.curiosity_level * 1.2 + s.pattern_hunger * 1.0,
+            "dissonance": s.coherence_drive * 1.3 + s.frustration * 0.5,
+            "puzzle":     s.novelty_drive * 1.0 + s.curiosity_level * 0.8,
+            "hypothesize": s.novelty_drive * 1.2 + s.pattern_hunger * 0.8,
             "associate":  min(s.curiosity_level, 0.7),
             "structure":  s.novelty_drive * 0.6,
             "reflect":    min(s.curiosity_level, 0.7) * 0.5,
         }
 
-        # 加权随机选择
-        total = sum(drives.values())
-        r = random.random() * total
-        cumulative = 0
-        chosen = "reflect"
-        for module, weight in drives.items():
-            cumulative += weight
-            if r <= cumulative:
-                chosen = module
-                break
+        # 历史成功率修正: 如果某个驱动最近产出多 → 升值
+        try:
+            from meta_cognition.learning_memory import _load
+            records = _load()
+            recent = [r for r in records if r.get('time',0) > time.time() - 3600]
+            success_by_type = {}
+            for r in recent:
+                t = r.get('type','')
+                success_by_type[t] = success_by_type.get(t, 0) + (1 if r.get('outcome') == 'confirmed' else 0.3)
+            type_map = {'analogy': 'analogy', 'hypothesis': 'hypothesize', 'exploration': 'frontier'}
+            for dtype, drive_name in type_map.items():
+                if dtype in success_by_type:
+                    drive_base[drive_name] *= min(1.5, 1 + success_by_type[dtype] * 0.1)
+        except: pass
+
+        # 避免连续重复: 同一驱动连续3次→降权
+        if hasattr(self, '_last_drives') and len(self._last_drives) >= 3:
+            if len(set(self._last_drives[-3:])) == 1:
+                drive_base[self._last_drives[-1]] *= 0.4
+        if not hasattr(self, '_last_drives'):
+            self._last_drives = []
+
+        # 选最优而非抽签
+        chosen = max(drive_base, key=drive_base.get)
+        self._last_drives.append(chosen)
+        if len(self._last_drives) > 10:
+            self._last_drives = self._last_drives[-10:]
 
         # 激活模块
         if chosen == "dissonance":
@@ -289,6 +307,10 @@ class AutonomousAgent:
             result = self._think_frontier(verbose)
         elif chosen == "analogy":
             result = self._think_associate(verbose)
+        elif chosen == "puzzle":
+            result = self._think_puzzle(verbose)
+        elif chosen == "hypothesize":
+            result = self._think_hypothesize(verbose)
         elif chosen == "structure":
             result = self._think_structure(verbose)
         elif chosen == "associate":
@@ -563,6 +585,39 @@ class AutonomousAgent:
             "count": len(analogies),
         }
 
+    # ═══ 模块: 拼图 ═══
+
+    def _think_puzzle(self, verbose: bool) -> Dict:
+        """思考: 联合发现 — 拼图→抽象→类比→提案"""
+        from meta_cognition.joint_discovery import joint_discovery_cycle
+        result = joint_discovery_cycle(verbose=verbose)
+        return {
+            "interesting": result.get("interesting", False),
+            "dissonance_count": 0,
+            "type": "joint",
+            "gap": result.get("gap", ""),
+            "proposal": result.get("proposal", ""),
+            "confidence": result.get("confidence", 0),
+            "pipeline": result.get("pipeline", ""),
+            "abstract_findings": result.get("abstract_findings", 0),
+            "analogy_validation": result.get("analogy_validation", []),
+        }
+
+    # ═══ 模块: 主动假说 ═══
+
+    def _think_hypothesize(self, verbose: bool) -> Dict:
+        """思考: 主动生成假说 — 在因果图中找结构相似但不连通的对"""
+        from meta_cognition.hypothesis_generator import generate_hypotheses
+        hyps = generate_hypotheses(min_confidence=0.2)
+        top = hyps[:3] if hyps else []
+        return {
+            "interesting": len(top) > 0,
+            "dissonance_count": 0,
+            "type": "hypothesis",
+            "hypotheses": top,
+            "count": len(hyps),
+        }
+
     # ═══ 模块: 反思 ═══
 
     def _think_reflect(self, verbose: bool) -> Dict:
@@ -776,9 +831,28 @@ class AutonomousAgent:
             analogies = result.get("analogies", [])
             if analogies:
                 for a in analogies[:3]:
+                    qual = a.get("quality", "")
+                    qual_mark = {"solid": "", "speculative_mixed": " ⚠", "speculative": " ⚠⚠"}.get(qual, "")
                     learned.append(f"analogy:{a['chain_a_start']}↔{a['chain_b_start']}({a['similarity']:.0%})")
                     if verbose:
-                        print(f"     [analogy] {a['chain_a_start']} ↔ {a['chain_b_start']} ({a['similarity']:.0%})")
+                        print(f"     [analogy] {a['chain_a_start']} ↔ {a['chain_b_start']} ({a['similarity']:.0%}){qual_mark}")
+
+        elif rtype == "puzzle" or rtype == "joint":
+            proposal = result.get("proposal", "")
+            if proposal:
+                learned.append(f"joint:{result.get('gap','?')}")
+                if verbose:
+                    conf = result.get('confidence',0)
+                    pipe = result.get('pipeline','')
+                    print(f"     [joint {conf:.0%}] {pipe}")
+                    print(f"     → {proposal}")
+
+        elif rtype == "hypothesis":
+            hyps = result.get("hypotheses", [])
+            for h in hyps[:2]:
+                learned.append(f"hypothesis:{h['var_a']}↔{h['var_b']}")
+                if verbose:
+                    print(f"     [hyp {h['confidence']:.0%}] {h['var_a']} ↔ {h['var_b']} ({h['reason'][:60]})")
 
         elif rtype == "structure":
             learned.append(f"groups:{len(discovery.groups)}")

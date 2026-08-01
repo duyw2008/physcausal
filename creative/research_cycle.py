@@ -197,7 +197,7 @@ def archive_discovery(hypothesis: Dict, experiment: Dict, robustness: Dict) -> s
         f"# PhysCausal 研究发现: {src} → {dst}",
         "",
         f"**日期**: {time.strftime('%Y-%m-%d %H:%M:%S')}",
-        f"**版本**: v0.3.10",
+        f"**版本**: v0.3.11",
         "",
         "## 假说",
         f"- 因果边: `{src}` → `{dst}`",

@@ -188,6 +188,25 @@ class PhysicsLibrary:
             formula=lambda mass, velocity: 0.5 * mass * velocity * velocity,
             causal_direction=[("mass", "kinetic_energy"), ("velocity", "kinetic_energy")],
         ))
+        self.register(PhysicsLaw(
+            name="ImpulseMomentum", domain="mechanics",
+            latex=r"F = \frac{dp}{dt}",
+            inputs=["force"], outputs=["momentum"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda F, dt=1.0: F * dt,
+            causal_direction=[("force", "momentum")],
+            # 冲量定理: 力是动量的时间导数
+            # 力→动量: 施加力改变动量
+        ))
+        self.register(PhysicsLaw(
+            name="KinematicVelocity", domain="mechanics",
+            latex=r"v = \int a \, dt",
+            inputs=["acceleration"], outputs=["velocity"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda a, dt=1.0: a * dt,
+            causal_direction=[("acceleration", "velocity")],
+            # 运动学: 加速度→速度 (积分关系)
+        ))
         # ── 电磁学 ──
         self.register(PhysicsLaw(
             name="Ohm", domain="electromagnetism",
@@ -243,6 +262,56 @@ class PhysicsLibrary:
             forbidden_directions=[("heat_power", "current")],
             # 热量不能反向驱动电流 (熵增)
         ))
+        # ── EM 内部链补全: 场 + Lagrangian入口 ──
+        self.register(PhysicsLaw(
+            name="ElectricFieldDefinition", domain="electromagnetism",
+            latex=r"\mathbf{E} = k q / r^2",
+            inputs=["charge"], outputs=["electric_field"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda q, r=1.0: 8.99e9 * q / (r * r) if r != 0 else 0.0,
+            causal_direction=[("charge", "electric_field")],
+            # 电荷→电场: 库仑定律的场的表述
+        ))
+        self.register(PhysicsLaw(
+            name="ElectricForce", domain="electromagnetism",
+            latex=r"\mathbf{F} = q \mathbf{E}",
+            inputs=["electric_field"], outputs=["force_electric"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda E, q=1.0: q * E,
+            causal_direction=[("electric_field", "force_electric")],
+            # 电场→力: E场对电荷施加力
+        ))
+        self.register(PhysicsLaw(
+            name="ElectricForceToAccel", domain="electromagnetism",
+            latex=r"a = F / m",
+            inputs=["force_electric"], outputs=["acceleration"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda F, m=1.0: F / m,
+            causal_direction=[("force_electric", "acceleration")],
+            # 电力→加速度: 牛顿第二定律对电磁力同样适用
+            # 补全 EM→力学 桥 — 任何力都产生加速度
+        ))
+        self.register(PhysicsLaw(
+            name="EMLagrangian", domain="electromagnetism",
+            latex=r"\mathcal{L} = -\frac{1}{4}F_{\mu\nu}F^{\mu\nu}",
+            inputs=["action"], outputs=["em_field_strength"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda S: S,
+            causal_direction=[("action", "em_field_strength")],
+            # δS=0 → Maxwell方程组: EM的Lagrangian表述
+            # 变分L = -¼F² → ∂_μF^{μν} = J^ν (Maxwell方程)
+            # 这是action的第四条出边 — 补全了经典/GR/量子/电磁 四分支
+        ))
+        self.register(PhysicsLaw(
+            name="FieldStrengthToEM", domain="electromagnetism",
+            latex=r"F_{\mu\nu} \rightarrow \mathbf{E}, \mathbf{B}",
+            inputs=["em_field_strength"], outputs=["electric_field", "magnetic_field"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda F: (F, F),
+            causal_direction=[("em_field_strength", "electric_field"),
+                            ("em_field_strength", "magnetic_field")],
+            # 场强张量→电场+磁场: F_μν 的6个独立分量 = E和B
+        ))
         # ── 热力学 ──
         self.register(PhysicsLaw(
             name="Kinetic Theory", domain="thermodynamics",
@@ -263,6 +332,15 @@ class PhysicsLibrary:
             causal_direction=[("system_state", "entropy")],
             forbidden_directions=[("entropy", "system_state")],
             # 第二定律: 孤立系统的熵不减 → 时间箭头
+        ))
+        self.register(PhysicsLaw(
+            name="ClausiusEntropy", domain="thermodynamics",
+            latex=r"dS = \\frac{dQ_{\\text{rev}}}{T}",
+            inputs=["heat", "temperature"], outputs=["entropy"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda Q, T: Q / T if T > 0 else 0,
+            causal_direction=[("heat", "entropy"), ("temperature", "entropy")],
+            # dS = dQ_rev/T: 熵的克劳修斯定义
         ))
         self.register(PhysicsLaw(
             name="LandauerPrinciple", domain="thermodynamics",
@@ -523,6 +601,24 @@ class PhysicsLibrary:
         ))
         # ── 量子力学 ──
         self.register(PhysicsLaw(
+            name="PlanckRelation", domain="quantum",
+            latex=r"E = h f",
+            inputs=["frequency"], outputs=["photon_energy"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda f, h=6.63e-34: h * f,
+            causal_direction=[("frequency", "photon_energy")],
+        ))
+        self.register(PhysicsLaw(
+            name="AmplitudeWavefunction", domain="quantum",
+            latex=r"\psi = \sum_i c_i |\phi_i\rangle",
+            inputs=["quantum_amplitude"], outputs=["wave_function"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda amp: amp,
+            causal_direction=[("quantum_amplitude", "wave_function")],
+            # 量子振幅→波函数: 路径积分的振幅叠加形成波函数
+            # ψ = Σ e^{iS/ħ} → 连接 PathIntegral (action→amplitude) 和 QM 核心
+        ))
+        self.register(PhysicsLaw(
             name="deBroglie", domain="quantum",
             latex=r"\lambda = h / p",
             inputs=["momentum"], outputs=["wavelength"],
@@ -581,6 +677,65 @@ class PhysicsLibrary:
             # Einstein-Hilbert 作用量: δS=0 → 爱因斯坦场方程 → 时空曲率
             # action 是真正的根 — 从它出发可以推导 Newton 和 GR
         ))
+        self.register(PhysicsLaw(
+            name="NoetherTheorem", domain="unification",
+            latex=r"\delta S = 0 \Rightarrow \frac{dQ}{dt} = 0",
+            inputs=["continuous_symmetry"], outputs=["conserved_charge"],
+            constraint_type=ConstraintType.CONSERVATION,
+            formula=lambda sym: 1.0,
+            causal_direction=[("continuous_symmetry", "conserved_charge")],
+            # Noether定理: 每个连续对称性对应一个守恒量
+            # 时间平移→能量守恒 | 空间平移→动量守恒 | U(1)相位→电荷守恒
+        ))
+        # ── 几何即物理: Wheeler 纲领的核心边 ──
+        self.register(PhysicsLaw(
+            name="VariationalGeodesic", domain="mechanics",
+            latex=r"\delta S = 0 \Leftrightarrow \text{geodesic in configuration space}",
+            inputs=["action"], outputs=["geodesic_path"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda S: S,
+            causal_direction=[("action", "geodesic_path")],
+            # tier 1: δS=0 ⇔ 构型空间测地线 (Jacobi度规)
+            # ds² = 2(E-V)T dt² — 最小作用量路径=此度规下的最短路径
+            # 这意味着: 最小作用量原理是高维测地线在低维的投影
+            # 双向等价: action→geodesic_path (此边) + geodesic_path→action (JacobiMetric)
+            # 两者都指向force → 双路径定理验证
+        ))
+        self.register(PhysicsLaw(
+            name="GeodesicToAction", domain="mechanics",
+            latex=r"\text{geodesic} \Rightarrow \delta S = 0",
+            inputs=["geodesic_path"], outputs=["action"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda gp: gp,
+            causal_direction=[("geodesic_path", "action")],
+            # tier 1: 测地线⇔最小作用量 (Jacobi度规逆方向)
+            # 构型空间的最短路径必然使作用量取极值
+            # 与 VariationalGeodesic (action→geodesic_path) 形成完整双向等价
+        ))
+        self.register(PhysicsLaw(
+            name="GaugeGeometryCharge", domain="unification",
+            latex=r"U(1) \text{ connection} \Rightarrow Q = \int j^0 d^3x",
+            inputs=["gauge_field"], outputs=["charge"],
+            constraint_type=ConstraintType.CONSERVATION,
+            formula=lambda gf: gf,
+            causal_direction=[("gauge_field", "charge")],
+            # tier 1: U(1)规范场几何 → 守恒荷 (Noether定理)
+            # 规范联络的曲率=场强, 规范场的存在必然伴随守恒流
+        ))
+        self.register(PhysicsLaw(
+            name="GeodesicDeviationForce", domain="general_relativity",
+            latex=r"\frac{D^2\xi^\mu}{d\tau^2} = -R^\mu_{\alpha\beta\gamma}u^\alpha\xi^\beta u^\gamma",
+            inputs=["geodesic_path"], outputs=["force"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda gp: gp,
+            causal_direction=[("geodesic_path", "force")],
+            # tier 1: 偏离测地线=受力 (GR核心洞察)
+            # 没有力→走测地线; 有力→偏离测地线
+            # 这是Wheeler纲领:"几何即物理"在因果图上的编码
+        ))
+        # ⚠ 以下为 speculation 边, 仅 tier 3-4:
+        # SpacetimeWavelength (tier 4): geodesic_path → wavelength — Wheeler直觉, 未严格证明
+        # ER=EPR (tier 2): 单向 entangled_state → wormhole_geometry — 猜想, 实验未验证
         # ── 自旋: 量子→磁性桥 ──
         self.register(PhysicsLaw(
             name="SpinMagneticMoment", domain="quantum",
@@ -829,10 +984,10 @@ class PhysicsLibrary:
             inputs=["mass"], outputs=["spacetime_curvature"],
             constraint_type=ConstraintType.SCM_EQUATION,
             formula=lambda mass, G=6.67e-11, c=3e8: 8 * 3.14159 * G * mass / c**4,
-            causal_direction=[("mass", "spacetime_curvature")],
-            forbidden_directions=[("spacetime_curvature", "mass")],
-            # 爱因斯坦场方程: 质能 (T_μν) → 时空曲率 (G_μν)
-            # 物质告诉时空如何弯曲 — GR 的核心方程
+            causal_direction=[("mass", "spacetime_curvature"), ("spacetime_curvature", "mass")],
+            # 爱因斯坦场方程: G_μν = 8πG/c⁴ T_μν
+            # 物质告诉时空如何弯曲 — 时空告诉物质如何运动
+            # 因果双向: mass↔spacetime_curvature (场方程是对称的)
         ))
         self.register(PhysicsLaw(
             name="GeodesicDeviation", domain="general_relativity",
@@ -969,6 +1124,77 @@ class PhysicsLibrary:
                 if law.name == name and not law.forbidden_directions:
                     law.forbidden_directions = [tuple(f) for f in forbiddens]
 
+        # ── 领域扩张: EM/光学/声学/现代物理/相对论 ──
+        from physics.laws_expansion import register_expansion_laws
+        register_expansion_laws(self)
+
+        # ── 引力波: 从时空曲率到可观测信号 ──
+        self.register(PhysicsLaw(
+            name="GravitationalWave", domain="relativity",
+            latex=r"\\square h_{\\mu\\nu} = 0 \\Rightarrow h \\sim \\frac{2G}{c^4 r} \\ddot{I}_{\\mu\\nu}",
+            inputs=["spacetime_curvature"], outputs=["gravitational_wave"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda R: R * 1e-21,
+            causal_direction=[("spacetime_curvature", "gravitational_wave")],
+            # 线性化 Einstein 方程 → 波动方程 → 引力波
+            # h_μν ~ (2G/c⁴r) · d²I_μν/dt² (四极矩公式)
+            # 从 HilbertAction(action→spacetime_curvature) 经由线性化 →
+            # 引力波是时空曲率的传播模式
+        ))
+        self.register(PhysicsLaw(
+            name="NoetherM", domain="mechanics",
+            latex=r"\\frac{\\partial L}{\\partial t} = 0 \\Rightarrow m = \\text{const}",
+            inputs=["action"], outputs=["m"],
+            constraint_type=ConstraintType.CONSERVATION,
+            formula=lambda S: S * 1.0,
+            causal_direction=[("action", "m")],
+            # Noether: 时间平移对称性 → 质量守恒
+            # m 是图中实际使用的变量名, 与 NoetherMass(mass) 互补
+        )) 
+        self.register(PhysicsLaw(
+            name="GWtoM", domain="relativity",
+            latex=r"h \\to m_{\\text{chirp}}",
+            inputs=["gravitational_wave", "frequency"], outputs=["m"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda h, f: 1e30,
+            causal_direction=[("gravitational_wave", "m"), ("frequency", "m")],
+            # 闭合回路: m→spacetime_curvature→gravitational_wave→m
+        ))
+        # ── 实验验证: LIGO 2015 已探测引力波 ──
+        self.register(PhysicsLaw(
+            name="LIGO_Verified", domain="experiment",
+            latex=r"h \\sim 10^{-21} \\Rightarrow \\text{LIGO detected GW150914 (2015)}",
+            inputs=["gravitational_wave"], outputs=["experimental_design"],
+            constraint_type=ConstraintType.DAG_EDGE,
+            formula=lambda h: 1.0,
+            causal_direction=[("gravitational_wave", "experimental_design")],
+            confidence_tier=1,
+            # 2015-09-14: LIGO 首次直接探测引力波 GW150914
+            # 这是实验事实, 不需要从 δS=0 推导
+            # 2017 诺贝尔物理学奖: Weiss, Barish, Thorne
+        ))
+        self.register(PhysicsLaw(
+            name="ElasticAction", domain="mechanics",
+            latex=r"S = \\frac{1}{2}\\int k x^2 dt \\Rightarrow F = -kx",
+            inputs=["action"], outputs=["elastic_constant"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda S, x=1.0: S / (0.5 * x * x),
+            causal_direction=[("action", "elastic_constant")],
+            # 弹性作用量: S = ½∫kx²dt → δS=0 ⇒ F=-kx
+            # elastic_constant 是作用量中的刚度参数
+            # 在时空弹性中: k ~ 1/G (时空刚度)
+        ))
+        self.register(PhysicsLaw(
+            name="MassFromGW", domain="relativity",
+            latex=r"\\mathcal{M} = \\frac{c^3}{G}\\left(\\frac{5}{96}\\pi^{-8/3}f^{-11/3}\\dot{f}\\right)^{3/5}",
+            inputs=["gravitational_wave", "frequency"], outputs=["mass"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda h, f: 1e30 * (f**(-11/3))**(3/5),
+            causal_direction=[("gravitational_wave", "mass"), ("frequency", "mass")],
+            # 啾频质量: 从引力波频率演化反推源质量
+            # 闭合回路: mass→spacetime_curvature→gravitational_wave→mass
+        ))
+
 
 # ── 变量本体论: 分类所有变量 ──
 VARIABLE_CLASSIFICATION = {
@@ -1043,3 +1269,11 @@ if _os.path.exists(_AUTO_LAWS_FILE):
                 pass
     except Exception:
         pass
+
+# 加载天文定律
+try:
+    from physics.astronomy_laws import ASTRONOMY_LAWS
+    for law in ASTRONOMY_LAWS:
+        library.register(law)
+except Exception:
+    pass

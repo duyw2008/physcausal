@@ -24,7 +24,7 @@ def search_arxiv(query: str, max_results: int = 5,
 
     url = (
         f"https://export.arxiv.org/api/query?"
-        f"search_query=all:{urllib.request.quote(query)}"
+        f"search_query={urllib.request.quote(query)}"
         f"&max_results={max_results}"
         f"&sortBy={sort_by}"
         f"&sortOrder=descending"
@@ -100,22 +100,27 @@ def _get_abstract(arxiv_id: str) -> Optional[str]:
 EXTRACTION_PROMPT = """你是一个物理学家。从以下论文摘要中提取物理因果断言。
 
 对于每条断言，返回:
-  - name: 定律或关系的简短名称 (英文)
-  - domain: 领域 (quantum, general_relativity, unification, mechanics, thermodynamics, electromagnetism, optics, acoustics, fluids)
+  - name: 定律或关系的简短名称 (英文, PascalCase)
+  - domain: 领域 (quantum, general_relativity, unification, mechanics, thermodynamics, electromagnetism, optics, acoustics, fluids, modern)
   - inputs: 原因变量列表 (英文, 小写, 用下划线)
   - outputs: 结果变量列表 (英文, 小写, 用下划线)
   - causal_direction: [[原因, 结果]] 的列表
   - confidence: 0-1 (1=论文声称已证明, 0.5=论文提出假说)
 
-只提取论文中明确提出的物理关系。不要编造。
-如果没有发现新的因果关系，返回空数组。
+重要：即使是摘要中隐含的、众所周知的物理关系也可以提取。例如：
+  - "二阶非线性过程" → frequency → second_harmonic_generation
+  - "相位匹配" → phase_matching_condition → conversion_efficiency
+  - "拓扑绝缘体" → topology → surface_conduction
+  - "超材料共振" → structure → resonant_frequency
+
+如果摘要中真的没有任何可提取的物理关系（极其罕见），才返回空数组。
+以 JSON 数组格式返回答案，不要包含 markdown 代码块标记。
 
 论文标题: {title}
 论文摘要:
 {abstract}
 
-以 JSON 数组格式返回:
-[{{"name": "...", "domain": "...", "inputs": [...], "outputs": [...], "causal_direction": [[..., ...]], "confidence": 0.X}}]
+JSON 数组:
 """
 
 
@@ -131,14 +136,18 @@ def extract_causal_claims(paper: Dict, llm_client) -> List[Dict]:
 
     try:
         response = llm_client.chat([{"role": "user", "content": prompt}])
+        # 去掉 markdown 代码块标记
+        response = re.sub(r'^```(?:json)?\s*\n?', '', response.strip())
+        response = re.sub(r'\n?```\s*$', '', response)
         # 提取 JSON 数组
         json_match = re.search(r"\[.*\]", response, re.DOTALL)
         if json_match:
             data = json.loads(json_match.group())
             if isinstance(data, list):
                 return data
-    except Exception:
-        pass
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
 
     return []
 

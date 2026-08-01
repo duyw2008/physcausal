@@ -1,0 +1,14 @@
+{"source": "arxiv", "type": "concept", "data": {"name": "hilberts_sixth_problem", "domain": "mechanics", "initial_s": 0.015, "paper": "2503.01800"}}
+{"source": "arxiv", "type": "edge", "data": {"src": "boltzmann_equation", "dst": "hard_sphere_dynamics", "law": "derive:boltzmann→hard_sphere", "domain": "math_verified", "initial_s": 0.3, "paper": "2408.07818"}}
+{"source": "arxiv", "type": "edge", "data": {"src": "boltzmann_equation", "dst": "euler_equations", "law": "derive:boltzmann→euler", "domain": "math_verified", "initial_s": 0.3, "paper": "2503.01800"}}
+{"source": "arxiv", "type": "edge", "data": {"src": "boltzmann_equation", "dst": "navier_stokes_equations", "law": "derive:boltzmann→navier_stokes", "domain": "math_verified", "initial_s": 0.3, "paper": "2503.01800"}}
+{"source": "arxiv", "type": "edge", "data": {"src": "newton_laws", "dst": "hard_sphere_dynamics", "law": "derive:newton→hard_sphere", "domain": "mechanics", "initial_s": 0.3, "paper": "2408.07818"}}
+{"source": "arxiv", "type": "edge", "data": {"src": "hilberts_sixth_problem", "dst": "newton_laws", "law": "derive:hilbert6→newton", "domain": "mechanics", "initial_s": 0.1, "paper": "2503.01800"}}
+{"source": "arxiv", "type": "edge", "data": {"src": "hilberts_sixth_problem", "dst": "fluid_equations", "law": "derive:hilbert6→fluid", "domain": "mechanics", "initial_s": 0.1, "paper": "2503.01800"}}
+{"source": "arxiv", "type": "concept", "data": {"name": "cumulant_ansatz_long_time", "domain": "mechanics", "initial_s": 0.005, "paper": "2408.07818"}}
+{"source": "arxiv", "type": "concept", "data": {"name": "lanford_theorem", "domain": "mechanics", "initial_s": 0.005, "paper": "2408.07818"}}
+{"source": "arxiv", "type": "edge", "data": {"src": "boltzmann_equation", "dst": "hard_sphere_dynamics", "law": "theorem:deng2024:boltzmann→hard_sphere", "domain": "math_verified", "initial_s": 0.6, "paper": "2408.07818"}}
+{"source": "arxiv", "type": "edge", "data": {"src": "boltzmann_equation", "dst": "euler_equations", "law": "theorem:deng2025:boltzmann→euler", "domain": "math_verified", "initial_s": 0.6, "paper": "2503.01800"}}
+{"source": "arxiv", "type": "edge", "data": {"src": "boltzmann_equation", "dst": "navier_stokes_equations", "law": "theorem:deng2025:boltzmann→navier_stokes", "domain": "math_verified", "initial_s": 0.6, "paper": "2503.01800"}}
+{"source": "arxiv", "type": "edge", "data": {"src": "newton_laws", "dst": "hard_sphere_dynamics", "law": "theorem:deng2024:newton→hard_sphere", "domain": "math_verified", "initial_s": 0.5, "paper": "2408.07818"}}
+{"source": "arxiv", "type": "edge", "data": {"src": "hard_sphere_dynamics", "dst": "fluid_equations", "law": "theorem:dens2025:hard_sphere→fluid", "domain": "math_verified", "initial_s": 0.5, "paper": "2503.01800"}}

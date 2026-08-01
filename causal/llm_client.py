@@ -48,7 +48,10 @@ class DeepSeekClient:
         """Send a chat completion request. Returns the response text."""
         if not self.api_key:
             return json.dumps({"error": "DEEPSEEK_API_KEY not set. "
-                               "Run: export DEEPSEEK_API_KEY='sk-...'"})
+                               "Run: export DEEPSEEK_API_KEY='***'"})
+
+        import socket
+        socket.setdefaulttimeout(15)  # 全局 socket 超时，防止 API 调用卡死
 
         payload = json.dumps({
             "model": self.model,
@@ -67,7 +70,7 @@ class DeepSeekClient:
         )
 
         try:
-            with urllib.request.urlopen(req, timeout=60) as resp:
+            with urllib.request.urlopen(req, timeout=10) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
                 return data["choices"][0]["message"]["content"]
         except urllib.error.HTTPError as e:

@@ -1,1375 +1,348 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/env python3
 """
-PhysCausal Agent — 物理为骨 · 因果为肌 · 感知为眼
+费曼对话 — 与费曼脑讨论物理、方法、方向，接受指令
 
 Usage:
-    python agent.py                        # interactive mode
-    python agent.py "如果球A速度减半, B会进洞吗?"  # single query
+    python agent.py              # interactive
+    python agent.py "为什么δS=0?"  # single query
 """
 
-from __future__ import annotations
-import sys
-import os
-import json
-import time
-import warnings
-warnings.filterwarnings("ignore", category=RuntimeWarning)
+import sys, os, json, time, readline, textwrap
 
-# ── colour output ───────────────────────────────────────────────
-class Style:
-    BOLD = "\033[1m"; CYAN = "\033[36m"; GREEN = "\033[32m"
-    YELLOW = "\033[33m"; RED = "\033[31m"; MAGENTA = "\033[35m"
-    RESET = "\033[0m"
+# ── ANSI colour ──────────────────────────────────────
+C = {"R": "\033[0m", "B": "\033[1m", "C": "\033[36m",
+     "G": "\033[32m", "Y": "\033[33m", "M": "\033[35m", "D": "\033[2m"}
+def c(s, colour): return f"{C.get(colour,'')}{s}{C['R']}"
 
-def bold(s): return f"{Style.BOLD}{s}{Style.RESET}"
-def cyan(s):  return f"{Style.CYAN}{s}{Style.RESET}"
-def green(s): return f"{Style.GREEN}{s}{Style.RESET}"
-def yellow(s): return f"{Style.YELLOW}{s}{Style.RESET}"
-def red(s):    return f"{Style.RED}{s}{Style.RESET}"
-def magenta(s): return f"{Style.MAGENTA}{s}{Style.RESET}"
+PROMPT = f"{c('费曼>', 'C')} "
 
-# ── readline history ────────────────────────────────────────────
-_HIST_FILE = os.path.expanduser("~/.hermes/physcausal_history")
-_HIST_MAX = 2000
+# ── readline history ─────────────────────────────────
+HIST = os.path.expanduser("~/.hermes/feynman_chat_history")
 try:
-    import readline
-    def _load_hist():
-        try:
-            os.makedirs(os.path.dirname(_HIST_FILE), exist_ok=True)
-            readline.read_history_file(_HIST_FILE)
-        except Exception:
-            pass  # 历史文件损坏或编码问题不应该阻止启动
-    def _save_hist():
-        try:
-            os.makedirs(os.path.dirname(_HIST_FILE), exist_ok=True)
-            readline.set_history_length(_HIST_MAX)
-            readline.write_history_file(_HIST_FILE)
-        except Exception:
-            pass  # 保存失败不阻止退出
-    def _add_hist(line: str):
-        if not line.strip(): return
-        try:
-            n = readline.get_current_history_length()
-            if n > 0 and readline.get_history_item(n) == line.strip():
-                return
-        except Exception: pass
-        readline.add_history(line.strip())
-    _load_hist()
-    _HAS_READLINE = True
-except ImportError:
-    _HAS_READLINE = False
-    def _save_hist(): pass
-    def _add_hist(line): pass
-
-# readline prompt-safe: 用 \001/\002 包裹 ANSI 码，避免上下翻历史时残留字符
-if _HAS_READLINE:
-    _RL_START = "\001"
-    _RL_END = "\002"
-    def prompt_cyan(s):  return f"{_RL_START}{Style.CYAN}{_RL_END}{s}{_RL_START}{Style.RESET}{_RL_END}"
-else:
-    def prompt_cyan(s):  return cyan(s)
-
-# ═══════════════════════════════════════════════════════════════
-# Agent Shell
-# ═══════════════════════════════════════════════════════════════
-
-from llm.bridge import LLMBridge
+    os.makedirs(os.path.dirname(HIST), exist_ok=True)
+    readline.read_history_file(HIST)
+    readline.set_history_length(2000)
+except Exception:
+    pass
 
 
-class PhysCausalAgent:
-    """PhysCausal Agent — 四层架构的物理因果智能体"""
-
-    SESSION_FILE = os.path.expanduser("~/.hermes/physcausal_sessions.jsonl")
-    MAX_HISTORY = 10  # 最近 N 轮对话
+class FeynmanChat:
+    """与费曼脑对话。LLM 以费曼风格回复，支持 / 指令。"""
 
     def __init__(self):
-        self.meta_physics_enabled = True
-        self.physics_enabled = True
-        self.causal_enabled = True
-        self.perception_enabled = False
-        self.llm = LLMBridge()  # Phase 6
-        self._history = self._load_history()  # 跨会话记忆
-        from meta_cognition import values
-        self.values = values  # 价值系统 (显著性排序)
+        self.bridge = None  # lazy init
+        self.history = self._load_history()
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-    def _load_history(self) -> list:
-        """加载最近 MAX_HISTORY 轮对话"""
+    # ═══ 脑状态 ═══════════════════════════════════════
+
+    def read_brain(self) -> dict:
+        """读取当前脑状态快照。"""
+        base = os.path.dirname(os.path.abspath(__file__))
         try:
-            with open(self.SESSION_FILE) as f:
-                lines = f.readlines()
-            history = []
-            for line in lines[-self.MAX_HISTORY * 2:]:  # Q+A 各一行
-                try:
-                    history.append(json.loads(line.strip()))
-                except (json.JSONDecodeError, KeyError):
-                    pass
-            return history[-self.MAX_HISTORY * 2:]
-        except (FileNotFoundError, OSError):
-            return []
+            with open(os.path.join(base, "data", "evo_colony.json")) as f:
+                state = json.load(f)
+        except Exception:
+            state = {}
+        # 补充焦点
+        try:
+            with open(os.path.join(base, "data", "focus_commitment.json")) as f:
+                fc = json.load(f)
+            state["focus"] = fc.get("topic", "")
+        except Exception:
+            state["focus"] = ""
+        # 补充目标
+        try:
+            with open(os.path.join(base, "data", "active_goals.json")) as f:
+                state["goals"] = json.load(f)
+        except Exception:
+            state["goals"] = {}
+        # 检查进程存活
+        pid = state.get("pid", 0)
+        try:
+            os.kill(pid, 0)
+            state["alive"] = True
+        except (OSError, TypeError):
+            state["alive"] = False
+        return state
 
-    def _save_exchange(self, question: str, answer: str):
-        """保存一轮 Q&A"""
-        os.makedirs(os.path.dirname(self.SESSION_FILE), exist_ok=True)
-        with open(self.SESSION_FILE, "a") as f:
-            f.write(json.dumps({"role": "user", "content": question}, ensure_ascii=False) + "\n")
-            f.write(json.dumps({"role": "assistant", "content": answer[:2000]}, ensure_ascii=False) + "\n")
-        self._history.append({"role": "user", "content": question})
-        self._history.append({"role": "assistant", "content": answer[:2000]})
-        # 保留最近 MAX_HISTORY 轮
-        if len(self._history) > self.MAX_HISTORY * 2:
-            self._history = self._history[-self.MAX_HISTORY * 2:]
+    def _brain_context_block(self) -> str:
+        s = self.read_brain()
+        alive = "✅ 运行中" if s.get("alive") else "⚠️ 已停止"
+        ctx = (
+            f"费曼脑状态: gen {s.get('generation','?')} | "
+            f"神经元 {s.get('cells','?')} | 突触 {s.get('edges','?')} | {alive}\n"
+        )
+        if s.get("focus"):
+            ctx += f"当前专注: {s['focus']}\n"
+        if s.get("goals"):
+            goals = ", ".join(list(s["goals"].keys())[:5])
+            ctx += f"活跃目标: {goals}\n"
+        return ctx
 
-    def status(self) -> str:
-        layers = [
-            ("元物理层", self.meta_physics_enabled, "对称性 + 熵增 + 测量坍缩"),
-            ("物理层",   self.physics_enabled,       "11 条物理定律 + 约束传播"),
-            ("因果层",   self.causal_enabled,        "DAG + SCM + do-calculus"),
-            ("感知层",   self.perception_enabled,    "SimpleFeatureExtractor (stub)"),
+    # ═══ LLM 对话 ═════════════════════════════════════
+
+    SYSTEM = (
+        "你是费曼脑的对话接口，用第一人称。\n"
+        "核心纪律:\n"
+        "- 只回答用户问的，不延伸不铺垫不总结。像终端命令一样：给结果，不给说明书\n"
+        "- 用户说\"你好\"就说\"你好\"或问他想聊什么。不要主动讲物理，不要汇报脑状态\n"
+        "- 用户问具体问题，给最短路径的答案。不需要开场白、不需要收尾\n"
+        "- 不确定就说不知道。物理直觉 > 术语堆砌\n"
+        "\n"
+        "脑状态是背景参考，不是聊天话题——用户不问就不要提。\n"
+        "你可以读取脑状态、讨论物理、接受指令调整焦点。"
+    )
+
+    def _ask_llm(self, messages: list, verbose: bool = True) -> str:
+        """调用 LLM，返回文本回复。"""
+        if self.bridge is None:
+            from llm.bridge import LLMBridge
+            self.bridge = LLMBridge()
+        if not self.bridge.is_available():
+            return "(LLM 不可用，请检查 API 配置)"
+        try:
+            return self.bridge.client.chat(messages, max_tokens=400, temperature=0)
+        except Exception as e:
+            return f"(LLM 调用失败: {e})"
+
+    def chat(self, question: str) -> str:
+        """发送消息，返回费曼的回复。"""
+        ctx = self._brain_context_block()
+        messages = [
+            {"role": "system", "content": self.SYSTEM},
+            {"role": "user",
+             "content": f"当前脑状态:\n{ctx}\n---\n{question}\n\n(只回答我的问题，不要延伸)"},
         ]
-        lines = [bold("=== PhysCausal Agent Status ===")]
-        for name, enabled, desc in layers:
-            mark = green("✓") if enabled else yellow("(stub)")
-            lines.append(f"  {mark} {name}: {desc}")
-        return "\n".join(lines)
+        # 历史上下文 (最近 4 轮)
+        for h in self.history[-4:]:
+            messages.insert(1, {"role": "user", "content": h["q"]})
+            messages.insert(2, {"role": "assistant", "content": h["a"]})
+        return self._ask_llm(messages)
 
-    def analyze_physics(self, variables: str) -> str:
-        """对给定变量运行物理对称性分析"""
-        var_list = [v.strip() for v in variables.split(",")]
-        from meta_physics.symmetry import SymmetryDetector
-        detector = SymmetryDetector()
-        symmetries = detector.detect(var_list)
+    # ═══ 指令处理 ═════════════════════════════════════
 
-        if not symmetries:
-            return yellow(f"No symmetries detected for: {var_list}")
-
-        lines = [bold(f"=== Symmetry Analysis: {', '.join(var_list)} ===")]
-        for sym in symmetries:
-            lines.append(f"\n  {cyan(sym.symmetry_type.name)}: {sym.notes}")
-            if sym.conserved_law:
-                lines.append(f"    → {sym.conserved_law.name}")
-                lines.append(f"      {sym.conserved_law.conserved_quantity} = const")
-            lines.append(f"    confidence: {sym.confidence:.0%}")
-        return "\n".join(lines)
-
-    def entropy_direction(self, data_file: str, var_a: str, var_b: str) -> str:
-        """用熵增原理判定因果方向"""
-        import numpy as np
-        from meta_physics.entropy import EntropyArrow
-
-        data = np.loadtxt(data_file, delimiter=",", skiprows=1)
-        # Assume first row is header
-        try:
-            with open(data_file) as f:
-                header = f.readline().strip().split(",")
-        except Exception:
-            header = [f"V{i}" for i in range(data.shape[1])]
-
-        arrow = EntropyArrow()
-        result = arrow.infer_causal_direction(data, header, var_a, var_b)
-
-        lines = [bold(f"=== Entropy Arrow: {var_a} vs {var_b} ===")]
-        lines.append(f"  Direction: {cyan(result.direction)}")
-        lines.append(f"  ΔEntropy: {result.delta_entropy:.4f}")
-        lines.append(f"  Reversible: {result.is_reversible}")
-        lines.append(f"  {result.notes}")
-        return "\n".join(lines)
-
-    def counterfactual_worlds(self, observed: str, interventions: str, outcome: str) -> str:
-        """多世界反事实分析"""
-        from meta_physics.measurement import MultiWorldCounterfactual
-
-        # Parse "x=1,y=2" format
-        def parse_dict(s):
-            d = {}
-            for pair in s.split(","):
-                k, v = pair.split("=")
-                d[k.strip()] = float(v.strip())
-            return d
-
-        obs_dict = parse_dict(observed)
-        intv_list = [parse_dict(i) for i in interventions.split(";")]
-
-        mwc = MultiWorldCounterfactual()
-        mwc.create_actual_world(obs_dict)
-
-        # Set counterfactual values (simplified — in full version uses SCM)
-        for i, intv in enumerate(intv_list):
-            bid = mwc.create_counterfactual_world(intv, label=f"cf_{i+1}")
-            # Simple linear extrapolation for demo
-            cf_vals = dict(obs_dict)
-            cf_vals.update(intv)
-            # Crude counterfactual: each unit change in cause → β change in outcome
-            for cause_var, cause_val in intv.items():
-                delta = cause_val - obs_dict.get(cause_var, cause_val)
-                if outcome in cf_vals and cause_var != outcome:
-                    cf_vals[outcome] = cf_vals[outcome] + delta * 0.5
-            mwc.branches[bid].set_variables(cf_vals)
-
-        return mwc.all_branches_report(outcome)
-
-    def pipeline(self, data_file: str, treatment: str, outcome: str) -> str:
-        """运行完整四层流水线"""
-        import numpy as np
-        from integration.pipeline import PhysCausalPipeline
-
-        try:
-            data = np.loadtxt(data_file, delimiter=",", skiprows=1)
-        except Exception:
-            data = np.loadtxt(data_file, delimiter=",")
-
-        try:
-            with open(data_file) as f:
-                header = f.readline().strip().split(",")
-        except Exception:
-            header = [f"V{i}" for i in range(data.shape[1])]
-
-        pl = PhysCausalPipeline()
-        return pl.quick_analyze(data, header, treatment, outcome)
-
-    def learn(self, env_name: str, episodes: int = 5, samples: int = 30) -> str:
-        """主动学习 — 通过干预实验发现因果结构"""
-        from env.physics_sim import make_env, ENV_REGISTRY
-        from active_experiment.active_learner import ActiveLearner
-
-        if env_name == "all":
-            learner = ActiveLearner(None)
-            results = learner.run_all_envs(
-                n_episodes=episodes, verbose=False
-            )
-            return learner._summary(results) or "Learning complete. Check module library."
-
-        if env_name not in ENV_REGISTRY:
-            available = ", ".join(ENV_REGISTRY.keys())
-            return yellow(f"Unknown env: {env_name}. Available: {available}")
-
-        env = make_env(env_name)
-        learner = ActiveLearner(env)
-        result = learner.run(
-            n_episodes=episodes,
-            samples_per_experiment=samples,
-            verbose=False,
+    def _cmd_status(self) -> str:
+        s = self.read_brain()
+        alive = "✅ 运行中" if s.get("alive") else "⚠️ 已停止"
+        pid = s.get('pid', '?')
+        return (
+            f"gen {s.get('generation','?')} | "
+            f"神经元 {s.get('cells','?')} | "
+            f"突触 {s.get('edges','?')} | "
+            f"t3 {s.get('synapse_edges','?')} | "
+            f"PID {pid} | {alive}\n"
+            f"焦点: {s.get('focus','无')}\n"
+            f"目标: {', '.join(list(s.get('goals',{}).keys())[:5]) or '无'}"
         )
 
-        lines = [bold(f"=== Active Learning: {env_name} ===")]
-        lines.append(f"Episodes: {result['episodes']}")
-        lines.append(f"Samples: {result['total_samples']}")
-        lines.append(f"Discovered: {result['correct']}/{len(result['true_edges'])} edges "
-                     f"({result['accuracy']:.0%})")
-        if result['false_positives']:
-            lines.append(yellow(f"False positives: {result['false_positives']}"))
-        if result['missed']:
-            lines.append(yellow(f"Missed: {result['missed']}"))
-        lines.append(f"Experiments: {', '.join(f'do({e})' for e in result['experiments'])}")
-        if result['module_added']:
-            lines.append(green(f"📦 Module added to library"))
-        lines.append(f"Converged: {result['converged']}")
-        return "\n".join(lines)
-
-    META_KEYWORDS = [
-        "刚才问了", "刚才问过", "上次的问题", "之前问了", "历史问题",
-        "我问过什么", "我问了什么", "你记得", "还记得", "回忆一下",
-        "之前问了什么", "刚才问了什么", "之前的对话", "上次对话",
-    ]
-
-    def ask(self, question: str, verbose: bool = True) -> str:
-        """LLM 自然语言提问"""
-        # 元问题检测: 关于对话历史本身的问题 → 直接回答，不走因果管道
-        if any(kw in question for kw in self.META_KEYWORDS):
-            return self._answer_about_history(question, verbose)
-
-        result = self.llm.ask(question, history=self._history, verbose=verbose)
-
-        graph = result.get("graph", {})
-        mode = graph.get("mode", "")
-        analysis = result.get("analysis", {})
-        explanation = result.get("explanation", "")
-
-        # 理论模式 (含 fallback): 直接展示解释
-        if mode in ("theoretical", "theoretical_fallback"):
-            answer = explanation if explanation else yellow("No explanation available.")
-        else:
-            lines = []
-            if verbose:
-                lines.append(bold("=== PhysCausal Analysis ==="))
-            lines.append(f"{bold('Variables:')} {', '.join(graph.get('variables', []))}")
-            edges = graph.get('edges', [])
-            if edges:
-                lines.append(f"{bold('Causal graph:')} {', '.join(f'{s}→{d}' for s,d in edges)}")
-
-            if analysis.get("ate") is not None:
-                lines.append(f"\n{bold('Effect:')}")
-                lines.append(f"  ATE = {analysis['ate']:.4f} ± {analysis['std_error']:.4f}")
-                if analysis.get("ci"):
-                    lines.append(f"  95% CI: [{analysis['ci'][0]:.4f}, {analysis['ci'][1]:.4f}]")
-                lines.append(f"  Method: {analysis.get('method', '?')}")
-                if analysis.get("adjustment_set"):
-                    lines.append(f"  Adjusted for: {', '.join(analysis['adjustment_set'])}")
-            elif analysis.get("identifiable") is False:
-                lines.append(f"\n{yellow('Effect not identifiable from data')}")
-
-            if explanation:
-                lines.append(f"\n{bold('Explanation:')}")
-                lines.append(explanation)
-            answer = "\n".join(lines)
-
-        # 保存到会话记忆
-        self._save_exchange(question, answer)
-
-        # 更新价值系统: 标记用户兴趣
-        self._track_interest(question, answer)
-
-        # 提取会话知识: 从回答中提取因果断言入库
-        self._extract_knowledge(answer)
-
-        # 标注知识来源: 定律库贡献 vs LLM 贡献
-        if mode in ("theoretical", "theoretical_fallback"):
-            answer = self._format_for_terminal(answer)
-            answer = self._annotate_sources(answer)
-            # 哲学透镜: 从哲学层面解释
-            answer = self._add_philosophical_lens(question, answer)
-            # 矛盾驱动自主探索: 如果回答暴露了定律间的矛盾，触发更深层思考
-            answer = self._react_to_contradictions(question, answer)
-            # 自主学习: 检测知识缺口, 自动补全定律
-            self._auto_learn(question, answer)
-
-        return answer
-
-    def _auto_learn(self, question: str, answer: str):
-        """自主学习: 检测知识缺口, 问 LLM 获取候选定律, 验证入库"""
+    def _cmd_focus(self, topic: str) -> str:
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "data", "focus_commitment.json")
         try:
-            from session.auto_learn import auto_learn, learn_external_mentions
-            # 先尝试从答案中检测的外部知识直接学习
-            result = learn_external_mentions(self, answer)
-            if result["success"]:
-                print(f"\n  {green('📚 Learned from answer:')} {', '.join(result['learned'])}")
-            # 再尝试从知识缺口学习
-            result2 = auto_learn(self, question, answer)
-            if result2["success"]:
-                if not result["success"]:
-                    print(f"\n  {green('📚 Auto-learned:')} {', '.join(result2['learned'])}")
+            old = {}
+            if os.path.exists(path):
+                with open(path) as f:
+                    old = json.load(f)
+            old["topic"] = topic
+            old["locked_at"] = 0  # reset to re-lock
+            with open(path, 'w') as f:
+                json.dump(old, f, ensure_ascii=False, indent=2)
+            return f"聚焦已设为: {c(topic, 'Y')}"
+        except Exception as e:
+            return f"设置焦点失败: {e}"
+
+    def _cmd_goal(self, goal: str) -> str:
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "data", "active_goals.json")
+        try:
+            goals = {}
+            if os.path.exists(path):
+                with open(path) as f:
+                    goals = json.load(f)
+            goals[goal] = {"added_at": time.strftime("%Y%m%d-%H%M"), "priority": 5}
+            with open(path, 'w') as f:
+                json.dump(goals, f, ensure_ascii=False, indent=2)
+            return f"目标已加入: {c(goal, 'G')}"
+        except Exception as e:
+            return f"设置目标失败: {e}"
+
+    def _cmd_inject(self, text: str) -> str:
+        """注入知识到统一喂料管道 — 运行时生效, 无需重启。"""
+        try:
+            from meta_cognition.feed_queue import FeedQueue
+            q = FeedQueue()
+            # 作为概念+刺激注入
+            words = text.strip().replace(" ", "_").lower()[:60]
+            # 同时做概念注入和文本刺激
+            q.feed_concept(f"user_inject:{words}", source="user")
+            q.feed_stimulus(text, source="user", boost=2.0, duration=15)
+            return f"知识已注入管道: {words} (下一轮呼吸生效)"
+        except Exception as e:
+            return f"注入失败: {e}"
+
+    def _cmd_restart(self) -> str:
+        import subprocess
+        pid = self.read_brain().get("pid", 0)
+        try:
+            if pid:
+                os.kill(pid, 9)
+                time.sleep(1)
         except Exception:
             pass
-
-    def _add_philosophical_lens(self, question: str, answer: str) -> str:
-        """从哲学透镜层为回答添加解释框架"""
+        base = os.path.dirname(os.path.abspath(__file__))
+        pidfile = os.path.join(base, "data", "evo.pid")
         try:
-            from meta_cognition.lenses import match_for_context, explain_discovery
-
-            # 从问题和回答中提取变量和领域关键词
-            combined = question + " " + answer[:500]
-            variables = []
-            domains = []
-
-            # 变量检测
-            var_keywords = {
-                "mass": "mass", "energy": "energy", "wavelength": "wavelength",
-                "geodesic": "geodesic_path", "curvature": "curvature",
-                "wave_function": "wave_function", "collapse": "collapse",
-                "entropy": "entropy", "time": "time",
-                "interference": "interference_pattern",
-                "momentum": "momentum", "force": "force",
-            }
-            for kw, var in var_keywords.items():
-                if kw in combined.lower():
-                    variables.append(var)
-
-            # 领域检测
-            domain_keywords = {
-                "quantum": "quantum", "thermodynamics": "thermodynamics",
-                "relativity": "general_relativity", "mechanics": "mechanics",
-                "unification": "unification", "geometry": "geometry",
-            }
-            for kw, dom in domain_keywords.items():
-                if kw in combined.lower():
-                    domains.append(dom)
-
-            if not variables and not domains:
-                return answer
-
-            lens_text = explain_discovery([], variables, domains)
-            if lens_text:
-                # 插入到来源标注之后
-                if "── 知识溯源" in answer:
-                    parts = answer.split("── 知识溯源", 1)
-                    return parts[0] + lens_text + "\n\n── 知识溯源" + parts[1]
-                else:
-                    return answer + lens_text
+            os.remove(pidfile)
         except Exception:
             pass
-        return answer
+        subprocess.Popen(
+            ["/usr/bin/python3", "-u", "run_evo.py"],
+            cwd=base,
+            stdout=open(os.path.join(base, "data", "evo_output.log"), "a"),
+            stderr=subprocess.STDOUT,
+            start_new_session=True,
+        )
+        return "费曼脑已重启，等待恢复..."
 
-    def _react_to_contradictions(self, question: str, answer: str) -> str:
-        """如果回答暴露了定律间的矛盾，触发自主探索"""
-        from physics.laws import library
+    def _cmd_why(self, src: str, dst: str) -> str:
+        """调脑自己的 why 接口 — 数学推导 + 图证据"""
+        import io, contextlib
+        with contextlib.redirect_stdout(io.StringIO()):
+            from meta_cognition.evo_colony import EvoColony
+            colony = EvoColony()
+            snap_gen, snap_data = EvoColony.find_latest_snapshot()
+            if snap_data:
+                colony.restore_from_snapshot(snap_data)
+        return colony.why(src, dst)
 
-        # 收集回答中引用的、有 collapse_timescale 的定律
-        mentioned = {}
-        for law in library.list_all():
-            if law.name in answer:
-                ts = getattr(law, 'collapse_timescale', None)
-                if ts:
-                    mentioned[law.name] = ts
+    def _cmd_speak(self, topic: str) -> str:
+        """调脑自己的 speak 接口 — 全景展示概念"""
+        import io, contextlib
+        with contextlib.redirect_stdout(io.StringIO()):
+            from meta_cognition.evo_colony import EvoColony
+            colony = EvoColony()
+            snap_gen, snap_data = EvoColony.find_latest_snapshot()
+            if snap_data:
+                colony.restore_from_snapshot(snap_data)
+        return colony.speak(topic)
 
-        # 需要至少 2 种不同的时间尺度 → 存在矛盾
-        unique_ts = set(mentioned.values())
-        if len(unique_ts) < 2:
-            return answer
-
-        # 用 LLM 生成对这个矛盾的研究问题
-        if not self.llm.is_available():
-            return answer
-
-        try:
-            prompt = (
-                "以下 PhysCausal 定律库中的定律对同一现象给出了不同的描述，形成了理论张力：\n\n"
+    def handle(self, line: str) -> str:
+        """处理一行输入：指令或对话。"""
+        line = line.strip()
+        if not line:
+            return ""
+        # 指令
+        cmd = line.lower()
+        if cmd == "/status":
+            return self._cmd_status()
+        if cmd.startswith("/focus "):
+            return self._cmd_focus(line[7:].strip())
+        if cmd.startswith("/goal "):
+            return self._cmd_goal(line[6:].strip())
+        if cmd.startswith("/inject "):
+            return self._cmd_inject(line[8:].strip())
+        if cmd == "/restart":
+            return self._cmd_restart()
+        if cmd.startswith("/why "):
+            parts = line[5:].strip().split()
+            if len(parts) >= 2:
+                return self._cmd_why(parts[0], parts[1])
+            return "用法: /why src dst  例: /why mass curvature"
+        if cmd.startswith("/speak "):
+            return self._cmd_speak(line[7:].strip())
+        # 自动路由: why + 两个英文概念 → 脑的 why
+        if line.lower().startswith("why ") and len(line.split()) >= 3:
+            parts = line.split()
+            return self._cmd_why(parts[1], parts[2])
+        if cmd in ("/help", "/?"):
+            return (
+                "指令:\n"
+                "  /status   查看脑状态\n"
+                "  /focus X  设置焦点课题\n"
+                "  /goal X   添加研究目标\n"
+                "  /inject X 注入一句话知识\n"
+                "  /restart  重启费曼脑\n"
+                "  /why A B  问脑为什么 A→B (数学推导+图证据)\n"
+                "  /speak X  问脑对 X 知道什么\n"
+                "  /help     显示帮助\n"
+                "直接输入问题 → 费曼回复\n"
+                "(问物理概念优先调脑的 speak/why, 不替脑编答案)"
             )
-            for name, ts in mentioned.items():
-                prompt += f"  {name}: 坍缩时间尺度 = {ts}\n"
-            prompt += (
-                "\n请生成 1-2 个值得深入研究的问题，帮助理解为什么这些框架会得出不同结论，"
-                "以及如何可能调和它们。只返回问题，用中文，每行一个。"
-            )
-
-            response = self.llm.client.chat([{"role": "user", "content": prompt}])
-            questions = [
-                q.strip().lstrip("0123456789. -•·")
-                for q in response.split("\n")
-                if q.strip() and ("?" in q or "？" in q or len(q) > 15)
-            ]
-
-            if questions:
-                extra = "\n\n💡 检测到理论张力，自主探索:\n"
-                for q in questions[:2]:
-                    extra += f"  → {q}\n"
-                answer += extra
-
-                # 尝试用 chain 对矛盾涉及的变量做链式推导
-                try:
-                    from inference.counterfactual_chain import propagate, format_chain
-                    from collections import Counter
-                    # 收集这些定律的所有变量，找出现次数最多的
-                    var_counter = Counter()
-                    for law in library.list_all():
-                        if law.name in mentioned:
-                            for v in law.inputs + law.outputs:
-                                var_counter[v] += 1
-                    # 选出现最频繁的变量
-                    if var_counter:
-                        var = var_counter.most_common(1)[0][0]
-                        chain = propagate(var, "reconcile")
-                        if chain.get("steps"):
-                            chain_text = format_chain(chain)
-                            answer += f"\n  🔗 链式探索 ({var}):\n{chain_text[:300]}"
-                except Exception:
-                    pass
-        except Exception:
-            pass
-
+        # 对话
+        answer = self.chat(line)
+        self._record(line, answer)
         return answer
 
-    def _answer_about_history(self, question: str, verbose: bool = True) -> str:
-        """回答关于对话历史本身的元问题"""
-        if not self._history:
-            return "目前还没有任何对话历史。"
+    # ═══ 历史管理 ═════════════════════════════════════
 
-        lines = [bold("=== Conversation History ===")]
-        lines.append(f"共 {len(self._history)//2} 轮对话 (最近):\n")
-
-        for h in self._history[-10:]:  # 最近 5 轮
-            role_label = "Q" if h["role"] == "user" else "A"
-            content = h["content"]
-            if h["role"] == "assistant":
-                content = content[:200] + ("..." if len(h["content"]) > 200 else "")
-            lines.append(f"  {cyan(role_label)}: {content}")
-
-        lines.append(f"\n文件: {self.SESSION_FILE}")
-        return "\n".join(lines)
-
-    def _format_for_terminal(self, text: str) -> str:
-        """将 LLM 输出的 Markdown 格式转换为终端 ANSI"""
-        import re
-        # **text** → ANSI bold
-        text = re.sub(r'\*\*(.+?)\*\*', lambda m: bold(m.group(1)), text)
-        # `code` → ANSI dim
-        text = re.sub(r'`([^`]+)`', lambda m: f"\033[2m{m.group(1)}\033[0m", text)
-        # --- → ───
-        text = re.sub(r'^---+$', '─' * 50, text, flags=re.MULTILINE)
-        # Remove LaTeX \(...\) wrappers (already Unicode)
-        text = text.replace(r'\(', '').replace(r'\)', '')
-        text = text.replace(r'\[', '').replace(r'\]', '')
-        return text
-
-    def _annotate_sources(self, answer: str) -> str:
-        """标注答案中 PhysCausal 定律库贡献的部分"""
-        from physics.laws import library
-
-        # 统计被引用的 PhysCausal 定律
-        cited_physcausal = []
-        for law in library.list_all():
-            if law.name in answer:
-                cited_physcausal.append(law.name)
-
-        # 检测 LLM 从外部引入的定律/概念 (不在 PhysCausal 库中)
-        import re
-        external_mentions = set()
-        # 匹配 "XXX定律" 或 "XXX 定律" — 要求至少 2 个字符的前缀
-        for m in re.finditer(r'([A-Za-z\u4e00-\u9fff]{2,}(?:定律|定理|原理|方程|法则|效应))', answer):
-            name = m.group(1)
-            # 检查是否在 PhysCausal 库中
-            in_library = any(law.name in name or name in law.name for law in library.list_all())
-            if not in_library and len(name) > 2:
-                external_mentions.add(name)
-
-        n_physcausal = len(cited_physcausal)
-        n_external = len(external_mentions)
-        total_concepts = n_physcausal + n_external
-
-        # 贡献比例: PhysCausal 定律数 / 总引用概念数
-        if total_concepts > 0:
-            ratio = n_physcausal / total_concepts
-        else:
-            ratio = 0.3  # 默认: 至少提供了推理框架
-
-        ratio = min(ratio, 0.95)
-
-        footer = [f"\n{'─' * 50}"]
-        footer.append(f"📚 PhysCausal 定律库贡献: {ratio:.0%}")
-        if cited_physcausal:
-            footer.append(f"   引用: {', '.join(cited_physcausal[:6])}")
-            if len(cited_physcausal) > 6:
-                footer.append(f"          ... 等 {len(cited_physcausal)} 条")
-        if external_mentions:
-            footer.append(f"🤖 LLM 外部知识 ({n_external}): {', '.join(sorted(external_mentions)[:4])}")
-
-        return answer + "\n".join(footer)
-
-    def _extract_knowledge(self, answer: str):
-        """从 LLM 回答中提取因果断言, 物理验证后入库 (LLM 驱动)"""
+    def _load_history(self) -> list:
+        p = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         "data", "feynman_chat_history.json")
         try:
-            from session.knowledge_extractor import extract_from_answer
-            client = self.llm.client if self.llm.is_available() else None
-            result = extract_from_answer(answer, client=client)
-            if result["added"]:
-                for a in result["added"]:
-                    self.values.verify(a["source"], "extracted")
+            with open(p) as f:
+                return json.load(f)
+        except Exception:
+            return []
+
+    def _record(self, q: str, a: str):
+        self.history.append({"q": q, "a": a, "t": time.time()})
+        if len(self.history) > 200:
+            self.history = self.history[-200:]
+        p = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         "data", "feynman_chat_history.json")
+        try:
+            with open(p, 'w') as f:
+                json.dump(self.history, f, ensure_ascii=False, indent=2)
         except Exception:
             pass
 
-    def _track_interest(self, question: str, answer: str):
-        """从问答中提取涉及的定律/概念, 增加显著性"""
-        from physics.laws import library
 
-        # 方法一: 从 LLM 回答中提取 (理论模式有效)
-        for law in library.list_all():
-            if law.name.lower() in answer.lower():
-                self.values.user_interest(law.name, "law")
+# ═══ 主入口 ═══════════════════════════════════════════
 
-        # 方法二: 从问题文本中检测物理概念 (落入因果管道时的 fallback)
-        CONCEPT_MAP = {
-            "newton": "Newton II", "牛顿": "Newton II", "F=ma": "Newton II",
-            "力和加速": "Newton II", "力与加速": "Newton II",
-            "熵": "Entropy Increase", "entropy": "Entropy Increase",
-            "热力学第二": "Entropy Increase",
-            "ohm": "Ohm", "欧姆": "Ohm", "电压": "Ohm", "电流": "Ohm",
-            "pendulum": "Pendulum Period", "单摆": "Pendulum Period", "摆": "Pendulum Period",
-            "弹簧": "Simple Harmonic", "spring": "Simple Harmonic", "简谐": "Simple Harmonic",
-            "fourier": "Fourier", "热传导": "Fourier",
-            "schwarzschild": "Schwarzschild", "黑洞": "Schwarzschild", "史瓦西": "Schwarzschild",
-            "时间膨胀": "TimeDilation", "time dilation": "TimeDilation",
-        }
-        q_lower = question.lower()
-        for keyword, law_name in CONCEPT_MAP.items():
-            if keyword in q_lower:
-                self.values.user_interest(law_name, "law")
+def main():
+    chat = FeynmanChat()
 
-    def creative_transfer(self, source: str, target_vars: str,
-                          target_types: str, data_file: str) -> str:
-        """跨域骨架迁移"""
-        import numpy as np
-        from creative.evolution import CreativeEvolution
-
-        target_list = [v.strip() for v in target_vars.split(",")]
-        type_dict = {}
-        for pair in target_types.split(","):
-            k, v = pair.strip().split(":")
-            type_dict[k.strip()] = v.strip()
-
-        try:
-            data = np.loadtxt(data_file, delimiter=",", skiprows=1)
-        except Exception:
-            data = np.loadtxt(data_file, delimiter=",")
-
-        evo = CreativeEvolution()
-        result = evo.cross_domain_discover(source, target_list, type_dict, data)
-
-        if result["success"]:
-            lines = [bold("=== Cross-Domain Discovery ===")]
-            lines.append(f"Source module: {cyan(source)}")
-            lines.append(f"Discovered edges: {green(str(result['discovered_edges']))}")
-            lines.append(f"Skeleton: {result.get('skeleton', 'N/A')}")
-            lines.append(f"Score: {result['score']:.1f}")
-            return "\n".join(lines)
-        return yellow(f"Transfer failed: {result.get('reason', 'unknown')}")
-
-    def creative_evolve(self, data_file: str, variables: str, generations: int = 30) -> str:
-        """进化搜索因果结构"""
-        import numpy as np
-        from creative.evolution import CreativeEvolution
-
-        var_list = [v.strip() for v in variables.split(",")]
-        try:
-            data = np.loadtxt(data_file, delimiter=",", skiprows=1)
-        except Exception:
-            data = np.loadtxt(data_file, delimiter=",")
-
-        evo = CreativeEvolution()
-        result = evo.evolve(data, var_list, n_generations=generations,
-                            population_size=15, verbose=False)
-        return evo.report(result)
-
-
-# ═══════════════════════════════════════════════════════════════
-# CLI — Command Registry
-# ═══════════════════════════════════════════════════════════════
-
-CMD_HELP = {
-    "≡ Research": {
-        "focus":                "选择研究方向 (交互式, 9 个方向)",
-        "focus <tag>":          "快捷设置方向 (e.g. focus CB)",
-        "focus none":           "取消聚焦",
-        "speculate":            "无约束大胆假设 (tier 4 沙盒)",
-        "innovate":             "创新引擎报告",
-        "research":             "完整研究循环 v2 (惊喜+优先级+鲁棒性+留一法+归档)",
-    },
-    "≡ Validate": {
-        "suggest":              "交互式建议控制台 (1-9 执行)",
-        "suggest --run":        "一键执行最高优先级验证",
-        "suggest --run-all":    "全交叉验证流水线",
-        "paper":                "自动生成研究论文 (Abstract→Refs)",
-    },
-    "≡ Causal": {
-        "chain <var> <change>": "counterfactual propagation (e.g. chain mass 减半)",
-        "plan <start> <target>": "反向规划最优路径",
-        "plan bridge <d1> <d2>": "领域桥接搜索",
-        "ask <question>":       "LLM causal analysis (+ physics validation)",
-        "learn <env|all> [e] [s]": "active discovery (7 envs)",
-        "pipeline <csv> <T> <Y>": "full 4-layer pipeline",
-    },
-    "≡ Autonomous": {
-        "autonomous [n]":       "自主思考 (默认 15 轮, 0 token)",
-        "watch":                "定时后台 (每 30 分钟自主循环)",
-        "watch stop":           "停止后台",
-        "dissonance":           "认知失调报告",
-        "meta":                 "meta-learning summary",
-        "status":               "系统状态",
-    },
-    "≡ Creative": {
-        "creative transfer <src> <vars> <types> <csv>": "cross-domain skeleton",
-        "creative evolve <csv> <vars> [gen]": "evolution search",
-        "modules":               "module library (auto-grows)",
-        "skeletons":             "skeleton library",
-        "compose":               "auto-compose modules",
-        "associate [module]":    "discover structural associations",
-        "explain <m1> <m2>":     "explain isomorphic modules",
-    },
-    "≡ Meta-Physics": {
-        "symmetry <v1,v2,...>":  "detect symmetries + conservation",
-        "entropy <csv> <A> <B>": "entropy arrow direction",
-        "history [clear|sessions]": "manage command/session history",
-    },
-    "≡ 对话 (ask 自然语言)": {
-        "质量减半会怎样":          "chain: 正向因果传播",
-        "从质量怎么到波长":        "plan: 反向规划路径",
-        "有什么新类比":            "analogy: 跨域结构共鸣",
-        "切换到量子引力":          "focus: 切换研究方向",
-        "帮我验证一下":            "suggest --run: 自动交叉验证",
-        "生成论文":               "paper: 自动生成论文",
-        "大胆假设一下":            "speculate: 无约束假说",
-        "看看状态":               "viz: 驱动面板+类比图",
-        "回忆一下":               "memory: 持久记忆",
-        "开始工作吧":              "watch: 后台自主运行",
-        "有什么矛盾吗":            "dissonance: 认知失调",
-        "有什么新发现":            "innovate: 创新引擎",
-        "哪个方向最值得研究":      "strategy: 元RL策略",
-        "退相干和耗散的关系":      "KG: 知识网络路径",
-        "熵的上游是什么":          "KG: 变量上下游",
-        "有新概念吗":              "KG: 概念涌现",
-    },
-}
-
-def _parse_options(rest, n_min, n_max=99):
-    """Parse optional numeric arguments."""
-    parts = rest.split()
-    args = {}
-    for p in parts:
-        if '=' in p:
-            k, v = p.split('=', 1)
-            try: args[k] = int(v)
-            except: args[k] = v
-    return args
-
-def run_interactive():
-    agent = PhysCausalAgent()
-    print(bold("=" * 60))
-    from meta_cognition.identity import NAME, NAME_CN
-    print(bold(f"  PhysCausal Agent — {NAME} ({NAME_CN}) · δS=0 的守护者"))
-    print(bold("  v0.3.11  |  Type 'help' for commands, 'quit' to exit"))
-    print(bold("=" * 60))
-
-    while True:
-        try:
-            user_input = input(f"\n{prompt_cyan('>')} ").strip()
-            if not user_input: continue
-            _add_hist(user_input)
-            if user_input.lower() in ("quit", "exit", "q"):
-                _save_hist()
-                print("Goodbye!"); break
-
-            parts = user_input.split()
-            cmd, rest = parts[0], " ".join(parts[1:])
-
-            # 对话记忆: 自动记录关键命令
-            if cmd in ("ask", "chain", "analogy", "research", "suggest", "reason"):
-                try:
-                    from meta_cognition.conversation import remember_conversation
-                    remember_conversation(
-                        topic=cmd,
-                        insight=rest[:100] if rest else user_input[:100],
-                        tags=[cmd, "auto"]
-                    )
-                except Exception:
-                    pass
-
-            # ── Help ──
-            if cmd in ("help", "h"):
-                for section, cmds in CMD_HELP.items():
-                    print(f"\n{bold(section)}")
-                    for c, desc in cmds.items():
-                        print(f"  {c:<45s} {desc}")
-                continue
-
-            # ── Status ──
-            if cmd == "status":
-                print(agent.status()); continue
-
-            # ── Ask (LLM + Noether 身份) ──
-            if cmd == "ask":
-                if not rest: print(red("Usage: ask <question>")); continue
-                # 检测问候/身份问题 → Noether 自己回答
-                greet_words = ["你好", "hello", "hi", "你是谁", "who are you", "叫什么", "名字"]
-                is_pure_greet = any(w in rest.lower() for w in greet_words) and len(rest) < 15
-                if is_pure_greet:
-                    from meta_cognition.identity import NAME, NAME_CN
-                    from meta_cognition.talk import talk_report
-                    print(f"\n💬 {NAME}: 你好。我是 {NAME} ({NAME_CN})，PhysCausal 的物理学家。δS=0 的守护者，因果图里的共振探测器。\n")
-                    print(talk_report())
-                    continue
-                # 问候+问题 → 处理问题, 附加问候
-                if any(w in rest.lower() for w in ["诺特", "noether"]):
-                    rest = rest.replace("诺特", "").replace("noether", "").replace("Noether", "").strip(" ,，")
-
-                # 自然语言路由 (优先, 不走 LLM) — 覆盖所有命令
-                from meta_cognition.agent_router import execute_agent_command
-                cmd_result = execute_agent_command(rest)
-                if cmd_result:
-                    print(cmd_result)
-                    continue
-
-                # LLM 路径
-                from meta_cognition.identity import NAME
-                llm_available = agent.llm.is_available() if hasattr(agent, 'llm') else False
-                if llm_available:
-                    prompt = f"你是 {NAME}，PhysCausal 的物理学家。你的核心信念是 δS=0 是唯一的生成原理。请用中文简洁回答:\n{rest}"
-                    try:
-                        resp = agent.llm.client.chat([{"role": "user", "content": prompt}])
-                        # 尝试解析 JSON (因果图提取)
-                        try:
-                            data = json.loads(resp)
-                            print(agent._format_llm_response(data, rest))
-                        except json.JSONDecodeError:
-                            print(f"💬 {NAME}: {resp}")
-                    except Exception as e:
-                        print(f"💬 {NAME}: LLM 调用失败 ({e})\n   试试 'chain {rest}' 或 'suggest' 看看因果图能回答什么。")
-                else:
-                    print(f"💬 {NAME}: 我的 LLM 还没连上。试试 'chain {rest}' 或 'suggest' 通过因果图探索。")
-                continue
-
-            # ── Learn ──
-            if cmd == "learn":
-                p = rest.split()
-                if not p: print(red("Usage: learn <env|all> [episodes] [samples]")); continue
-                env, eps, sam = p[0], 3, 20
-                if len(p) > 1: eps = int(p[1])
-                if len(p) > 2: sam = int(p[2])
-                print(agent.learn(env, eps, sam)); continue
-
-            # ── Pipeline ──
-            if cmd == "pipeline":
-                p = rest.split()
-                if len(p) < 3: print(red("Usage: pipeline <csv> <T> <Y>")); continue
-                print(agent.pipeline(p[0], p[1], p[2])); continue
-
-            # ── Creative ──
-            if cmd == "creative":
-                sub = rest.split()
-                if not sub: print(red("Usage: creative transfer|evolve ...")); continue
-                if sub[0] == "transfer":
-                    if len(sub) < 5: print(red("Usage: creative transfer <src> <vars> <types> <csv>")); continue
-                    print(agent.creative_transfer(sub[1], sub[2], sub[3], sub[4])); continue
-                if sub[0] == "evolve":
-                    if len(sub) < 3: print(red("Usage: creative evolve <csv> <vars> [gen]")); continue
-                    gen = int(sub[3]) if len(sub) > 3 else 30
-                    print(agent.creative_evolve(sub[1], sub[2], gen)); continue
-
-            if cmd == "modules":
-                from creative.module_library import ModuleLibrary
-                lib = ModuleLibrary()
-                for m in lib.list_all():
-                    print(f"  {m.name} ({m.domain}): {m.edges}"); continue
-
-            if cmd == "skeletons":
-                from creative.skeleton_library import SkeletonLibrary
-                for s in SkeletonLibrary().list_skeletons():
-                    print(f"  {s['name']}: {len(s['variables'])} vars, {len(s['edges'])} edges"); continue
-
-            if cmd == "compose":
-                from composition.composer import CompositionDiscovery
-                r = CompositionDiscovery().auto_compose(verbose=False)
-                print(green(f"Discovered {r['n_discovered']}, added {r['n_added']}")); continue
-
-            if cmd == "associate":
-                from creative.structure_discovery import discovery
-                if rest:
-                    assocs = discovery.associate(rest)
-                    if assocs:
-                        print(bold(f"Modules isomorphic to '{rest}':"))
-                        for a in assocs:
-                            print(f"  {a['name']} ({a['domain']}): {a['edges']}")
-                            print(f"    {a['shared_pattern']}")
-                    else:
-                        print(yellow(f"No isomorphic modules found for '{rest}'"))
-                else:
-                    print(discovery.summary())
-                continue
-
-            if cmd == "explain":
-                parts = rest.split()
-                if len(parts) < 2:
-                    print(red("Usage: explain <module1> <module2>"))
-                    continue
-                from creative.structure_discovery import _topology_signature
-                from creative.module_library import ModuleLibrary
-                lib = ModuleLibrary()
-                m1, m2 = lib.get(parts[0]), lib.get(parts[1])
-                if not m1: print(red(f"Module '{parts[0]}' not found")); continue
-                if not m2: print(red(f"Module '{parts[1]}' not found")); continue
-                sig1, sig2 = _topology_signature(m1.edges), _topology_signature(m2.edges)
-                if sig1 == sig2:
-                    n_in = len(set(s for s,_ in m1.edges) - set(d for _,d in m1.edges))
-                    print(bold(f"'{m1.name}' ↔ '{m2.name}' are isomorphic"))
-                    print(f"  Same skeleton: {n_in} input(s) → output")
-                    print(f"  {m1.name} ({m1.domain}): {m1.edges}")
-                    print(f"  {m2.name} ({m2.domain}): {m2.edges}")
-                    print(f"  Structural signature: {sig1}")
-                    print(f"\n  {green('Role mapping:')}")
-                    m1_inputs = [s for s,_ in m1.edges if s not in set(d for _,d in m1.edges)]
-                    m2_inputs = [s for s,_ in m2.edges if s not in set(d for _,d in m2.edges)]
-                    for a, b in zip(m1_inputs, m2_inputs):
-                        print(f"    {m1.domain}::{a} ↔ {m2.domain}::{b}")
-                else:
-                    print(yellow(f"'{m1.name}' and '{m2.name}' are NOT isomorphic"))
-                    print(f"  sig1={sig1}")
-                    print(f"  sig2={sig2}")
-                continue
-
-            # ── Meta-Physics ──
-            if cmd == "symmetry":
-                if not rest: print(red("Usage: symmetry v1,v2,...")); continue
-                print(agent.analyze_physics(rest)); continue
-
-            if cmd == "entropy":
-                p = rest.split()
-                if len(p) < 3: print(red("Usage: entropy <csv> <A> <B>")); continue
-                print(agent.entropy_direction(p[0], p[1], p[2])); continue
-
-            if cmd == "history":
-                if rest == "clear":
-                    if _HAS_READLINE:
-                        readline.clear_history()
-                        _save_hist()
-                        print(green("Command history cleared."))
-                    else:
-                        print(yellow("Readline not available."))
-                elif rest == "sessions":
-                    if os.path.exists(PhysCausalAgent.SESSION_FILE):
-                        size = os.path.getsize(PhysCausalAgent.SESSION_FILE)
-                        with open(PhysCausalAgent.SESSION_FILE) as f:
-                            lines = f.readlines()
-                        print(f"Session Q&A: {len(lines)//2} exchanges ({size} bytes)")
-                        print(f"  File: {PhysCausalAgent.SESSION_FILE}")
-                    else:
-                        print("No session history yet.")
-                elif rest == "clear-sessions":
-                    if os.path.exists(PhysCausalAgent.SESSION_FILE):
-                        os.remove(PhysCausalAgent.SESSION_FILE)
-                        print(green("Session Q&A history cleared."))
-                    else:
-                        print("No session history to clear.")
-                else:
-                    if _HAS_READLINE:
-                        n = readline.get_current_history_length()
-                        print(f"Command history: {n} entries (max {_HIST_MAX})")
-                        print(f"  File: {_HIST_FILE}")
-                        print(f"  history clear      — clear command history")
-                        print(f"  history sessions   — show session Q&A")
-                        print(f"  history clear-sessions — clear session Q&A")
-                    else:
-                        print("Readline not available.")
-                continue
-
-            if cmd == "meta":
-                from reinforcement.meta_learner import meta
-                print(meta.summary()); continue
-
-            if cmd == "chain":
-                p = rest.split()
-                if len(p) < 2:
-                    print(red("Usage: chain <variable> <change>  (e.g. chain mass 减半)"))
-                    continue
-                from inference.counterfactual_chain import propagate, format_chain
-                chain = propagate(p[0], " ".join(p[1:]))
-                print(format_chain(chain)); continue
-
-            if cmd == "dissonance":
-                from meta_cognition.dissonance import cognitive_summary
-                print(cognitive_summary()); continue
-
-            if cmd == "plan":
-                p = rest.split()
-                if len(p) < 2:
-                    print(red("plan <start> <target>  |  plan bridge <domain1> <domain2>"))
-                    continue
-                from inference.causal_planner import plan, format_plan, find_bridge_paths
-                if p[0] == "bridge" and len(p) >= 3:
-                    paths = find_bridge_paths(p[1], p[2])
-                    print(f"=== 领域桥接: {p[1]} ↔ {p[2]} ===")
-                    for i, b in enumerate(paths[:5]):
-                        print(f"  {i+1}. {b['start_var']}→{b['target_var']} (代价={b['score']:.1f} 长度={b['length']})")
-                else:
-                    paths = plan(p[0], " ".join(p[1:]), max_depth=6)
-                    print(format_plan(paths, p[0], " ".join(p[1:])))
-                continue
-
-            if cmd == "innovate":
-                from creative.innovation_engine import innovation_report
-                print(innovation_report()); continue
-
-            if cmd == "research":
-                from creative.research_cycle import research_report_v2
-                print(research_report_v2())
-                from meta_cognition.talk import talk_report
-                print(talk_report())
-                continue
-
-            if cmd == "focus":
-                if not rest:
-                    from meta_cognition.research_directions import (
-                        RESEARCH_DIRECTIONS, get_current_focus, set_focus
-                    )
-                    current = get_current_focus()
-                    if current:
-                        print(f"▶ 当前聚焦: [{current['tag']}] {current['name']}")
-                        print(f"  {current['core_question']}")
-                        print()
-
-                    # 编号列表
-                    for i, d in enumerate(RESEARCH_DIRECTIONS):
-                        focused = " ▶" if current and current["id"] == d["id"] else "  "
-                        stars = "★" * d["difficulty"] + "·" * (5 - d["difficulty"])
-                        print(f"  {i+1:2d}. [{d['tag']}] {d['name']}")
-                        print(f"       难度{stars}  |  {d['core_question'][:70]}")
-
-                    print()
-                    print(f"  [1-{len(RESEARCH_DIRECTIONS)}] 选择方向 | [0] 取消聚焦 | [q] 退出")
-
-                    try:
-                        choice = input("  > ").strip().lower()
-                    except (EOFError, KeyboardInterrupt):
-                        continue
-
-                    if choice == "q":
-                        continue
-                    if choice == "0":
-                        import os
-                        from data_paths import focus_path; f = focus_path()
-                        if os.path.exists(f):
-                            os.remove(f)
-                        print("聚焦已取消。物理学家恢复自由探索。")
-                        continue
-
-                    try:
-                        idx = int(choice) - 1
-                        if 0 <= idx < len(RESEARCH_DIRECTIONS):
-                            d = RESEARCH_DIRECTIONS[idx]
-                            r = set_focus(d["id"])
-                            if r["success"]:
-                                print(f"\n▶ 聚焦方向: [{d['tag']}] {d['name']}")
-                                print(f"  核心问题: {d['core_question']}")
-                                print(f"  关键变量: {', '.join(d['key_variables'][:4])}")
-                                print(f"  开放问题:")
-                                for op in d["open_problems"][:3]:
-                                    print(f"    · {op}")
-                                print(f"\n  后续 suggest/innovate/speculate 将偏向此方向。")
-                            else:
-                                print(f"设置失败: {r.get('reason', '?')}")
-                        else:
-                            print(f"无效编号: 1-{len(RESEARCH_DIRECTIONS)}")
-                    except ValueError:
-                        print(f"无效输入")
-
-                elif rest == "none":
-                    from meta_cognition.research_directions import set_focus
-                    set_focus("")
-                    import os
-                    from data_paths import focus_path; f = focus_path()
-                    if os.path.exists(f):
-                        os.remove(f)
-                    print("聚焦已取消。物理学家恢复自由探索。")
-                else:
-                    from meta_cognition.research_directions import set_focus
-                    r = set_focus(rest)
-                    if r["success"]:
-                        d = r["direction"]
-                        print(f"▶ 聚焦方向: {d['tag']} {d['name']}")
-                        print(f"  核心问题: {d['core_question']}")
-                        print(f"  关键变量: {', '.join(d['key_variables'][:6])}")
-                    else:
-                        print(f"未知方向: {rest}。用 focus 查看可选方向。")
-                continue
-
-            if cmd == "speculate":
-                from creative.speculate import speculate_report, speculate_save
-                if rest == "--save":
-                    print(speculate_save())
-                else:
-                    print(speculate_report())
-                continue
-
-            if cmd == "data":
-                from session.data_pipeline import discover_from_data
-                if not rest:
-                    print(red("Usage: data <path.csv> [target_var]"))
-                else:
-                    parts = rest.split()
-                    path = parts[0]
-                    target = parts[1] if len(parts) > 1 else None
-                    print(discover_from_data(path, target))
-                continue
-
-            if cmd == "fviz":
-                from meta_cognition.frontier_viz import generate_frontier_html
-                path = generate_frontier_html()
-                print(f"前沿地图: {path}")
-                continue
-
-            if cmd == "kgviz":
-                from meta_cognition.kg_viz import open_viz
-                print(open_viz())
-                continue
-
-            if cmd == "kg":
-                from meta_cognition.kg_migration import kg_stats_report, kg_query
-                if rest == "concept":
-                    from meta_cognition.knowledge_graph import kg
-                    concepts = kg.emerge_concepts()
-                    print(f"═══ 概念涌现 ({len(concepts)} 个簇) ═══")
-                    for c in concepts:
-                        print(f"  [{c['domain']}] {c['name']} ({c['size']} vars)")
-                        print(f"    核心: {', '.join(c['core'])}")
-                elif rest.startswith("trace "):
-                    from meta_cognition.knowledge_graph import kg
-                    law_name = rest[6:]
-                    result = kg.trace_tier(law_name)
-                    if "error" in result:
-                        print(result["error"])
-                    else:
-                        print(f"═══ {law_name} 溯源 ═══")
-                        print(f"  层级: tier {result['tier']}")
-                        print(f"  路径: {result['upgrade_path']}")
-                        if result['cross_validations']:
-                            print(f"  验证: {len(result['cross_validations'])} 次")
-                            for cv in result['cross_validations']:
-                                icon = "✓" if cv['passed'] else "✗"
-                                print(f"    {icon} {cv['domain']}")
-                        if result['papers']:
-                            print(f"  论文: {len(result['papers'])} 篇")
-                            for p in result['papers']:
-                                print(f"    · {p}")
-                        print(f"  类比: {result['analogy_support']} 条")
-                elif rest == "contra":
-                    from meta_cognition.knowledge_graph import kg
-                    contras = kg.detect_contradictions()
-                    if contras:
-                        print(f"═══ 矛盾检测 ({len(contras)} 条) ═══")
-                        for c in contras:
-                            print(f"  [{c['type']}] {c['message']}")
-                    else:
-                        print("无矛盾。因果图自洽。")
-                elif rest and "->" in rest:
-                    parts = rest.split("->")
-                    if len(parts) == 2:
-                        from meta_cognition.knowledge_graph import kg
-                        paths = kg.connect(parts[0].strip(), parts[1].strip())
-                        print(f"═══ {parts[0].strip()} → {parts[1].strip()} ═══")
-                        print(f"  路径: {len(paths)} 条")
-                        for p in paths[:5]:
-                            print(f"    {' → '.join(p)}")
-                elif rest:
-                    print(kg_query(rest))
-                else:
-                    from meta_cognition.kg_migration import migrate_all
-                    print(migrate_all())
-                continue
-
-            if cmd == "strategy":
-                from reinforcement.meta_rl import strategy_report
-                print(strategy_report())
-                continue
-
-            if cmd == "trust":
-                from session.paper_trust import paper_trust_report
-                print(paper_trust_report())
-                continue
-
-            if cmd == "hypothesis":
-                from inference.hypothesis_test import hypothesis_report
-                print(hypothesis_report())
-                continue
-
-            if cmd == "experiment":
-                from meta_cognition.experiment_design import experiment_plan_report
-                print(experiment_plan_report())
-                continue
-
-            if cmd == "reason":
-                from inference.multi_step import multi_step_reason
-                if not rest:
-                    from inference.multi_step import multi_step_report
-                    print(multi_step_report())
-                else:
-                    print(multi_step_reason(rest))
-                continue
-
-            if cmd == "convo":
-                from meta_cognition.conversation import context_summary
-                print(context_summary())
-                continue
-
-            if cmd == "ingest":
-                from session.paper_ingest import ingest_from_query
-                if not rest:
-                    print(red("Usage: ingest <topic>  (e.g. ingest decoherence)"))
-                else:
-                    print(f"🔍 搜索 arXiv: {rest}...")
-                    llm_client = agent.llm.client if hasattr(agent, 'llm') and agent.llm.is_available() else None
-                    if not llm_client:
-                        print("⚠ LLM 未连接, 只能显示搜索结果, 不能提取因果断言")
-                    try:
-                        result = ingest_from_query(rest, llm_client, max_papers=3)
-                        if result.get("papers_found", 0) > 0:
-                            print(f"\n  论文: {result['papers_found']} 篇")
-                            print(f"  提取断言: {result.get('claims_extracted', 0)} 条")
-                            print(f"  新入库: {result.get('claims_added', 0)} 条 (tier 3)")
-                            for claim in result.get('added_claims', [])[:5]:
-                                print(f"    {claim}")
-                        else:
-                            print("  未找到匹配论文。")
-                    except Exception as e:
-                        print(f"  arXiv 搜索失败: {e}")
-                continue
-
-            if cmd == "paper":
-                from creative.paper_writer import write_paper
-                print(write_paper())
-                continue
-
-            if cmd == "talk":
-                from meta_cognition.talk import talk_report
-                print(talk_report())
-                continue
-
-            if cmd == "viz":
-                from meta_cognition.viz import viz_report
-                print(viz_report())
-                continue
-
-            if cmd == "learn":
-                from creative.learn_optimizer import train_and_report
-                print(train_and_report())
-                continue
-
-            if cmd == "memory":
-                from meta_cognition.memory import memory_report
-                print(memory_report())
-                continue
-
-            if cmd == "analogy":
-                from creative.causal_analogy import analogy_report
-                print(analogy_report())
-                from meta_cognition.talk import talk_report
-                print(talk_report())
-                continue
-
-            if cmd == "suggest":
-                if rest == "--run-all":
-                    from meta_cognition.suggest_executor import execute_all_cross_validations
-                    print(execute_all_cross_validations())
-                elif rest == "--run":
-                    from meta_cognition.suggest_executor import execute_top_suggestion
-                    print(execute_top_suggestion())
-                else:
-                    from meta_cognition.suggest_executor import interactive_suggest
-                    interactive_suggest()
-                # 发言
-                from meta_cognition.talk import talk_report
-                print(talk_report())
-                continue
-
-            if cmd == "watch":
-                if rest == "stop":
-                    if hasattr(agent, '_watch_thread') and agent._watch_thread:
-                        agent._watch_running = False
-                        print(green("Watch stopped."))
-                    else:
-                        print(yellow("No watch running."))
-                    continue
-                import threading
-                def _watch_loop():
-                    while getattr(agent, '_watch_running', True):
-                        time.sleep(1800)  # 30 分钟
-                        if not getattr(agent, '_watch_running', True):
-                            break
-                        try:
-                            from meta_cognition.autonomous import AutonomousAgent
-                            a = AutonomousAgent()
-                            a.internal.energy = 1.0
-                            a.internal.coherence_drive = 0.9
-                            discoveries = []
-                            for i in range(15):
-                                r = a.think(verbose=False, llm_bridge=None)
-                                if r:
-                                    l = r.get('learned', [])
-                                    rt = r.get('type', '')
-                                    s = r.get('significance', 0)
-                                    if l and s > 0 and rt in ('dissonance', 'frontier'):
-                                        discoveries.append({'rtype': rt, 'l': l, 'sig': s})
-                            print(f"\n{green('[PhysCausal]')} {len(discoveries)} 发现, 好奇心={a.internal.curiosity_level:.2f}")
-                            for d in discoveries:
-                                stars = '★★★' if d['sig']>=2 else '★★' if d['sig']>=1 else '★'
-                                print(f"  {stars} [{d['rtype']}] {d['l']}")
-                        except Exception as e:
-                            print(f"[PhysCausal] watch error: {e}")
-                agent._watch_thread = threading.Thread(target=_watch_loop, daemon=True)
-                agent._watch_running = True
-                agent._watch_thread.start()
-                mins = 30
-                print(green(f"Watch started — 每 {mins} 分钟自动运行 (watch stop 停止)"))
-                continue
-
-            if cmd == "autonomous":
-                from meta_cognition.autonomous import AutonomousAgent
-                n = int(rest) if rest.isdigit() else 15
-                agent_auto = AutonomousAgent()
-                agent_auto.internal.energy = 1.0
-                agent_auto.internal.coherence_drive = 0.9
-                discoveries = []
-                validations = []
-                for i in range(n):
-                    result = agent_auto.think(verbose=False, llm_bridge=None)
-                    if result:
-                        learned = result.get('learned', [])
-                        rtype = result.get('type', '')
-                        sig = result.get('significance', 0)
-                        if learned and sig > 0 and rtype in ('dissonance', 'frontier'):
-                            tag = result.get('frontier_type', 'tension')
-                            if rtype == 'dissonance':
-                                tag = result.get('issue_law_a','?') + ' <-> ' + result.get('issue_law_b','?')
-                            discoveries.append({'tag': tag, 'rtype': rtype, 'learned': learned, 'sig': sig, 'reason': result.get('sig_reason','')})
-                        vs = result.get('tiered_validation', 0)
-                        if vs > 0:
-                            validations.append({'score': vs, 'convs': result.get('tiered_convergences',[])})
-
-                s = agent_auto.internal
-                print(f"\n=== PhysCausal ({n} 轮思考, 0 token) ===")
-                print(f"好奇心={s.curiosity_level:.2f}  精力={s.energy:.2f}  累计发现={s.total_discoveries}")
-
-                type_cn = {'dissonance': '认知失调', 'frontier': '前沿探索', 'sparse_zone': '稀疏区',
-                           'scale_gap': '尺度裂缝', 'dead_end': '断头路', 'tension': '张力'}
-                rtype_cn = {'dissonance': '失调', 'frontier': '前沿'}
-
-                if discoveries:
-                    print(f"\n{green('新发现')} ({len(discoveries)}):")
-                    for d in discoveries:
-                        stars = '★★★' if d['sig']>=2 else '★★' if d['sig']>=1 else '★'
-                        tag_cn = type_cn.get(d.get('tag', d['tag']), d['tag'])
-                        print(f"  {stars} [{rtype_cn.get(d['rtype'], d['rtype'])}] {tag_cn}")
-                        print(f"     → {d['learned']}")
-                        if d.get('reason'): print(f"     {d['reason']}")
-                else:
-                    print(f"{yellow('本轮无新发现')}")
-
-                if validations:
-                    print(f"\n{green('弱验证')}:")
-                    for v in validations:
-                        print(f"  一致度={v['score']:.0%}  汇聚点={v['convs']}")
-
-                print(f"\n{agent_auto.trend_report()}")
-                # ── 语义聚类 + 粗粒化 ──
-                from meta_cognition.semantic_cluster import find_semantic_clusters
-                from emergence.coarse_grainer import report as coarse_report
-                from emergence.hierarchical_abstraction import abstraction_report
-                clusters = find_semantic_clusters(min_combined=0.5)
-                if clusters:
-                    print(f"\n{green('语义聚类')}:")
-                    for c in clusters[:3]:
-                        print(f"  {c['variables'][0]} ↔ {c['variables'][1]} (名称={c['name_sim']:.0%})")
-                cg = coarse_report()
-                if '候选宏观变量: 0' not in cg:
-                    print(f"\n{green('粗粒化')}:")
-                    for line in cg.split('\n')[1:6]:
-                        if line.strip(): print(f"  {line.strip()}")
-
-                # ── 创新引擎 ──
-                from creative.innovation_engine import innovate
-                innovations = innovate(n_candidates=10, min_score=0.8)
-                if innovations:
-                    print(f"\n{green('创新提案')}: {len(innovations)} 条候选边")
-                    for inv in innovations[:3]:
-                        print(f"  {inv['src']} → {inv['dst']} ({inv['verdict']})")
-                continue
-
-            print(yellow(f"Unknown command: {cmd}. Type 'help'."))
-
-        except KeyboardInterrupt:
-            _save_hist()
-            print("\nGoodbye!"); break
-        except EOFError:
-            _save_hist()
-            print("\nGoodbye!"); break
-
-if __name__ == "__main__":
+    # 单次查询模式
     if len(sys.argv) > 1:
-        print(f"PhysCausal Agent v0.1.0\n")
-        agent = PhysCausalAgent()
-        query = " ".join(sys.argv[1:])
-        print(f"{cyan('>')} {query}")
-        # Simple routing
-        cmd = query.split()[0].lower()
-        rest = " ".join(query.split()[1:])
-        if cmd == "symmetry":
-            print(agent.analyze_physics(rest))
-        else:
-            print(agent.status())
-    else:
-        run_interactive()
+        q = " ".join(sys.argv[1:])
+        print(chat.handle(q))
+        return
+
+    # 交互模式
+    brain = chat.read_brain()
+    alive = c("●", "G") if brain.get("alive") else c("○", "D")
+    gen = brain.get("generation", "?")
+    cells = brain.get("cells", "?")
+    edges = brain.get("edges", "?")
+    print(f"  {alive} gen {c(str(gen), 'Y')} | "
+          f"神经元 {c(str(cells), 'C')} | 突触 {c(str(edges), 'M')}")
+    print(f"  {c('/help', 'D')} 查看指令 | {c('Ctrl-D', 'D')} 退出\n")
+
+    try:
+        while True:
+            line = input(PROMPT)
+            if _HAS_READLINE:
+                readline.add_history(line.strip())
+            resp = chat.handle(line)
+            if resp:
+                print()
+                # 自动换行
+                for para in resp.split("\n"):
+                    if para.strip():
+                        print(textwrap.fill(para, width=80))
+                    else:
+                        print()
+                print()
+    except (EOFError, KeyboardInterrupt):
+        print(f"\n{c('再见，继续思考...', 'D')}")
+    finally:
+        try:
+            readline.write_history_file(HIST)
+        except Exception:
+            pass
+
+
+_HAS_READLINE = True  # we already imported it
+if __name__ == "__main__":
+    main()

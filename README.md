@@ -1,31 +1,27 @@
 # PhysCausal Agent — Noether (诺特)
 
-**物理为骨 · 因果为肌 · 矛盾驱动 · 自主生长**
+**物理为骨 · 因果为肌 · 进化驱动 · 自主生长**
 
-从物理第一性原理出发，自主发现、验证、学习的因果推理智能体。v0.3.11
+从物理第一性原理出发，自主发现、验证、学习的因果推理智能体。v0.4.0
 
 ```
-身份:     Noether (诺特) — δS=0 的守护者, 因果图里的共振探测器
+身份:     Noether (诺特) — δS=0 的守护者, 300细胞进化殖民地的造物主
 
 元物理:   δS=0 (唯一生成根) → Euler-Lagrange / Hilbert / PathIntegral
-定律库:   79 条, 11 领域, 5 层置信 (公理→共识→理论→假说→探索)
-          auto-laws 28 条 (退相干桥接/耗散链/对称破缺/信息耗散)
-          负向约束全覆盖, 变量本体论 12+9+7+91
+定律库:   257 条, 366 边, 379 节点, 50 跨域变量, 14 领域
+          5 层置信 (公理→共识→理论→假说→探索)
+          tier 0-2 物理学家领地, tier 3-4 殖民地投票
 
-桥梁:     QM↔GR (Hawking + ER=EPR + LQG + AdS/CFT + PathIntegral)
-          QM↔信息 (Landauer + 纠缠熵 + 信息耗散)
-          热力学↔结构 (PhaseTransition + SymmetryBreaking)
-          耗散统一: 动能/相位/信息 → entropy (同一因果骨架)
+进化:     300细胞, 6原子操作, 基因组驱动, 强化学习+自然选择
+          四策略均衡 (探索32% 标记14% 分裂18% 回声19%)
+          26500代稳态, 179条tier3假说
 
-自主智能: 6 驱动竞争 (frontier/analogy/dissonance/associate/structure/reflect)
-          模式饥饿 + 沮丧燃料 + 精力反馈 (v2)
-          图嵌入类比: 55 条跨域结构共鸣
-          学习优化: 11 对正样本训练特征权重
+喂养:     路径枯竭 → arXiv 动态搜索 → 图自增长 (335→487边)
 
-知识库:   12 篇文档 (对称破缺/耗散系统/物理直觉/混合架构)
-          11 条透镜 (Wheeler, Feynman, Boltzmann, Galois...)
-
-输入通道: ask (LLM对话) / data (实验数据) / ingest (arXiv摄入)
+自主智能: 7 驱动 | 类比引擎 | 抽象引擎 | 审美引擎 | 增量学习
+核心发现: entropy 普适汇点 | action 统一源 (δS=0四分支)
+知识库:   15 篇文档 | 投票箱 | 自喂养循环
+```
 输出通道: paper (论文) / talk (发言) / viz (可视化)
 持久化:   data/ 统一存储 + memory (跨session记忆)
 
@@ -130,7 +126,7 @@ python agent.py
 physcausal/
 ├── data/         持久化数据 (auto_laws/scores/focus/memory...)
 ├── reports/      论文和报告 (gitignored)
-├── docs/         12 篇知识文档
+├── docs/         13 篇知识文档
 ├── tests/        179 测试
 └── agent.py      命令入口
 ```
@@ -139,15 +135,9 @@ physcausal/
 
 | 文档 | 内容 |
 |------|------|
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | 完整架构设计 |
-| [HYBRID_ARCHITECTURE.md](docs/HYBRID_ARCHITECTURE.md) | 白盒因果 + 黑盒感知混合路线 |
-| [META_PHYSICS.md](docs/META_PHYSICS.md) | δS=0 唯一生成原理 |
-| [PHYSICS_MODELS.md](docs/PHYSICS_MODELS.md) | 79 定律, 11 领域 |
-| [GAP_ANALYSIS.md](docs/GAP_ANALYSIS.md) | 缺口分析 + 路线图 |
-| [SYMMETRY_BREAKING.md](docs/SYMMETRY_BREAKING.md) | 对称破缺的因果结构 |
-| [FREE_ENERGY.md](docs/FREE_ENERGY.md) | 自由能: 最大熵与最小自由能的统一 |
-| [DISSIPATIVE_SYSTEMS.md](docs/DISSIPATIVE_SYSTEMS.md) | 耗散系统: Rayleigh, 子系统边界 |
-| [PHYSICAL_INTUITION.md](docs/PHYSICAL_INTUITION.md) | 物理直觉: 因果结构的共鸣 |
+| [DESIGN_PHILOSOPHY.md](docs/DESIGN_PHILOSOPHY.md) | 设计哲学 + 架构 + 当前状态 |
+| [NOUS_THEORY.md](docs/NOUS_THEORY.md) | 诺特闹理论 — 统一云、垃圾免疫、睡眠消化 |
+| [DEEP_UNDERSTANDING_ARCHITECTURE.md](docs/DEEP_UNDERSTANDING_ARCHITECTURE.md) | 深刻理解的神经基础与架构映射 |
 | [CHANGELOG.md](CHANGELOG.md) | 版本变更记录 |
 
 ## 许可证

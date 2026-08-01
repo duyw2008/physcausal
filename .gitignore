@@ -9,3 +9,14 @@ data/completed_suggestions.json
 data/scores.json
 data/salience.json
 data/autonomous_state.json
+# huge runtime data — not for git
+data/evo_snapshot_*.json
+data/cell_shelf.json
+data/coincidence.json
+data/discoveries.json
+data/discoveries.jsonl
+data/emergent_edges.json
+data/auto_laws.json
+data/injected_edges.json
+data/proprioception.json
+data/evo_output.log

@@ -1,0 +1,4 @@
+{"type": "edge", "data": {"src": "spin_angular_momentum", "dst": "magnetic_moment", "domain": "math_verified", "initial_s": 0.9, "law": "spin_magnetic_moment: mu=g_s*s"}, "source": "derive"}
+{"type": "edge", "data": {"src": "magnetic_moment", "dst": "magnetic_field", "domain": "math_verified", "initial_s": 0.9, "law": "magnetic_moment_field: mu=k_mb*B"}, "source": "derive"}
+{"type": "edge", "data": {"src": "magnetic_field", "dst": "gauge_field", "domain": "math_verified", "initial_s": 0.9, "law": "potential_to_field: B=k_b*A_mu"}, "source": "derive"}
+{"type": "edge", "data": {"src": "spin_angular_momentum", "dst": "magnetic_field", "domain": "math_verified", "initial_s": 0.7, "law": "two-hop: spin→mu→B (spin_magnetic_moment + magnetic_moment_field)"}, "source": "derive"}

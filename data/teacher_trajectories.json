@@ -1,0 +1,218 @@
+[
+  {
+    "id": "stern_gerlach_1922",
+    "domain": "electron_spin",
+    "discoverer": "Otto Stern & Walter Gerlach",
+    "year": 1922,
+    "nodes": ["electron_spin_hypothesis", "design_experiment", "inhomogeneous_magnetic_field", "measurement", "space_quantization_observed", "data_analysis", "experiment"],
+    "result_node": "space_quantization_observed",
+    "description": "Stern-Gerlach: 非均匀磁场分裂银原子束 → 发现空间量子化（自旋）"
+  },
+  {
+    "id": "einstein_photoelectric_1905",
+    "domain": "quantum_light",
+    "discoverer": "Albert Einstein",
+    "year": 1905,
+    "nodes": ["photoelectric_anomaly", "form_hypothesis", "light_quantum_hypothesis", "experimental_design", "measurement", "stopping_potential_vs_frequency", "validation_framework", "publish"],
+    "result_node": "stopping_potential_vs_frequency",
+    "description": "光电效应：光量子假说→实验验证→E=hν-W"
+  },
+  {
+    "id": "ligo_gravitational_wave_2015",
+    "domain": "spacetime_geometry",
+    "discoverer": "LIGO/Virgo Collaboration",
+    "year": 2015,
+    "nodes": ["gravitational_wave_hypothesis", "design_experiment", "laser_interferometer", "build_detector", "measurement", "gw150914_signal", "data_analysis", "verification", "publish"],
+    "result_node": "gw150914_signal",
+    "description": "LIGO: 激光干涉仪→探测到GW150914→验证广义相对论预言"
+  },
+  {
+    "id": "michelson_morley_1887",
+    "domain": "spacetime_geometry",
+    "discoverer": "Michelson & Morley",
+    "year": 1887,
+    "nodes": ["aether_hypothesis", "design_experiment", "optical_interferometer", "measurement", "null_result", "falsification", "publish"],
+    "result_node": "null_result",
+    "description": "Michelson-Morley: 干涉仪测以太漂移→零结果→证伪经典以太"
+  },
+  {
+    "id": "thomson_electron_1897",
+    "domain": "electron_spin",
+    "discoverer": "J.J. Thomson",
+    "year": 1897,
+    "nodes": ["cathode_ray_anomaly", "design_experiment", "electric_magnetic_deflection", "measurement", "charge_mass_ratio", "data_analysis", "publish"],
+    "result_node": "charge_mass_ratio",
+    "description": "J.J. Thomson: 阴极射线偏转→测量e/m比→发现电子"
+  },
+  {
+    "id": "yukawa_meson_1935",
+    "domain": "quantum_field",
+    "discoverer": "Hideki Yukawa",
+    "year": 1935,
+    "nodes": ["nuclear_force_puzzle", "form_hypothesis", "meson_prediction", "theoretical_calculation", "math_derivation", "prediction_mass_200me", "publish"],
+    "result_node": "prediction_mass_200me",
+    "description": "汤川秀树: 纯理论推导→预测介子质量→后被实验证实"
+  },
+  {
+    "id": "dirac_antimatter_1928",
+    "domain": "quantum_field",
+    "discoverer": "Paul Dirac",
+    "year": 1928,
+    "nodes": ["relativistic_wave_equation", "form_hypothesis", "math_derivation", "negative_energy_solution", "antiparticle_prediction", "verification", "publish"],
+    "result_node": "antiparticle_prediction",
+    "description": "Dirac: 狄拉克方程→负能解→预言反物质→后被Anderson证实"
+  },
+  {
+    "id": "rutherford_nucleus_1911",
+    "domain": "atomic_structure",
+    "discoverer": "Ernest Rutherford",
+    "year": 1911,
+    "nodes": ["atomic_structure_hypothesis", "design_experiment", "alpha_particle_scattering", "measurement", "large_angle_deflection", "falsification_plum_pudding", "nuclear_model", "publish"],
+    "result_node": "nuclear_model",
+    "description": "卢瑟福: α粒子散射→大角偏转→证伪葡萄干布丁→发现原子核"
+  },
+  {
+    "id": "practice_observe_hypothesize",
+    "domain": "scientific_method",
+    "discoverer": "textbook",
+    "year": 0,
+    "nodes": ["observation", "form_hypothesis", "prediction", "verification"],
+    "result_node": "verification",
+    "description": "教科书例题1: 观察→假说→预测→验证 (4步)"
+  },
+  {
+    "id": "practice_measure_analyze",
+    "domain": "scientific_method",
+    "discoverer": "textbook",
+    "year": 0,
+    "nodes": ["experimental_design", "measurement", "data_analysis", "conclusion"],
+    "result_node": "conclusion",
+    "description": "教科书例题2: 实验设计→测量→分析→结论 (4步)"
+  },
+  {
+    "id": "practice_falsify",
+    "domain": "scientific_method",
+    "discoverer": "textbook",
+    "year": 0,
+    "nodes": ["hypothesis_testing", "falsification", "revised_hypothesis"],
+    "result_node": "revised_hypothesis",
+    "description": "教科书例题3: 假说检验→证伪→修正假说 (3步)"
+  },
+  {
+    "id": "practice_anomaly_explore",
+    "domain": "scientific_method",
+    "discoverer": "textbook",
+    "year": 0,
+    "nodes": ["anomaly_detected", "investigate", "new_phenomenon"],
+    "result_node": "new_phenomenon",
+    "description": "教科书例题4: 发现异常→调查→新现象 (3步)"
+  },
+  {
+    "id": "weyl_gauge_geometry_1918",
+    "domain": "gauge_geometry",
+    "discoverer": "Hermann Weyl",
+    "year": 1918,
+    "nodes": ["gauge_invariance", "scale_transformation", "connection_1form", "curvature_2form", "electromagnetism_as_geometry", "unified_field_attempt"],
+    "result_node": "electromagnetism_as_geometry",
+    "description": "Weyl: 规范不变性→尺度变换↔联络→曲率↔电磁场→首次将物理力解释为几何结构"
+  },
+  {
+    "id": "yang_mills_nonabelian_1954",
+    "domain": "gauge_geometry",
+    "discoverer": "Yang & Mills",
+    "year": 1954,
+    "nodes": ["isotopic_spin_symmetry", "local_gauge_invariance", "non_abelian_gauge_field", "gauge_field_self_interaction", "yang_mills_theory"],
+    "result_node": "yang_mills_theory",
+    "description": "杨振宁-Mills: 同位旋对称性→定域规范不变性→非Abel规范场→场的自相互作用→几何化的力"
+  },
+  {
+    "id": "utiyama_gauge_geometry_1956",
+    "domain": "gauge_geometry",
+    "discoverer": "Ryoyu Utiyama",
+    "year": 1956,
+    "nodes": ["gauge_principle", "lie_group_symmetry", "principal_fiber_bundle", "connection_as_gauge_field", "curvature_as_field_strength", "general_gauge_theory"],
+    "result_node": "general_gauge_theory",
+    "description": "Utiyama: 规范原理↔主纤维丛→联络=规范场→曲率=场强→规范理论=微分几何"
+  },
+  {
+    "id": "higgs_mechanism_1964",
+    "domain": "gauge_geometry",
+    "discoverer": "Higgs, Englert, Brout, Guralnik, Hagen, Kibble",
+    "year": 1964,
+    "nodes": ["gauge_symmetry", "spontaneous_symmetry_breaking", "scalar_field_vacuum", "goldstone_theorem", "gauge_boson_mass", "higgs_mechanism"],
+    "result_node": "higgs_mechanism",
+    "description": "Higgs机制: 规范对称性→自发破缺→标量场真空期望值→Goldstone玻色子被规范场吃掉→规范玻色子获得质量"
+  },
+  {
+    "id": "thooft_renormalizability_1971",
+    "domain": "gauge_geometry",
+    "discoverer": "'t Hooft & Veltman",
+    "year": 1971,
+    "nodes": ["spontaneously_broken_gauge_theory", "dimensional_regularization", "renormalization_proof", "gauge_invariance_preserved", "quantum_consistency"],
+    "result_node": "quantum_consistency",
+    "description": "'t Hooft-Veltman: 自发破缺规范理论→维数正规化→重整化证明→规范不变性在量子层面保持→几何结构保证量子一致性"
+  },
+  {
+    "id": "atiyah_singer_index_1963",
+    "domain": "gauge_geometry",
+    "discoverer": "Atiyah & Singer",
+    "year": 1963,
+    "nodes": ["dirac_operator", "elliptic_complex", "topological_index", "analytical_index", "index_theorem", "anomaly_cancellation"],
+    "result_node": "index_theorem",
+    "description": "Atiyah-Singer: Dirac算子→椭圆复形→拓扑指标=解析指标→指标定理→反常相消的几何条件"
+  },
+  {
+    "id": "witten_chern_simons_1988",
+    "domain": "gauge_geometry",
+    "discoverer": "Edward Witten",
+    "year": 1988,
+    "nodes": ["chern_simons_action", "path_integral_quantization", "knot_invariant", "jones_polynomial", "three_manifold_invariant", "topological_quantum_field_theory"],
+    "result_node": "topological_quantum_field_theory",
+    "description": "Witten: Chern-Simons作用量→路径积分量子化→扭结不变量↔Jones多项式→3-流形不变量→纯几何=量子场论"
+  },
+  {
+    "id": "seiberg_witten_duality_1994",
+    "domain": "gauge_geometry",
+    "discoverer": "Seiberg & Witten",
+    "year": 1994,
+    "nodes": ["n2_supersymmetry", "electric_magnetic_duality", "monopole_condensation", "seiberg_witten_equations", "four_manifold_invariants", "geometry_from_gauge_theory"],
+    "result_node": "geometry_from_gauge_theory",
+    "description": "Seiberg-Witten: N=2超对称→电磁对偶→磁单极凝聚→SW方程→4-流形不变量→从规范场论推导微分几何"
+  },
+  {
+    "id": "theory_unification_geometric",
+    "domain": "gauge_geometry",
+    "discoverer": "textbook",
+    "year": 0,
+    "nodes": ["symmetry_group", "gauge_field", "fiber_bundle", "connection_1form", "curvature_2form", "yang_mills_action", "path_integral", "quantum_amplitude"],
+    "result_node": "quantum_amplitude",
+    "description": "几何统一模板: 对称群→规范场=主丛→联络1-形式=Feynman规则→曲率2-形式=场强→Yang-Mills作用量→路径积分→量子振幅"
+  },
+  {
+    "id": "theory_standard_model_geometry",
+    "domain": "gauge_geometry",
+    "discoverer": "textbook",
+    "year": 0,
+    "nodes": ["gauge_group_su3xsu2xu1", "principal_bundle", "matter_field_section", "covariant_derivative", "yang_mills_lagrangian", "higgs_field_section", "spontaneous_symmetry_breaking", "mass_generation_geometric"],
+    "result_node": "mass_generation_geometric",
+    "description": "标准模型几何化: SU(3)×SU(2)×U(1)主丛→物质场=截面→协变导数=最小耦合→Yang-Mills拉氏量→Higgs截面→自发破缺→几何质量生成"
+  },
+  {
+    "id": "einstein_gr_geometry_1915",
+    "domain": "spacetime_geometry",
+    "discoverer": "Albert Einstein",
+    "year": 1915,
+    "nodes": ["equivalence_principle", "spacetime_curvature", "metric_tensor", "riemann_curvature", "hilbert_action", "einstein_field_equation", "gravity_as_geometry"],
+    "result_node": "gravity_as_geometry",
+    "description": "Einstein: 等效原理→时空弯曲→度规张量→Riemann曲率→Hilbert作用量→Einstein场方程→引力=几何"
+  },
+  {
+    "id": "theory_gr_qft_unification_pattern",
+    "domain": "gauge_geometry",
+    "discoverer": "textbook",
+    "year": 0,
+    "nodes": ["spacetime_curvature", "riemann_geometry", "gauge_curvature", "fiber_bundle_geometry", "unified_geometric_language", "quantum_gravity_candidate"],
+    "result_node": "unified_geometric_language",
+    "description": "统一模板: GR的Riemann曲率 ↔ 规范理论的丛曲率 → 共享微分几何语言 → 量子引力候选必须统一这两种几何"
+  }
+]
