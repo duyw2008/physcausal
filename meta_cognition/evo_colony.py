@@ -2785,6 +2785,145 @@ class EvoColony:
                 print(f"  ☁️ shelf: {shelf_replayed} genomes replayed")
         # 🧠 sympy 推导感知: coincidence 热点自动验证
         self.derive_perception.try_derive_from_hotspots(self)
+        # 🔗 因果闭包: 结构一致性约束 — 悬挂效应节点必须补链 (QFT: 对称性→规范场)
+        self._enforce_causal_closure()
+
+    # ═══════ 内存 ═══════
+
+    def _enforce_causal_closure(self):
+        """因果闭包约束: 每个有 effects 的节点必须有 cause-chain 到 tier≤1。
+
+        这不是优化——是图必须满足的结构约束。
+        类比 QFT: 局域对称性不满足→拉氏量不自洽→逼出规范场。
+        这里: 效应节点悬挂→因果链断裂→逼出补边。
+
+        只在睡眠时运行，每次最多修补 3 个悬挂节点。
+        """
+        # 1. 收集所有 tier≤1 的已知原理节点（因果锚点）
+        anchor_nodes: set = set()
+        for key, tier in self.synapse.tiers.items():
+            if tier <= 1:
+                src, dst = key if isinstance(key, tuple) else (key, None)
+                if isinstance(src, str): anchor_nodes.add(src)
+                if isinstance(dst, str): anchor_nodes.add(dst)
+        # 补充：图中有 causes 到 tier≤1 边的节点也算锚点
+        for node_id, nd in self.graph.items():
+            if not isinstance(nd, dict): continue
+            for cause_entry in nd.get('causes', []):
+                if len(cause_entry) >= 3 and cause_entry[2] in self.VALID_EDGE_DOMAINS:
+                    anchor_nodes.add(node_id)
+                    break
+
+        if not anchor_nodes:
+            return
+
+        # 2. 收集有 effects 的活跃节点
+        effect_nodes = []
+        for node_id, nd in self.graph.items():
+            if not isinstance(nd, dict): continue
+            effects = nd.get('effects', [])
+            if not effects: continue
+            # 跳过 hyp 前缀和短噪音节点
+            if node_id.startswith(self.HYPNODE_PREFIX): continue
+            if len(node_id) < 2: continue
+            effect_nodes.append(node_id)
+
+        if not effect_nodes:
+            return
+
+        # 3. 反向 BFS: 找悬挂节点（无 cause-chain 到锚点）
+        dangling = []
+        for node_id in effect_nodes:
+            if node_id in anchor_nodes:
+                continue
+            # 反向 BFS，深度限制 8
+            visited = {node_id}
+            frontier = [node_id]
+            reachable = False
+            for _ in range(8):
+                next_frontier = []
+                for n in frontier:
+                    nd = self.graph.get(n)
+                    if not isinstance(nd, dict): continue
+                    for cause_entry in nd.get('causes', []):
+                        src = cause_entry[0] if len(cause_entry) >= 1 else None
+                        if src and src not in visited:
+                            if src in anchor_nodes:
+                                reachable = True
+                                break
+                            visited.add(src)
+                            next_frontier.append(src)
+                    if reachable: break
+                if reachable: break
+                frontier = next_frontier
+                if not frontier: break
+
+            if not reachable:
+                dangling.append(node_id)
+
+        if not dangling:
+            return
+
+        repaired = 0
+        for node_id in dangling[:3]:  # 每次最多修 3 个
+            # 去重: 已有 axomatic 域 cause 边的跳过（CLOSURE 修过，不被 pruning 删）
+            already_fixed = any(
+                domain == 'axomatic'
+                for _, _, domain in self.graph.get(node_id, {}).get('causes', [])
+            )
+            if already_fixed:
+                continue
+            # 尝试用 derive 找到到锚点的路径
+            best_edge = self._find_closure_edge(node_id, anchor_nodes)
+            if best_edge:
+                src, dst, formula = best_edge
+                key = (src, dst)
+                if key not in self.synapse.activations:
+                    self.synapse.strengthen(0, src, dst, 0.35, self.generation)
+                self.synapse.tiers[key] = 0  # 因果闭包边 = 公理级（tier0），成为新锚点
+                # 用 add_edge 双写 VSA+缓存，避免 rebuild 覆盖
+                self.graph.add_edge(src, dst, 'causal_closure', 'axomatic')
+                self._record_discovery(f"{src}->{dst}", "causal_closure",
+                                       f"formula={formula}")
+                # 防 VSA 重建覆盖: 清除 dirty 标记，保护手动添加的因果边
+                self.graph._dirty.discard(src)
+                self.graph._dirty.discard(dst)
+                repaired += 1
+                if repaired == 1:
+                    print(f"  [CLOSURE] {src} --[{formula}]--> {dst} (dangling→anchored)")
+
+        if repaired:
+            print(f"  [CLOSURE] {repaired}/{len(dangling[:3])} dangling nodes repaired (gen {self.generation})")
+
+    def _find_closure_edge(self, node_id: str, anchor_nodes: set):
+        """为悬挂节点找一条到锚点的闭包边。优先用 sympy derive。"""
+        from physics.math_derive import derive
+        # 优先尝试直接 derive 到锚点
+        for anchor in list(anchor_nodes)[:30]:
+            try:
+                result = derive(anchor, node_id) or derive(node_id, anchor)
+                if result and result.get('success'):
+                    formula = str(result.get('relation', result.get('steps', ['?'])[0]))[:60]
+                    return (anchor, node_id, formula)
+            except Exception:
+                continue
+        # 回退: 用 effects 的终点作为桥接目标
+        nd = self.graph.get(node_id, {})
+        if isinstance(nd, dict):
+            for eff in nd.get('effects', [])[:5]:
+                target = eff[1] if len(eff) >= 2 else None
+                if not target or target == node_id: continue
+                for anchor in list(anchor_nodes)[:10]:
+                    try:
+                        r1 = derive(anchor, node_id)
+                        if not (r1 and r1.get('success')): continue
+                        r2 = derive(node_id, target)
+                        if not (r2 and r2.get('success')): continue
+                        formula = f"{str(r1.get('relation','?'))[:20]}→{str(r2.get('relation','?'))[:20]}"
+                        return (anchor, target, formula)
+                    except Exception:
+                        continue
+        return None
 
     # ═══════ 内存 ═══════
 

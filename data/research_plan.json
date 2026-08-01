@@ -2681,7 +2681,79 @@
       "time_spent": 0,
       "hypotheses": 0,
       "coincidence": 0
+    },
+    {
+      "id": 316,
+      "topic": "focal_length",
+      "status": "pending",
+      "created": 40,
+      "time_spent": 0,
+      "hypotheses": 0,
+      "coincidence": 0
+    },
+    {
+      "id": 317,
+      "topic": "buoyant_force",
+      "status": "pending",
+      "created": 30,
+      "time_spent": 0,
+      "hypotheses": 0,
+      "coincidence": 0
+    },
+    {
+      "id": 318,
+      "topic": "lorentz_force",
+      "status": "pending",
+      "created": 40,
+      "time_spent": 0,
+      "hypotheses": 0,
+      "coincidence": 0
+    },
+    {
+      "id": 319,
+      "topic": "hyp:abs:mass__experimental_design:phonon",
+      "status": "pending",
+      "created": 40,
+      "time_spent": 0,
+      "hypotheses": 0,
+      "coincidence": 0
+    },
+    {
+      "id": 320,
+      "topic": "erasure_of_one_bit_of_information",
+      "status": "pending",
+      "created": 50,
+      "time_spent": 0,
+      "hypotheses": 0,
+      "coincidence": 0
+    },
+    {
+      "id": 321,
+      "topic": "four_vector_electromagnetic_potential",
+      "status": "pending",
+      "created": 50,
+      "time_spent": 0,
+      "hypotheses": 0,
+      "coincidence": 0
+    },
+    {
+      "id": 322,
+      "topic": "area",
+      "status": "pending",
+      "created": 20,
+      "time_spent": 0,
+      "hypotheses": 0,
+      "coincidence": 0
+    },
+    {
+      "id": 323,
+      "topic": "radiated_power",
+      "status": "pending",
+      "created": 20,
+      "time_spent": 0,
+      "hypotheses": 0,
+      "coincidence": 0
     }
   ],
-  "next_id": 316
+  "next_id": 324
 }

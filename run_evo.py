@@ -6,6 +6,9 @@ from collections import Counter
 
 # 把 physcausal 目录加入路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# 确保 user site-packages 在路径中（sympy 等）
+import site
+site.addsitedir(os.path.expanduser('~/.local/lib/python3.14/site-packages'))
 
 # ── PID 互斥锁: 防止重复启动 ──
 PIDFILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "evo.pid")
