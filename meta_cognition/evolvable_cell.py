@@ -150,7 +150,13 @@ class EvolvableCell:
         META_PARAMS = {"curiosity", "reinforce_rate", "decay_rate", "mutation_rate", "niche"}
         action_keys = [a for a in actions if a not in META_PARAMS]
         weights = [max(0.01, self.genome.get(a, 1.0 / len(ACTIONS))) for a in action_keys]
-        
+
+        # 🏠 密度依赖: 全局细胞越多 → split 权重越低 (生态位竞争)
+        density = getattr(self, '_density_pressure', 1.0)
+        for i, a in enumerate(action_keys):
+            if a == 'split':
+                weights[i] *= density
+
         # 振荡节律: dopa群内临时加倍行动权重
         osc = getattr(self, '_osc_boost', 1.0)
         if osc > 1.0:

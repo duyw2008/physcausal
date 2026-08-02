@@ -10,21 +10,12 @@
       "coincidence": 0
     },
     {
-      "id": 15,
-      "topic": "second_harmonic_signal",
-      "status": "active",
-      "created": 530,
-      "time_spent": 0,
-      "hypotheses": 0,
-      "coincidence": 0
-    },
-    {
       "id": 16,
       "topic": "detection_sensitivity",
-      "status": "pending",
-      "created": 110322,
-      "time_spent": 0,
-      "hypotheses": 0,
+      "status": "active",
+      "created": 1060,
+      "time_spent": 530,
+      "hypotheses": 18,
       "coincidence": 0
     },
     {
@@ -2753,7 +2744,61 @@
       "time_spent": 0,
       "hypotheses": 0,
       "coincidence": 0
+    },
+    {
+      "id": 324,
+      "topic": "four_vector_scalar_product",
+      "status": "pending",
+      "created": 710,
+      "time_spent": 0,
+      "hypotheses": 0,
+      "coincidence": 0
+    },
+    {
+      "id": 325,
+      "topic": "slit_separation",
+      "status": "pending",
+      "created": 710,
+      "time_spent": 0,
+      "hypotheses": 0,
+      "coincidence": 0
+    },
+    {
+      "id": 326,
+      "topic": "system_state",
+      "status": "pending",
+      "created": 710,
+      "time_spent": 0,
+      "hypotheses": 0,
+      "coincidence": 0
+    },
+    {
+      "id": 327,
+      "topic": "hbar",
+      "status": "pending",
+      "created": 720,
+      "time_spent": 0,
+      "hypotheses": 0,
+      "coincidence": 0
+    },
+    {
+      "id": 328,
+      "topic": "quantum_gravity_approach",
+      "status": "pending",
+      "created": 1500,
+      "time_spent": 0,
+      "hypotheses": 0,
+      "coincidence": 0
+    },
+    {
+      "id": 329,
+      "topic": "rotation_velocity",
+      "status": "pending",
+      "created": 50,
+      "time_spent": 0,
+      "hypotheses": 0,
+      "coincidence": 0
     }
   ],
-  "next_id": 324
+  "next_id": 330
 }

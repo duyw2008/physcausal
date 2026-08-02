@@ -136,10 +136,14 @@ class SynapticLayer:
         if len(edge['n']) < self.MAX_NEURONS_PER_EDGE:
             edge['n'].add(neuron_id)
         edge['g'] = generation
-        # 🏋️ 强边正向反馈: s值越高, 走过时强化越多 (马太效应加速结构优化)
-        # 2026-07-30 FIX: clamp bonus factor (max 1.75 at s=5) + hard cap s≤100
-        # Previous s*0.5 caused exponential blowup → 8 edges hit 10^62~10^122
-        bonus = strength * (1.0 + min(edge['s'], 5.0) * 0.15)
+        # 🏋️ BCM 突触竞争: 低 s → Hebbian 增强, 高 s → 自限抑制
+        # s=0→×1.0, s=3→×1.3(峰值), s=5→×0.81, s=10→×0.42
+        s_val = edge['s']
+        if s_val <= 3.0:
+            bcm_factor = 1.0 + s_val * 0.1
+        else:
+            bcm_factor = 1.3 / (1.0 + (s_val - 3.0) * 0.3)
+        bonus = strength * bcm_factor
         edge['s'] = min(edge['s'] + bonus, 100.0)
         edge['c'] += 1
         
@@ -168,11 +172,12 @@ class SynapticLayer:
         edge = self.activations[key]
         unique = len(edge['n'])  # O(1)!
 
-        # ── t4 → t3 晋升 (三道闸门) ──
+        # ── t4 → t3 晋升 (三道闸门 + 生存期) ──
         if current == 4:
             # 闸门1: 严进 — 需要更多独立神经元共识
             threshold = max(10, self._cell_count // 8) if self._cell_count > 0 else 10
             if unique < threshold:
+                edge.pop('eligible_since', None)  # 掉落 → 重置生存期
                 return
 
             src, dst = key
@@ -188,8 +193,18 @@ class SynapticLayer:
             if not phys.get("passed", True):
                 return  # 物理约束失败, 留在 t4
 
+            # 🕐 生存期: 需持续满足闸门 SURVIVAL_WINDOW 代才晋升 (过滤随机碰撞假阳性)
+            SURVIVAL_WINDOW = 50
+            eligible_since = edge.get('eligible_since')
+            if eligible_since is None:
+                edge['eligible_since'] = generation
+                return
+            if generation - eligible_since < SURVIVAL_WINDOW:
+                return
+
             self.tiers[key] = 3
             edge.pop('t4_birth', None)  # 晋升成功 → 撤销死刑计时器
+            edge.pop('eligible_since', None)
 
         # ── t3 → t2 巩固 ──
         if current == 3 and unique >= self.CONSOLIDATION_THRESHOLD:

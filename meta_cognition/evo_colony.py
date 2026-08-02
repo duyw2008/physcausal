@@ -789,6 +789,7 @@ class EvoColony:
                 cell._synapse_fallback = self._syn_out.get(cell.node, [])
                 cell._myelin = self._myelin_set
                 cell._dopamine = self._dopamine_boost
+                cell._density_pressure = max(0.15, 1500.0 / max(len(self.cells), 10))
                 # 清理过期刺激
                 if hasattr(cell, '_stimulus_until') and self.generation > cell._stimulus_until:
                     cell._stimulus = 1.0
@@ -1585,8 +1586,12 @@ class EvoColony:
             if self.generation % 50 == 0:
                 self._check_and_feed()
                 if len(self.cells) < 500:
-                    print(f"\n  [DEATH_SPIRAL] neurons:{len(self.cells)} -> feed+resetK")
-                    self._feed_knowledge()
+                    # 🛡️ 冷却期: 100代内不重复 feed (防止 rebuild → WHY 卡死)
+                    last_feed = getattr(self, '_last_feed_knowledge_gen', -999)
+                    if self.generation - last_feed > 100:
+                        print(f"\n  [DEATH_SPIRAL] neurons:{len(self.cells)} -> feed+resetK")
+                        self._feed_knowledge()
+                        self._last_feed_knowledge_gen = self.generation
                     edge_k = max(5000, len(self.graph) * 2 + len(self.cells) // 4)
                     self._carrying_capacity = max(self._carrying_capacity, edge_k)
                 adaptive_ltd = max(300, self.generation // 10)
@@ -2152,20 +2157,23 @@ class EvoColony:
         oracle_pe = 0.3
         candidates.append(("oracle", oracle_pe, self._llm_verify_hypotheses))
 
-        # WHY: 矛盾存在就溯源 — 不经过 PE
+        # WHY/ALT: 暂时禁用 (图遍历死循环 bug, 待修复)
+        # 原逻辑: feed 后冷却期跳过 + len(graph) < 1000
+        pass
+        """
         if not self._contradiction_nodes:
             self._detect_contradictions()
-        if self._contradiction_nodes:
+        if self._contradiction_nodes and not feed_cooldown:
             try:
                 self._why_contradictions()
             except Exception:
                 pass
-        # ALT: 替代视角
-        if self._contradiction_nodes:
+        if self._contradiction_nodes and not feed_cooldown:
             try:
                 self._alternate_why()
             except Exception:
                 pass
+        """
 
         # 其余模块按 PE 门槛全跑
 
