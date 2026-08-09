@@ -3657,8 +3657,23 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 src.startswith(('hyp:', 'abs:')) or dst.startswith(('hyp:', 'abs:')) or
                 len(src) > 30 or len(dst) > 30 or
                 src.count('_') > 4 or dst.count('_') > 4 or
+                (len(src) > 26 and src.count('_') >= 3) or
+                (len(dst) > 26 and dst.count('_') >= 3) or
                 src == dst
             )
+            # 已知长概念名白名单 (注入的物理概念)
+            _KNOWN_LONG = {'spontaneous_symmetry_breaking', 'angular_momentum_conservation',
+                          'electromagnetic_field', 'representation_theory', 'spin_statistics_theorem',
+                          'translational_symmetry', 'rotational_symmetry', 'momentum_conservation',
+                          'energy_conservation', 'time_translation_symmetry', 'lorentz_invariance',
+                          'vacuum_fluctuation', 'uncertainty_principle', 'asymptotic_freedom',
+                          'spin_angular_momentum', 'force_mediation', 'particle_spectrum',
+                          'higgs_mechanism', 'poincare_group', 'gauge_symmetry',
+                          'spontaneous_symmetry_breaking', 'ward_identity', 'strong_force'}
+            if len(src) <= 35 and src.count('_') <= 4 and src in _KNOWN_LONG:
+                is_noise = False
+            if len(dst) <= 35 and dst.count('_') <= 4 and dst in _KNOWN_LONG:
+                is_noise = False
             if is_noise:
                 tiers[key] = 4
                 demoted_noise += 1
