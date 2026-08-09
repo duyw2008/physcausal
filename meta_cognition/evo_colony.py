@@ -2744,6 +2744,38 @@ class EvoColony:
             self.synapse.tiers.pop(key, None)
         
         
+        # 2.5. 结构巩固: 高可信边 (t1/t2/t3, s>1, n≥2) 睡眠重放加固
+        #       生物学类比: 慢波睡眠期间海马体向新皮层重放重要记忆
+        consolidated = 0
+        if hasattr(self, 'synapse') and hasattr(self.synapse, 'tiers'):
+            from meta_cognition.synaptic_layer import neuron_fire_on_path
+            for key, tier in list(self.synapse.tiers.items()):
+                if tier > 3:
+                    continue
+                edge = self.synapse.activations.get(key, {})
+                s_val = edge.get('s', 0)
+                n_val = edge.get('n', 0)
+                if s_val < 1.0 or n_val < 2:
+                    continue
+                src = key[0] if isinstance(key, tuple) else key.split('|||')[0]
+                dst = key[1] if isinstance(key, tuple) else key.split('|||')[1]
+                # 虚拟细胞走这条边, 加固突触 (强度 1.5, 比普通重放高)
+                for _ in range(min(3, int(n_val // 10) + 1)):
+                    fake_walk = [(src, 'sleep_consolidate', dst)]
+                    fake_cell = type('C', (), {
+                        'current_walk': fake_walk,
+                        'walk_memory': [fake_walk],
+                        'node': src,
+                        'genome': {},
+                        'trace': {},
+                        'intrinsic_curiosity': 1.0,
+                        'total_reward': 0,
+                    })()
+                    neuron_fire_on_path(fake_cell, self.synapse, self.generation, strength=1.5)
+                    consolidated += 1
+        if consolidated:
+            print(f"  [CONSOLIDATE] {consolidated} high-tier edges replayed (s>1, n>=2)")
+        
         # 3. 反向重放: 倒走最强路径, 可能发现捷径
         from meta_cognition.synaptic_layer import neuron_fire_on_path
         reversed_paths = 0
