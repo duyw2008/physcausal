@@ -2716,6 +2716,24 @@ class EvoColony:
             edge['s'] *= max(0.7, min(0.9, decay))  # clamp [0.7, 0.9]
             edge['c'] = max(1, int(edge['c'] * 0.8))
         
+        # 1b. 密度竞争: 节点出边越多, 弱边衰减越快 (自限, 无硬上限)
+        #     生物学类比: 突触竞争有限神经营养因子, 密度越高淘汰越烈
+        node_degree = {}
+        for key in self.synapse.activations:
+            src = key[0] if isinstance(key, tuple) else key.split('|||')[0]
+            node_degree[src] = node_degree.get(src, 0) + 1
+        density_penalty_applied = 0
+        for key, edge in list(self.synapse.activations.items()):
+            src = key[0] if isinstance(key, tuple) else key.split('|||')[0]
+            deg = node_degree.get(src, 0)
+            if deg > 20:
+                # 密度越高惩罚越重: deg=50 → ×0.91, deg=100 → ×0.86, deg=200 → ×0.82
+                penalty = max(0.80, 1.0 - (deg - 20) * 0.001)
+                edge['s'] *= penalty
+                density_penalty_applied += 1
+        if density_penalty_applied:
+            print(f"  [DENSITY] {density_penalty_applied} edges penalized (degree > 20)")
+        
         # 2. 自然淘汰: s<0.01 的边视为消失 (极低, 跟0没区别)
         eliminated = []
         for key, edge in list(self.synapse.activations.items()):
