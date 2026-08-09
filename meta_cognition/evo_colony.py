@@ -3635,7 +3635,7 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         pass
 
     def _audit_t3_noise(self):
-        """睡眠审计: 弱 t3 假说(s<0.05) + 噪声节点(hyp/abs/arXiv碎片/自环) 降级为 t4"""
+        """睡眠审计: 噪声节点(名字垃圾)优先降级, 弱边(s<0.05)其次"""
         if not hasattr(self, 'synapse'):
             return
         tiers = getattr(self.synapse, 'tiers', {})
@@ -3645,13 +3645,7 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         for key, tier in list(tiers.items()):
             if tier != 3:
                 continue
-            # 弱边降级
-            s_val = acts.get(key, {}).get('s', 0)
-            if s_val < 0.05:
-                tiers[key] = 4
-                demoted_weak += 1
-                continue
-            # 噪声节点降级: hyp/abs 前缀, arXiv 碎片, 自环
+            # 噪声节点降级优先 (不管 s 值多高, 名字是垃圾就降)
             if isinstance(key, tuple):
                 src, dst = key
             else:
@@ -3668,6 +3662,12 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             if is_noise:
                 tiers[key] = 4
                 demoted_noise += 1
+                continue
+            # 弱边降级 (名字干净的弱边)
+            s_val = acts.get(key, {}).get('s', 0)
+            if s_val < 0.05:
+                tiers[key] = 4
+                demoted_weak += 1
         if demoted_weak or demoted_noise:
             print(f"  [SLEEP_T3] {demoted_weak} weak + {demoted_noise} noise t3 demoted (s<0.05 or noise)")
 
