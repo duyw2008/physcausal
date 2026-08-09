@@ -2801,7 +2801,7 @@ class EvoColony:
                         'intrinsic_curiosity': 1.0,
                         'total_reward': 0,
                     })()
-                    neuron_fire_on_path(fake_cell, self.synapse, self.generation, strength=1.5)
+                    neuron_fire_on_path(fake_cell, self.synapse, self.generation, strength=0.3)
                     consolidated += 1
         if consolidated:
             print(f"  [CONSOLIDATE] {consolidated} high-tier edges replayed (s>1, n>=2)")

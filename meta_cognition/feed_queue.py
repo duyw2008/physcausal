@@ -171,8 +171,11 @@ class FeedQueue:
                     if key not in colony.synapse.activations:
                         colony.synapse.activations[key] = {
                             'n': set(), 'g': colony.generation,
-                            's': initial_s, 'c': 0
+                            's': initial_s, 'c': 1
                         }
+                    # axomatic 域注入 → 直接设 tier 2 (已验证), 睡眠巩固会保护
+                    if domain == 'axomatic' and hasattr(colony.synapse, 'tiers'):
+                        colony.synapse.tiers[key] = 2
                 stats["edges"] += 1
 
         elif item_type == "stimulus":
