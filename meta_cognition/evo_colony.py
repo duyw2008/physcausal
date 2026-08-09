@@ -3652,18 +3652,22 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 demoted_weak += 1
                 continue
             # 噪声节点降级: hyp/abs 前缀, arXiv 碎片, 自环
-            parts = key.split('|||')
-            if len(parts) == 2:
+            if isinstance(key, tuple):
+                src, dst = key
+            else:
+                parts = key.split('|||')
+                if len(parts) != 2:
+                    continue
                 src, dst = parts
-                is_noise = (
-                    src.startswith(('hyp:', 'abs:')) or dst.startswith(('hyp:', 'abs:')) or
-                    len(src) > 30 or len(dst) > 30 or
-                    src.count('_') > 4 or dst.count('_') > 4 or
-                    src == dst
-                )
-                if is_noise:
-                    tiers[key] = 4
-                    demoted_noise += 1
+            is_noise = (
+                src.startswith(('hyp:', 'abs:')) or dst.startswith(('hyp:', 'abs:')) or
+                len(src) > 30 or len(dst) > 30 or
+                src.count('_') > 4 or dst.count('_') > 4 or
+                src == dst
+            )
+            if is_noise:
+                tiers[key] = 4
+                demoted_noise += 1
         if demoted_weak or demoted_noise:
             print(f"  [SLEEP_T3] {demoted_weak} weak + {demoted_noise} noise t3 demoted (s<0.05 or noise)")
 
