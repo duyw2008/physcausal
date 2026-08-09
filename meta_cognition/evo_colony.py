@@ -35,7 +35,8 @@ class EvoColony:
     # 边域白名单: 只有经过证明的域能进入因果图
     VALID_EDGE_DOMAINS = {"math_verified", "mechanics", "electromagnetism",
                           "thermodynamics", "quantum", "optics",
-                          "modern", "general_relativity", "emergent"}
+                          "modern", "general_relativity", "emergent",
+                          "qcd", "research", "axomatic"}
     DENSITY_DEATH_K_HALF = 0.5             # ↓0.7→0.5: 更早触发密度死亡
     DENSITY_DEATH_MAX_RATE = 1.0          # 去盖: 密度极高时可杀100%
     STARVATION_PERCENTILE = 0.10         # ↑0.08→0.10: 更大饥饿范围
@@ -44,7 +45,7 @@ class EvoColony:
     MEMORY_CRITICAL_FRACTION = 0.75
     MEMORY_FLUSH_FRACTION = 0.68
     SNAPSHOT_INTERVAL = 100            # ↓500→100: 更频繁存快照, 重启少丢进度
-    MAX_SNAPSHOTS = 2            # 磁盘和内存紧张, 只保留最新2个
+    MAX_SNAPSHOTS = 10           # 保留最近10个快照, 防止清理吃掉
     ABSTRACTION_THRESHOLD = 10
 
     METHODOLOGY_NODES = {
@@ -108,6 +109,9 @@ class EvoColony:
         self._coincidence: Dict[Tuple[str, str], int] = {}
         self._load_coincidence()
         
+        # hyp 注册表: 假说节点只在大脑(海马体)层, 不进知识图谱(新皮层)
+        self._hyp_registry: set = set()
+        
         # 本体觉: 脑感受自己的 emergent 结构统计
         from meta_cognition.proprioception import Proprioception
         self.proprioception = Proprioception()
@@ -133,6 +137,15 @@ class EvoColony:
         self._node_vecs: Dict[str, list] = {}
         self.SEMANTIC_DIM = 64
         self.SEMANTIC_LR = 0.01  # 学习率
+
+        # 预测反馈: 偏差驱动的反向候选边 (predictive coding)
+        self._reverse_candidates: list = []  # [(src, dst, delta_s, gen), ...]
+        self._predictive_threshold = 0.25  # Δs 累计超过此值触发反向推导
+        self._last_feedback_gen = 0  # 防止同代重复处理
+
+        # 社会脑: 共享信号池 (最近活跃的细胞, 用于多巴胺广播)
+        self._active_cohort: list = []  # [cell_id, ...]
+        self._active_pool_max = 200   # 池容量上限
 
         self._priority_nodes: set = set()  # 优先唤醒
         self._resolved_nodes: set = set()  # 被解决矛盾
@@ -219,10 +232,10 @@ class EvoColony:
         if len(node_id) > 40:
             return
         # 含箭头 (→) — LLM 拼接特征
-        if '→' in node_id or '->' in node_id or '__' in node_id:
+        if '→' in node_id or '->' in node_id or ('__' in node_id and not node_id.startswith('comp:')):
             return
         # 含下划线过多 → 碎片拼接 (如 remnant_black_hole_mass_disorder)
-        if node_id.count('_') > 3:
+        if node_id.count('_') > 3 and not node_id.startswith('comp:'):
             return
         self.graph.setdefault(node_id, {"causes": [], "effects": []})
 
@@ -234,27 +247,18 @@ class EvoColony:
     HYPNODE_PREFIX = "hyp:"
 
     def _ensure_hyp_node(self, src: str, dst: str) -> str:
-        """为 t3 假说创建假设节点。已存在则返回现有名。"""
-        # 防止递归: hyp 节点不作为 hyp-node 的源或目标
+        """为 t3 假说创建假设节点 (只存海马体, 不进知识图谱)。
+
+        人脑同构: 海马体快速编码假说, 不污染新皮层固化知识。
+        hyp 只存在于 coincidence 表 + INTERVENE 追踪池，不进入 self.graph。
+        细胞不会走到 hyp 节点上——图保持干净。"""
         if src.startswith(self.HYPNODE_PREFIX) or dst.startswith(self.HYPNODE_PREFIX):
             return ""
         name = f"{self.HYPNODE_PREFIX}{src}:{dst}"
-        if name in self.graph:
+        if name in self._hyp_registry:
             return name
-        self._ensure_node(src)
-        self._ensure_node(dst)
-        self._ensure_node(name)
-        # hyp ↔ src: 假说预测源
-        self.graph[name].setdefault('effects', []).append(
-            ('self_models', src, 'hypothesis'))
-        self.graph[src].setdefault('causes', []).append(
-            (name, 'self_models', 'hypothesis'))
-        # hyp ↔ dst: 假说预测目标
-        self.graph[name].setdefault('effects', []).append(
-            ('self_models', dst, 'hypothesis'))
-        self.graph[dst].setdefault('causes', []).append(
-            (name, 'self_models', 'hypothesis'))
-        # 基线可见度: hyp 节点在 coincidence 中有初始存在感
+        self._hyp_registry.add(name)
+        # 基线可见度: hyp 在 coincidence 中有初始存在感 (海马体快速编码)
         self._coincidence[(name, src)] = self._coincidence.get((name, src), 0) + 3
         self._coincidence[(src, name)] = self._coincidence.get((src, name), 0) + 3
         self._coincidence[(name, dst)] = self._coincidence.get((name, dst), 0) + 3
@@ -277,7 +281,7 @@ class EvoColony:
             if src.startswith(self.HYPNODE_PREFIX) or dst.startswith(self.HYPNODE_PREFIX):
                 continue
             name = f"{self.HYPNODE_PREFIX}{src}:{dst}"
-            if name in self.graph:
+            if name in self._hyp_registry:
                 continue
             # 只建跟目标有足够重叠的: 至少 2 个不同目标词 (过滤 loss/method 等泛词)
             node_words = set(src.replace('_', ' ').split()) | set(dst.replace('_', ' ').split())
@@ -651,16 +655,16 @@ class EvoColony:
         cutoff = self.generation - self.WALK_DIGEST_WINDOW
         to_digest = []
         keep = []
-        for walk, gen in self._walk_buffer:
+        for walk, gen, cell_id in self._walk_buffer:
             if gen < cutoff:
-                to_digest.append(walk)
+                to_digest.append((walk, gen, cell_id))
             else:
-                keep.append((walk, gen))
+                keep.append((walk, gen, cell_id))
         self._walk_buffer = keep
-        for walk in to_digest:
+        for walk, gen, cell_id in to_digest:
             for step in walk:
                 if len(step) >= 3:
-                    self.synapse.strengthen(0, step[0], step[2], 0.1, self.generation)
+                    self.synapse.strengthen(cell_id, step[0], step[2], 0.1, self.generation)
         if to_digest:
             print(f"  ☁️ 消化: {len(to_digest)} walks → 突触")
 
@@ -723,11 +727,19 @@ class EvoColony:
             syn_out[src].sort(key=lambda x: -x[1])
             syn_out[src] = syn_out[src][:5]
         self._syn_out = dict(syn_out)
-        # 🧠 髓鞘快车道: unique_neurons >= 50 的边跳过 EIG
+        # 🧠 髓鞘快车道: unique_neurons >= 10 的边跳过 EIG
         self._myelin_set = set(
             key for key, act in self.synapse.activations.items()
-            if isinstance(act, dict) and act.get('unique_neurons', 0) >= 50
+            if isinstance(act, dict) and act.get('unique_neurons', 0) >= 10
         )
+        # 🧠 人气梯度: 0~1 连续值, max=20, 用于评分平滑加成
+        max_un = max((act.get('unique_neurons', 0) for act in self.synapse.activations.values()
+                      if isinstance(act, dict)), default=1)
+        self._popularity_map = {
+            key: min(act.get('unique_neurons', 0) / max(20, max_un), 1.0)
+            for key, act in self.synapse.activations.items()
+            if isinstance(act, dict) and act.get('unique_neurons', 0) > 0
+        }
 
         # 🧠 全局多巴胺浪涌: 🧩 变化 → 全脑 curiosity boost (持续20代)
         composed_now = getattr(self, '_composed_total', 0)
@@ -788,6 +800,7 @@ class EvoColony:
                 # 🛤️ 突触补路 + 髓鞘快车道 + 多巴胺
                 cell._synapse_fallback = self._syn_out.get(cell.node, [])
                 cell._myelin = self._myelin_set
+                cell._popularity = self._popularity_map
                 cell._dopamine = self._dopamine_boost
                 cell._density_pressure = max(0.15, 1500.0 / max(len(self.cells), 10))
                 # 清理过期刺激
@@ -797,6 +810,11 @@ class EvoColony:
                 cell._last_result = result
                 self.total_actions += 1
                 did_walk = result["type"] != "rest"
+                # 🧠 社会脑: 走过的细胞加入活跃池
+                if did_walk:
+                    self._active_cohort.append(id(cell))
+                    if len(self._active_cohort) > self._active_pool_max:
+                        self._active_cohort = self._active_cohort[-self._active_pool_max:]
                 if result["type"] == "split" and "child" in result:
                     children.append(result["child"])
                     stats["births"] += 1
@@ -806,6 +824,25 @@ class EvoColony:
                     if axon_target:
                         self.synapse.retrograde_signal(axon_target, 
                             valence=result.get("axon_strength", 1.0))
+
+                # 🧠 预测编码: 比较预期 s 与实际 s，偏差驱动反向候选
+                if did_walk and result["type"] == "step_forward" and self.generation % 3 == 0:
+                    src = result.get("from", "")
+                    dst = result.get("to", "")
+                    if src and dst:
+                        key = (src, dst)
+                        edge_data = self.synapse.activations.get(key)
+                        actual_s = edge_data.get("s", 0) if isinstance(edge_data, dict) else 0
+                        # 预测: 基于 src 所有 outgoing 边的平均 s
+                        out_s_vals = []
+                        for k, v in self.synapse.activations.items():
+                            if isinstance(k, tuple) and len(k) == 2 and k[0] == src:
+                                if isinstance(v, dict):
+                                    out_s_vals.append(v.get("s", 0))
+                        predicted_s = sum(out_s_vals) / max(len(out_s_vals), 1)
+                        delta = abs(actual_s - predicted_s)
+                        if delta > 0.15 and actual_s > 0:
+                            self._reverse_candidates.append((src, dst, delta, self.generation))
 
             # ☁️ 追踪活性历史
             history = self._activity_history.setdefault(id(cell), [])
@@ -817,11 +854,22 @@ class EvoColony:
             wm = getattr(cell, 'walk_memory', [])
             if wm:
                 _total_walks += len(wm)
-                for walk in wm[-2:]:  # 最近2条
+                for walk in wm[-3:]:  # 最近3条 (微增覆盖)
                     if len(walk) >= 2:
-                        self._walk_buffer.append((list(walk), self.generation))
+                        self._walk_buffer.append((list(walk), self.generation, id(cell) % 10000))
 
         self._cached_total_walks = _total_walks
+
+        # 🧠 社会脑: 多巴胺广播 — 活跃细胞池共享奖励
+        if self._active_cohort and self.total_rewards > getattr(self, '_last_broadcast_rewards', 0):
+            reward_delta = self.total_rewards - getattr(self, '_last_broadcast_rewards', 0)
+            broadcast_share = reward_delta * 0.15  # 15% 分给池子
+            active_ids = set(self._active_cohort[-100:])  # 最近 100 个活跃细胞
+            cell_map = {id(c): c for c in self.cells if id(c) in active_ids}
+            shared = broadcast_share / max(len(cell_map), 1)
+            for c in cell_map.values():
+                c.total_reward += shared
+            self._last_broadcast_rewards = self.total_rewards
 
         # 添加孩子
         for child in children:
@@ -851,7 +899,8 @@ class EvoColony:
                     continue
                 self._ensure_node(child.node)
                 self._ensure_node(dst)
-                self.graph.add_edge(child.node, dst, "hebbian_shortcut", "probe")
+                if self._valid_edge("probe"):
+                    self.graph.add_edge(child.node, dst, "hebbian_shortcut", "probe")
                 self._probe_edges[(child.node, dst)] = self.generation
 
     def _apply_deaths(self, stats: dict, K: int):
@@ -1466,18 +1515,20 @@ class EvoColony:
                         key = (from_node, to_node)
                         if confirmed:
                             # 物理定律证实: 强化 + 升级 tier
-                            self.synapse.strengthen(0, from_node, to_node, 0.5, self.generation)
+                            self.synapse.strengthen(id(cell) % 10000, from_node, to_node, 0.5, self.generation)
                             if key in self.synapse.tiers and self.synapse.tiers[key] > 2:
                                 self.synapse.tiers[key] = 2  # 物理验证→tier2
+                            self.synapse._physics_check(key)  # 补物理验证记录
                             self._ensure_node(from_node)
                             self._ensure_node(to_node)
                             exists = any(e[1] == to_node for e in 
                                         self.graph[from_node].get('effects', []))
                             if not exists:
-                                self.graph[from_node].setdefault('effects', []).append(
-                                    ('physics_confirmed', to_node, 'experiment'))
-                                self.graph[to_node].setdefault('causes', []).append(
-                                    (from_node, 'physics_confirmed', 'experiment'))
+                                if self._valid_edge("experiment"):
+                                    self.graph[from_node].setdefault('effects', []).append(
+                                        ('physics_confirmed', to_node, 'experiment'))
+                                    self.graph[to_node].setdefault('causes', []).append(
+                                        (from_node, 'physics_confirmed', 'experiment'))
                             self._record_discovery(f"{from_node}->{to_node}", "intervene_confirmed",
                                 f"laws={relevant_laws}, effect={effect}")
                         elif refuted:
@@ -1490,18 +1541,20 @@ class EvoColony:
                                 f"laws={relevant_laws}, effect={effect}")
                         else:
                             # 无明确证实/证伪, 但有关联公式: 标记为实验
-                            self.synapse.strengthen(0, from_node, to_node, 0.15, self.generation)
+                            self.synapse.strengthen(id(cell) % 10000, from_node, to_node, 0.15, self.generation)
                             if key in self.synapse.tiers and self.synapse.tiers[key] > 3:
                                 self.synapse.tiers[key] = 3
+                            self.synapse._physics_check(key)  # 补物理验证记录
                             self._ensure_node(from_node)
                             self._ensure_node(to_node)
                             exists = any(e[1] == to_node for e in 
                                         self.graph[from_node].get('effects', []))
                             if not exists:
-                                self.graph[from_node].setdefault('effects', []).append(
-                                    ('intervene_experiment', to_node, 'experiment'))
-                                self.graph[to_node].setdefault('causes', []).append(
-                                    (from_node, 'intervene_experiment', 'experiment'))
+                                if self._valid_edge("experiment"):
+                                    self.graph[from_node].setdefault('effects', []).append(
+                                        ('intervene_experiment', to_node, 'experiment'))
+                                    self.graph[to_node].setdefault('causes', []).append(
+                                        (from_node, 'intervene_experiment', 'experiment'))
                         # 🔬 反写源头假说 (hyp-node self-correction)
                         for node in (from_node, to_node):
                             if node.startswith(self.HYPNODE_PREFIX):
@@ -1786,7 +1839,7 @@ class EvoColony:
         for key, edge in list(self.synapse.activations.items()):
             src, dst = key
             hyp_name = f"{self.HYPNODE_PREFIX}{src}:{dst}"
-            if hyp_name not in self.graph:
+            if hyp_name not in self._hyp_registry:
                 continue
             s_val = edge.get('s', 0)
             c_val = edge.get('c', 0)
@@ -1853,6 +1906,47 @@ class EvoColony:
                 promoted += 1
         if pruned or promoted:
             print(f"  [VERIFY] -{pruned} composed pruned +{promoted} promoted (gen {self.generation})")
+
+    # ═══════ 思想构建: 路径合成 → 概念晋升 ═══════
+
+    def _promote_composed_concepts(self):
+        """已验证的合成路径晋升为概念节点 (思想形成)。
+
+        人脑同构: 海马体反复重放路径 → 睡眠巩固 → 新皮层形成新概念。
+        这里: 合成边存活 > 100 代 + 高 s/c → 在图里创建 comp: 概念节点。
+        图 = 教科书, 只写验证通过的思想。"""
+        if not hasattr(self, '_promoted_concepts'):
+            self._promoted_concepts = set()
+        promoted = 0
+        for key, edge in list(self.synapse.activations.items()):
+            if not isinstance(edge, dict):
+                continue
+            s_val = edge.get('s', 0)
+            c_val = edge.get('c', 0)
+            if s_val < 0.5 or c_val < 5:
+                continue
+            src, dst = key
+            comp_name = f"comp:{src}__{dst}"
+            if comp_name in self._promoted_concepts or comp_name in self.graph:
+                continue
+            # 检查图里是否已有 src→dst 的 emergent 边 (路径合成的产物)
+            src_node = self.graph.get(src, {})
+            effects = src_node.get('effects', []) if isinstance(src_node, dict) else []
+            has_emergent = any(
+                isinstance(e, (list, tuple)) and len(e) >= 3 and e[1] == dst and e[2] == 'emergent'
+                for e in effects
+            )
+            if not has_emergent:
+                continue
+            # 晋升: 创建概念节点 + axomatic 双向边
+            self._ensure_node(comp_name)
+            if comp_name in self.graph:
+                self.graph.add_edge(src, comp_name, 'compose_synthesis', 'axomatic')
+                self.graph.add_edge(comp_name, dst, 'compose_synthesis', 'axomatic')
+                self._promoted_concepts.add(comp_name)
+                promoted += 1
+        if promoted:
+            print(f"  [CONCEPT] +{promoted} composited concepts promoted (gen {self.generation})")
 
     # ═══════ 殖民层自动实验 (intervene) ═══════
 
@@ -2144,6 +2238,11 @@ class EvoColony:
         composed_count = len(getattr(self, '_composed_birth', {}))
         verify_pe = min(1.0, composed_count / 200)
         candidates.append(("verify", verify_pe, self._verify_composed_edges))
+
+        # CONCEPT: 预期 promoted concepts < 50 → 堆积越多越需要处理
+        concept_count = len(getattr(self, '_promoted_concepts', set()))
+        concept_pe = min(0.8, concept_count / 100)
+        candidates.append(("concept", concept_pe, self._promote_composed_concepts))
 
         # INTERVENE: 预期已测试 hyp-node > 20 → 未测试越多误差越大
         if hasattr(self, '_intervened_nodes'):
@@ -2590,10 +2689,11 @@ class EvoColony:
                 # 前值 → 当前值: "前一个状态导致了当前状态"
                 exists = any(e[1] == node_id for e in self.graph.get(prev_id, {}).get('effects', []))
                 if not exists:
-                    self.graph[prev_id].setdefault('effects', []).append(
-                        ('meta_shift', node_id, 'meta'))
-                    self.graph[node_id].setdefault('causes', []).append(
-                        (prev_id, 'meta_shift', 'meta'))
+                    if self._valid_edge("meta"):
+                        self.graph[prev_id].setdefault('effects', []).append(
+                            ('meta_shift', node_id, 'meta'))
+                        self.graph[node_id].setdefault('causes', []).append(
+                            (prev_id, 'meta_shift', 'meta'))
 
         self._meta_values = dict(current_meta)
 
@@ -2691,7 +2791,7 @@ class EvoColony:
                     strength = 0.25 if cell.total_reward > 10 else 0.12
                     for step in best:
                         if len(step) >= 3:
-                            self.synapse.strengthen(0, step[0], step[2], strength, self.generation)
+                            self.synapse.strengthen(id(cell) % 10000, step[0], step[2], strength, self.generation)
                     cloud_replayed += 1
         
         # 5. 🧠 海马体前向组合: 跨路径多步推理 → 发现长程因果
@@ -2743,7 +2843,7 @@ class EvoColony:
                     if key in self.synapse.activations: continue
                     
                     # 添加组合捷径
-                    self.synapse.strengthen(0, w1_start, w2_end, 
+                    self.synapse.strengthen(self.synapse.SYS_HIPPOCAMPUS, w1_start, w2_end, 
                                            0.25, self.generation)
                     # 写入图
                     self._ensure_node(w1_start)
@@ -2787,7 +2887,7 @@ class EvoColony:
                         for _ in range(3):
                             tgt = random.choice(targets)
                             if tgt != node:
-                                self.synapse.strengthen(0, node, tgt, 0.05, self.generation)
+                                self.synapse.strengthen(self.synapse.SYS_SHELF, node, tgt, 0.05, self.generation)
                     shelf_replayed += 1
             if shelf_replayed:
                 print(f"  ☁️ shelf: {shelf_replayed} genomes replayed")
@@ -2795,6 +2895,10 @@ class EvoColony:
         self.derive_perception.try_derive_from_hotspots(self)
         # 🔗 因果闭包: 结构一致性约束 — 悬挂效应节点必须补链 (QFT: 对称性→规范场)
         self._enforce_causal_closure()
+        # 🧠 预测反馈: 偏差驱动的反向边推导 (predictive coding: 大脑向下预测/向上偏差)
+        if self.generation - self._last_feedback_gen >= 10:  # 每10代检查一次
+            self._predictive_feedback()
+            self._last_feedback_gen = self.generation
 
     # ═══════ 内存 ═══════
 
@@ -2886,7 +2990,7 @@ class EvoColony:
                 src, dst, formula = best_edge
                 key = (src, dst)
                 if key not in self.synapse.activations:
-                    self.synapse.strengthen(0, src, dst, 0.35, self.generation)
+                    self.synapse.strengthen(self.synapse.SYS_CLOSURE, src, dst, 0.35, self.generation)
                 self.synapse.tiers[key] = 0  # 因果闭包边 = 公理级（tier0），成为新锚点
                 # 用 add_edge 双写 VSA+缓存，避免 rebuild 覆盖
                 self.graph.add_edge(src, dst, 'causal_closure', 'axomatic')
@@ -2932,6 +3036,60 @@ class EvoColony:
                     except Exception:
                         continue
         return None
+
+    def _predictive_feedback(self):
+        """预测编码反馈: 偏差驱动的反向边推导。
+
+        原理: 若 A→B 持续存在但 A 对 B 的预期与实际 s 值偏差大，
+        说明 B 对 A 有未知影响 → 尝试 derive(B→A) 建立反馈。
+        这是"只给容量不给方法"的实现 —— Δs 自然涌现反向候选。
+        """
+        if not self._reverse_candidates:
+            return
+        # 去重: 已建立的反向边不再重复 derive
+        if not hasattr(self, '_feedback_fixed'):
+            self._feedback_fixed: set = set()
+        # 去重 & 合并：同一边对合并 Δs
+        merged: Dict[Tuple[str, str], float] = {}
+        for src, dst, delta_s, gen in self._reverse_candidates:
+            key = (src, dst)
+            merged[key] = merged.get(key, 0) + delta_s
+        self._reverse_candidates.clear()
+
+        from physics.math_derive import derive
+        repaired = 0
+        for (src, dst), total_delta in sorted(merged.items(), key=lambda x: -x[1]):
+            if total_delta < self._predictive_threshold:
+                continue
+            if src == dst:  # 跳过自环: derive(A→A) 无意义
+                continue
+            reverse_key = (dst, src)  # 反向边的 key
+            if reverse_key in self.synapse.activations or reverse_key in self._feedback_fixed:
+                continue  # 已存在或已修复
+            if repaired >= 5:  # 每次最多 5 个
+                break
+            # 尝试 sympy derive 反向关系: B → A
+            try:
+                result = derive(dst, src)  # dst 是 effect, src 是 cause，反向推
+                if result and result.get('success'):
+                    formula = str(result.get('relation', result.get('steps', ['?'])[0]))[:60]
+                    key = (dst, src)
+                    if key not in self.synapse.activations:
+                        self.synapse.strengthen(self.synapse.SYS_FEEDBACK, dst, src, 0.25, self.generation)
+                    self.synapse.tiers[key] = 1  # tier 1: 反馈边，低于公理
+                    self.graph.add_edge(dst, src, 'predictive_feedback', 'axomatic')
+                    self.graph._dirty.discard(dst)
+                    self.graph._dirty.discard(src)
+                    self._record_discovery(f"{dst}->{src}", "predictive_feedback",
+                                           f"Δs={total_delta:.2f} formula={formula}")
+                    repaired += 1
+                    self._feedback_fixed.add(reverse_key)
+                    if repaired == 1:
+                        print(f"  [FEEDBACK] {dst} --[{formula}]--> {src} (Δs={total_delta:.2f})", flush=True)
+            except Exception:
+                continue
+        if repaired:
+            print(f"  [FEEDBACK] {repaired} reverse edges added (gen {self.generation})", flush=True)
 
     # ═══════ 内存 ═══════
 
@@ -4334,6 +4492,8 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             "synaptic": self.synapse.to_dict() if hasattr(self, 'synapse') else {},
             "cell_shelf": self._cell_shelf,  # ☁️ 磁盘种子库
             "emergent_edges": emergent_edges,
+            "hyp_registry": list(self._hyp_registry) if hasattr(self, '_hyp_registry') else [],
+            "promoted_concepts": list(self._promoted_concepts) if hasattr(self, '_promoted_concepts') else [],
             "snapshot_version": 5, "timestamp": time.time(),
         }
 
@@ -4361,6 +4521,9 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         def _is_garbage(name: str) -> bool:
             if not name:
                 return True
+            # 晋升概念: comp: 前缀是大脑自己构建的思想, 不是噪声
+            if name.startswith('comp:'):
+                return False
             if name.count(':') > 1:
                 return True
             if len(name) > 40:
@@ -4378,7 +4541,8 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         # math_verified = sympy证明, 已知物理域 = 定律注入
         VALID_DOMAINS = {"math_verified", "mechanics", "electromagnetism",
                          "thermodynamics", "quantum", "optics",
-                         "modern", "general_relativity", "emergent"}
+                         "modern", "general_relativity", "emergent",
+                         "qcd", "research", "axomatic"}
         for nid, entry in cache.items():
             entry["effects"] = [
                 e for e in entry.get("effects", [])
@@ -4501,6 +4665,14 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                     restored_em += 1
             if restored_em:
                 print(f"[EMERGENT] +{restored_em} emergent edges restored from snapshot")
+        # 恢复 hyp 注册表 (海马体假说池, 不进知识图谱)
+        hyp_data = data.get("hyp_registry", [])
+        if hyp_data and hasattr(self, '_hyp_registry'):
+            self._hyp_registry = set(hyp_data)
+        # 恢复已晋升概念
+        concept_data = data.get("promoted_concepts", [])
+        if concept_data:
+            self._promoted_concepts = set(concept_data)
         return restored
 
     def _inject_physics_bridges(self, max_bridges: int = 50):
@@ -5159,7 +5331,7 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 if len(step) >= 3:
                     w_src, _law, w_dst = step[0], step[1], step[2]
                     if w_src and w_dst and w_src != w_dst:
-                        self.synapse.strengthen(0, w_src, w_dst, 0.3, self.generation)
+                        self.synapse.strengthen(id(cell) % 10000, w_src, w_dst, 0.3, self.generation)
 
         # 图变了, 重建引用
         if edges_added > 0:
