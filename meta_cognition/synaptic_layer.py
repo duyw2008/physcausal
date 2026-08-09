@@ -43,11 +43,19 @@ class SynapticLayer:
 
     LTP_THRESHOLD: int = 10
     CONSOLIDATION_THRESHOLD: int = 50
-    LTD_WINDOW: int = 300
+    LTD_WINDOW: int = 400  # 边衰减窗口 (微增容错)
     ELIMINATION_THRESHOLD: int = 3
     STDP_WINDOW: int = 50       # 时序窗口: 反向走在此窗口内触发STDP
-    MAX_NEURONS_PER_EDGE: int = 200
-    TIER4_WINDOW: int = 200     # tier 4 晋升窗口期: 超时未晋升→消除
+    MAX_NEURONS_PER_EDGE: int = 2000  # 快照序列化安全上限 (live 系统无上限)
+    TIER4_WINDOW: int = 500     # tier 4 晋升窗口期: 超时未晋升→消除 (放宽, 给新边更多时间积累神经元共识)
+
+    # 系统级神经元 ID: 无细胞上下文的系统操作使用这些唯一ID
+    # 不同操作类型贡献不同"神经元"→ 多操作验证的边更容易晋升 t4→t3
+    SYS_HIPPOCAMPUS: int = 50002   # 海马体组合推理
+    SYS_SHELF: int = 50003         # 磁盘种子库回放
+    SYS_CLOSURE: int = 50004       # 因果闭包
+    SYS_FEEDBACK: int = 50005      # 预测反馈
+    SYS_TEACHER: int = 50006       # 教师轨迹镜像
 
     # tier 代谢成本倍率 (A): 越高越贵
     TIER_COST = {0: 0.3, 1: 0.5, 2: 0.7, 3: 2.5, 4: 3.0}  # t1补充(空洞), t3严出
@@ -132,9 +140,7 @@ class SynapticLayer:
         # 防御: 如果 n 不是 set (旧数据或 bug), 修复为 set
         if not isinstance(edge.get('n'), set):
             edge['n'] = set()
-        # 防止单边神经元集合膨胀 (热点边可能有几千神经元)
-        if len(edge['n']) < self.MAX_NEURONS_PER_EDGE:
-            edge['n'].add(neuron_id)
+        edge['n'].add(neuron_id)
         edge['g'] = generation
         # 🏋️ BCM 突触竞争: 低 s → Hebbian 增强, 高 s → 自限抑制
         # s=0→×1.0, s=3→×1.3(峰值), s=5→×0.81, s=10→×0.42
@@ -174,8 +180,12 @@ class SynapticLayer:
 
         # ── t4 → t3 晋升 (三道闸门 + 生存期) ──
         if current == 4:
-            # 闸门1: 严进 — 需要更多独立神经元共识
-            threshold = max(10, self._cell_count // 8) if self._cell_count > 0 else 10
+            # 闸门1: 严进 — 需要足够独立神经元共识 (可达但不廉价)
+            # 动态阈值: 随规模缩放但保持可达, 当前脑的神经元重叠率低
+            threshold = max(2, min(
+                self._cell_count // 2000 if self._cell_count > 0 else 2,
+                6  # 硬上限, 等重叠率上来再调高
+            ))
             if unique < threshold:
                 edge.pop('eligible_since', None)  # 掉落 → 重置生存期
                 return
@@ -327,13 +337,21 @@ class SynapticLayer:
 
             edge['c'] = max(1, int(edge['c'] * effective_decay))
             edge['s'] *= effective_decay
+            # 🏋️ BCM LTD竞争: 高s边衰减加速, 给低s边成长空间
+            s_val = edge['s']
+            if s_val > 3.0:
+                bcm_ltd = 1.0 + (s_val - 3.0) * 0.15  # s=5→×1.3, s=10→×2.05
+                edge['s'] *= bcm_ltd
 
             if len(edge['n']) > 10:
                 keep_n = max(1, int(len(edge['n']) * effective_decay))
                 edge['n'] = set(list(edge['n'])[:keep_n])
 
             unique = len(edge['n'])
-            dyn_threshold = max(10, self._cell_count // 8) if self._cell_count > 0 else 10
+            dyn_threshold = max(2, min(
+                self._cell_count // 2000 if self._cell_count > 0 else 2,
+                6  # 硬上限
+            ))
             if tier == 3 and unique < dyn_threshold:
                 self.tiers[key] = 4
                 edge['t4_birth'] = generation
@@ -366,11 +384,7 @@ class SynapticLayer:
         return eliminated
 
     def trim(self):
-        """内存修剪: 压缩神经元集合 (无硬上限, 靠自然衰退调节)"""
-        # 神经元集合压缩 (每边最多 MAX_NEURONS_PER_EDGE)
-        for key, edge in list(self.activations.items()):
-            if len(edge['n']) > self.MAX_NEURONS_PER_EDGE:
-                edge['n'] = set(list(edge['n'])[:self.MAX_NEURONS_PER_EDGE])
+        """内存修剪: 靠自然衰退调节, 不做硬上限截断"""
 
     # ── 查询 ──
 
@@ -433,8 +447,7 @@ class SynapticLayer:
                     if edge is None:
                         edge = {'n': set(), 'g': 0, 's': 0.0, 'c': 0}
                         self.activations[key] = edge
-                    if len(edge['n']) < self.MAX_NEURONS_PER_EDGE:
-                        edge['n'].add(item.get("neuron_id", 0))
+                    edge['n'].add(item.get("neuron_id", 0))
                     edge['g'] = max(edge['g'], item.get("generation", 0))
                     edge['s'] += item.get("strength", 0)
                     edge['c'] += 1
