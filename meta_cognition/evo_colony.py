@@ -2743,6 +2743,36 @@ class EvoColony:
             self.synapse.activations.pop(key, None)
             self.synapse.tiers.pop(key, None)
         
+        # 2.3. 图层面修剪: 无突触支持的 emergent 边 (幽灵边) 从图中移除
+        #       生物学类比: 树突棘修剪 — 从未被激活的突触在睡眠中被物理消除
+        pruned_graph = 0
+        for src in list(self.graph._cache.keys()):
+            nd = self.graph._cache.get(src, {})
+            effects = nd.get('effects', [])
+            kept = []
+            for e in effects:
+                if isinstance(e, (list, tuple)) and len(e) >= 3:
+                    if e[2] == 'emergent':
+                        dst = e[1]
+                        syn_key = (src, dst)
+                        edge = self.synapse.activations.get(syn_key, {})
+                        s_val = edge.get('s', 0) if isinstance(edge, dict) else 0
+                        if s_val < 0.01:
+                            pruned_graph += 1
+                            continue  # 无突触支持 → 移除
+                    kept.append(e)
+            if len(kept) < len(effects):
+                nd['effects'] = kept
+                # 同步清理 causes
+                for e in effects:
+                    if e not in kept and isinstance(e, (list, tuple)) and len(e) >= 2:
+                        dst = e[1]
+                        if dst in self.graph._cache:
+                            dst_nd = self.graph._cache[dst]
+                            dst_nd['causes'] = [c for c in dst_nd.get('causes', [])
+                                                if not (isinstance(c, (list, tuple)) and len(c) >= 2 and c[0] == src)]
+        if pruned_graph:
+            print(f"  [PRUNE_GRAPH] {pruned_graph} phantom emergent edges removed (no synapse support)")
         
         # 2.5. 结构巩固: 高可信边 (t1/t2/t3, s>1, n≥2) 睡眠重放加固
         #       生物学类比: 慢波睡眠期间海马体向新皮层重放重要记忆
@@ -2754,7 +2784,7 @@ class EvoColony:
                     continue
                 edge = self.synapse.activations.get(key, {})
                 s_val = edge.get('s', 0)
-                n_val = edge.get('n', 0)
+                n_val = len(edge.get('n', set()))
                 if s_val < 1.0 or n_val < 2:
                     continue
                 src = key[0] if isinstance(key, tuple) else key.split('|||')[0]
