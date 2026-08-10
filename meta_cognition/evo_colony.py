@@ -1514,6 +1514,11 @@ class EvoColony:
                     if from_node and to_node:
                         key = (from_node, to_node)
                         if confirmed:
+                            # 噪声闸门: hyp/abs 节点不晋升
+                            if from_node.startswith(('hyp:', 'abs:')) or to_node.startswith(('hyp:', 'abs:')):
+                                self._record_discovery(f"{from_node}->{to_node}", "intervene_blocked_noise",
+                                    f"hyp/abs node blocked from tier promotion")
+                                continue
                             # 物理定律证实: 强化 + 升级 tier
                             self.synapse.strengthen(id(cell) % 10000, from_node, to_node, 0.5, self.generation)
                             if key in self.synapse.tiers and self.synapse.tiers[key] > 2:
@@ -2743,7 +2748,7 @@ class EvoColony:
             self.synapse.activations.pop(key, None)
             self.synapse.tiers.pop(key, None)
         
-        # 2.3. 图层面修剪: 无突触支持的 emergent 边 (幽灵边) 从图中移除
+        # 2.3. 图层面修剪: 无突触支持的非白名单边 + emergent 幽灵边 从图中移除
         #       生物学类比: 树突棘修剪 — 从未被激活的突触在睡眠中被物理消除
         pruned_graph = 0
         for src in list(self.graph._cache.keys()):
@@ -2752,7 +2757,9 @@ class EvoColony:
             kept = []
             for e in effects:
                 if isinstance(e, (list, tuple)) and len(e) >= 3:
-                    if e[2] == 'emergent':
+                    domain = e[2]
+                    # 非白名单域 或 emergent: 需要有突触支撑才保留
+                    if domain not in self.VALID_EDGE_DOMAINS or domain == 'emergent':
                         dst = e[1]
                         syn_key = (src, dst)
                         edge = self.synapse.activations.get(syn_key, {})
@@ -2950,6 +2957,8 @@ class EvoColony:
         self._strip_cold_edges()          # 剥离纯冷边
         self._sort_graph_by_edge_s()      # 按 s 值重排边序
         self._audit_t3_noise()            # 清理弱 t3 噪声
+        self._audit_t2_noise()            # 清理 t0-2 噪声 (hyp/abs/碎片/自环)
+        self._audit_t4_survival()         # t4 存活期检查: n=1+s停滞 → 删除
         self._prune_stale_emergent()      # 🧠 持续清理: 没人走的 emergent 标签摘除
         # ☁️ 消化 walk 缓冲区
         self._digest_walk_buffer()        # 超50代 walk → 突触权重
@@ -3146,6 +3155,9 @@ class EvoColony:
             reverse_key = (dst, src)  # 反向边的 key
             if reverse_key in self.synapse.activations or reverse_key in self._feedback_fixed:
                 continue  # 已存在或已修复
+            # 噪声闸门: hyp/abs 节点不晋升
+            if dst.startswith(('hyp:', 'abs:')) or src.startswith(('hyp:', 'abs:')):
+                continue
             if repaired >= 5:  # 每次最多 5 个
                 break
             # 尝试 sympy derive 反向关系: B → A
@@ -3298,6 +3310,9 @@ class EvoColony:
 
             key = (src, dst)
             if found:
+                # 噪声闸门: hyp/abs 节点不晋升
+                if src.startswith(('hyp:', 'abs:')) or dst.startswith(('hyp:', 'abs:')):
+                    continue
                 # 论文确认 → 标记外部验证, boost 置信度
                 self.synapse.external_validated[key] = True
                 edge['s'] = min(2.0, edge.get('s', 0.5) * 1.5)
@@ -3685,6 +3700,113 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 demoted_weak += 1
         if demoted_weak or demoted_noise:
             print(f"  [SLEEP_T3] {demoted_weak} weak + {demoted_noise} noise t3 demoted (s<0.05 or noise)")
+
+    def _audit_t2_noise(self):
+        """睡眠审计: t0/t1/t2 噪声降级 — hyp/abs/arXiv碎片/自环/弱边 → t4"""
+        if not hasattr(self, 'synapse'):
+            return
+        tiers = getattr(self.synapse, 'tiers', {})
+        acts = getattr(self.synapse, 'activations', {})
+        demoted = {0: {'weak': 0, 'noise': 0}, 1: {'weak': 0, 'noise': 0}, 2: {'weak': 0, 'noise': 0}}
+        for key, tier in list(tiers.items()):
+            if tier not in (0, 1, 2):
+                continue
+            if isinstance(key, tuple):
+                src, dst = key
+            else:
+                parts = key.split('|||')
+                if len(parts) != 2:
+                    continue
+                src, dst = parts
+            is_noise = (
+                src.startswith(('hyp:', 'abs:')) or dst.startswith(('hyp:', 'abs:')) or
+                len(src) > 30 or len(dst) > 30 or
+                src.count('_') > 4 or dst.count('_') > 4 or
+                (len(src) > 26 and src.count('_') >= 3) or
+                (len(dst) > 26 and dst.count('_') >= 3) or
+                src == dst
+            )
+            _KNOWN_LONG = {'spontaneous_symmetry_breaking', 'angular_momentum_conservation',
+                          'electromagnetic_field', 'representation_theory', 'spin_statistics_theorem',
+                          'translational_symmetry', 'rotational_symmetry', 'momentum_conservation',
+                          'energy_conservation', 'time_translation_symmetry', 'lorentz_invariance',
+                          'vacuum_fluctuation', 'uncertainty_principle', 'asymptotic_freedom',
+                          'spin_angular_momentum', 'force_mediation', 'particle_spectrum',
+                          'higgs_mechanism', 'poincare_group', 'gauge_symmetry',
+                          'spontaneous_symmetry_breaking', 'ward_identity', 'strong_force'}
+            if len(src) <= 35 and src.count('_') <= 4 and src in _KNOWN_LONG:
+                is_noise = False
+            if len(dst) <= 35 and dst.count('_') <= 4 and dst in _KNOWN_LONG:
+                is_noise = False
+            if is_noise:
+                tiers[key] = 4
+                demoted[tier]['noise'] += 1
+                continue
+            s_val = acts.get(key, {}).get('s', 0)
+            if s_val < 0.05:
+                tiers[key] = 4
+                demoted[tier]['weak'] += 1
+        # 汇总报告
+        parts = []
+        for t in (0, 1, 2):
+            w, n = demoted[t]['weak'], demoted[t]['noise']
+            if w or n:
+                parts.append(f"t{t}:{n} noise+{w} weak")
+        if parts:
+            print(f"  [SLEEP_T0-2] {' | '.join(parts)} demoted → t4 (hyp/abs/碎片/自环/弱边)")
+
+    def _audit_t4_survival(self):
+        """t4 存活期检查: n=1 + s值停滞超过 STALE_GENS → 删边
+        
+        只给容量不给方法: 不设硬上限，让自然衰减淘汰死边。
+        但 t4 里大量一次性探索边从未被重访，堆积浪费。
+        这里只清理 '确定已死' 的边 (n=1 + s值不增长 + 超过存活期)。
+        """
+        STALE_GENS = 200  # 存活期: 200代无增长 → 判定为死边
+        if not hasattr(self, 'synapse'):
+            return
+        if not hasattr(self, '_t4_s_baseline'):
+            self._t4_s_baseline = {}  # key -> (gen, s_value)
+        
+        tiers = getattr(self.synapse, 'tiers', {})
+        acts = getattr(self.synapse, 'activations', {})
+        baseline = self._t4_s_baseline
+        deleted = 0
+        
+        for key, tier in list(tiers.items()):
+            if tier != 4:
+                continue
+            # 只处理单神经元边 (从未被重访)
+            a = acts.get(key, {})
+            n = a.get('n', set() if isinstance(a.get('n'), set) else (a.get('n', 0) if isinstance(a.get('n'), int) else 0))
+            nn = len(n) if isinstance(n, (set, list)) else n
+            if nn > 1:
+                continue
+            
+            s_val = a.get('s', 0)
+            if key in baseline:
+                base_gen, base_s = baseline[key]
+                if s_val <= base_s and (self.generation - base_gen) >= STALE_GENS:
+                    # s值未增长且超过存活期 → 删除
+                    del tiers[key]
+                    if key in acts:
+                        del acts[key]
+                    del baseline[key]
+                    deleted += 1
+                elif s_val > base_s:
+                    # s值增长了 → 刷新基线
+                    baseline[key] = (self.generation, s_val)
+            else:
+                # 首次记录基线
+                baseline[key] = (self.generation, s_val)
+        
+        # 清理 baseline 中已经不存在的边
+        for key in list(baseline.keys()):
+            if key not in tiers:
+                del baseline[key]
+        
+        if deleted:
+            print(f"  [SLEEP_T4] {deleted} dead t4 edges pruned (n=1, s stagnant {STALE_GENS}+ gens)")
 
     def _injected_path(self):
         return os.path.join(os.path.dirname(__file__), "..", "data", "injected_edges.json")
