@@ -210,7 +210,7 @@ while True:
                 print(f"        突触: {vote_str}")
                 # 记录发现
                 for h in top:
-                    if h["tier"] >= 3:
+                    if h["tier"] <= 3:  # tier 3/2/1/0 才算发现, tier 4 太投机
                         log_discovery("noether_brain", "tier3_hypothesis", {
                             "src": h["src"], "dst": h["dst"],
                             "tier": h["tier"], "neurons": h["unique_neurons"],

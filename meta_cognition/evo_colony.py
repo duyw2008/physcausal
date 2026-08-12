@@ -771,6 +771,12 @@ class EvoColony:
                 cell.total_reward = 0
             cell.apply_decay()
             cell.age += 1
+            # 🧠 髓鞘衰退: 不用的高速公路慢慢消失 (衰减率 0.5%/代)
+            if hasattr(cell, 'myelin') and cell.myelin:
+                for k in list(cell.myelin.keys()):
+                    cell.myelin[k] *= 0.995
+                    if cell.myelin[k] < 0.01:
+                        del cell.myelin[k]
 
             # ⚡ 奖励衰减 (原独立遍历, 现合并)
             cell.total_reward *= REWARD_DECAY
@@ -857,6 +863,13 @@ class EvoColony:
                 for walk in wm[-3:]:  # 最近3条 (微增覆盖)
                     if len(walk) >= 2:
                         self._walk_buffer.append((list(walk), self.generation, id(cell) % 10000))
+                        # 轴突投射: 记录细胞投了哪些突触边
+                        for step in walk:
+                            if len(step) >= 3:
+                                cell.axons.add((step[0], step[2]))
+                                # 髓鞘化: 频繁走→传导加速
+                                k = (step[0], step[2])
+                                cell.myelin[k] = min(3.0, cell.myelin.get(k, 0) + 0.1)
 
         self._cached_total_walks = _total_walks
 
@@ -1949,6 +1962,8 @@ class EvoColony:
                 self.graph.add_edge(src, comp_name, 'compose_synthesis', 'axomatic')
                 self.graph.add_edge(comp_name, dst, 'compose_synthesis', 'axomatic')
                 self._promoted_concepts.add(comp_name)
+                # 写入 coincidence 高温信号, 让 derive 引擎自然感知
+                self._coincidence[(src, dst)] = self._coincidence.get((src, dst), 0) + 20
                 promoted += 1
         if promoted:
             print(f"  [CONCEPT] +{promoted} composited concepts promoted (gen {self.generation})")
@@ -2244,9 +2259,10 @@ class EvoColony:
         verify_pe = min(1.0, composed_count / 200)
         candidates.append(("verify", verify_pe, self._verify_composed_edges))
 
-        # CONCEPT: 预期 promoted concepts < 50 → 堆积越多越需要处理
+        # CONCEPT: 已晋升概念越少越需要处理 (PE与count反向)
+        # 0概念→PE=1.0, 50概念→PE=0.5, ≥100概念→PE=0.06 (保持最低频调度)
         concept_count = len(getattr(self, '_promoted_concepts', set()))
-        concept_pe = min(0.8, concept_count / 100)
+        concept_pe = max(0.06, 1.0 - min(1.0, concept_count / 100))
         candidates.append(("concept", concept_pe, self._promote_composed_concepts))
 
         # INTERVENE: 预期已测试 hyp-node > 20 → 未测试越多误差越大
@@ -2879,6 +2895,9 @@ class EvoColony:
                     for step in best:
                         if len(step) >= 3:
                             self.synapse.strengthen(id(cell) % 10000, step[0], step[2], strength, self.generation)
+                            cell.axons.add((step[0], step[2]))  # 轴突投射
+                            k = (step[0], step[2])
+                            cell.myelin[k] = min(3.0, cell.myelin.get(k, 0) + 0.05)  # 睡眠髓鞘化(减半)
                     cloud_replayed += 1
         
         # 5. 🧠 海马体前向组合: 跨路径多步推理 → 发现长程因果
@@ -4699,6 +4718,8 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 # 结构记忆——突触重塑的成果
                 "weights": dict(getattr(cell, 'weights', {})),
                 "dendrites": list(getattr(cell, 'dendrites', set())),
+                "axons": [list(a) for a in getattr(cell, 'axons', set())],
+                "myelin": {f"{s}|||{d}": v for (s, d), v in getattr(cell, 'myelin', {}).items()},
                 "trace": dict(getattr(cell, 'trace', {})),
                 "prediction_model": dict(getattr(cell, 'prediction_model', {})),
                 "intrinsic_curiosity": getattr(cell, 'intrinsic_curiosity', 1.0),
@@ -4736,9 +4757,47 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         }
 
     def save_snapshot(self, path: str):
+        """保存快照 — 同时写 KG 分离文件 + 神经分离文件 + 统一文件（向后兼容）"""
         try:
             data = self.snapshot_state()
             data = self._clean_snapshot_data(data)
+
+            # 分离 KG 层 (vs.graph, vs.cache, emergent_edges, hyp_registry, promoted_concepts)
+            kg_data = {
+                "snapshot_version": 5, "timestamp": data.get("timestamp", time.time()),
+                "generation": data["generation"], "edges": data.get("edges", 0),
+                "vs.graph": data.get("vs.graph", {}),
+                "vs.cache": data.get("vs.cache", {}),
+                "emergent_edges": data.get("emergent_edges", []),
+                "hyp_registry": data.get("hyp_registry", []),
+                "promoted_concepts": data.get("promoted_concepts", []),
+            }
+            kg_path = path.replace(".json", "_kg.json")
+            if orjson is not None:
+                with open(kg_path, 'wb') as f:
+                    f.write(orjson.dumps(kg_data, option=orjson.OPT_INDENT_2))
+            else:
+                with open(kg_path, 'w') as f:
+                    json.dump(kg_data, f, ensure_ascii=False, indent=2)
+
+            # 分离神经层 (cells, synaptic, cell_shelf)
+            neural_data = {
+                "snapshot_version": 5, "timestamp": data.get("timestamp", time.time()),
+                "generation": data["generation"],
+                "cells": data.get("cells", []),
+                "K": data.get("K", 0),
+                "synaptic": data.get("synaptic", {}),
+                "cell_shelf": data.get("cell_shelf", {}),
+            }
+            neural_path = path.replace(".json", "_neural.json")
+            if orjson is not None:
+                with open(neural_path, 'wb') as f:
+                    f.write(orjson.dumps(neural_data, option=orjson.OPT_INDENT_2))
+            else:
+                with open(neural_path, 'w') as f:
+                    json.dump(neural_data, f, ensure_ascii=False, indent=2)
+
+            # 统一格式（向后兼容，后续版本可移除）
             if orjson is not None:
                 with open(path, 'wb') as f:
                     f.write(orjson.dumps(data, option=orjson.OPT_INDENT_2))
@@ -4850,6 +4909,14 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                     cell.weights = cd["weights"]
                 if cd.get("dendrites"):
                     cell.dendrites = set(cd["dendrites"])
+                if cd.get("axons"):
+                    cell.axons = set(tuple(a) for a in cd["axons"])
+                if cd.get("myelin"):
+                    cell.myelin = {}
+                    for k, v in cd["myelin"].items():
+                        parts = k.split("|||")
+                        if len(parts) == 2:
+                            cell.myelin[(parts[0], parts[1])] = v
                 if cd.get("trace"):
                     cell.trace = cd["trace"]
                 if cd.get("prediction_model"):
@@ -5086,14 +5153,91 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         return seeded
 
     @staticmethod
-    def find_latest_snapshot(data_dir: str = None) -> tuple:
+    def find_latest_snapshot(data_dir: str = None, load_kg: bool = True) -> tuple:
+        """加载最新快照。
+        load_kg=True: 合并 KG+神经层 (用于脑恢复) → 返回 (gen, data)
+        load_kg=False: 仅神经层 (用于健康检查) → 返回 (gen, neural_data)
+        优先读分离格式 (_neural.json + _kg.json), 找不到才回退统一格式。
+        """
         import glob, re
         if data_dir is None:
             data_dir = os.path.join(os.path.dirname(__file__), "..", "data")
-        # ── 第1遍: 只读前2KB提取 generation ──
-        candidates = []  # (gen, is_crash, fpath)
         gen_re = re.compile(rb'"generation"\s*:\s*(\d+)')
+
+        # ── 第1遍: 扫描神经层快照 (优先分离格式) ──
+        candidates = []  # (gen, is_crash, neural_path, kg_path)
+        for fpath in glob.glob(os.path.join(data_dir, "evo_snapshot_gen*_neural.json")):
+            try:
+                with open(fpath, 'rb') as f:
+                    head = f.read(2048)
+                m = gen_re.search(head)
+                if m:
+                    gen = int(m.group(1))
+                    is_crash = b"_crash" in os.path.basename(fpath).encode()
+                    kg_path = fpath.replace("_neural.json", "_kg.json")
+                    if not os.path.exists(kg_path):
+                        kg_path = None
+                    candidates.append((gen, is_crash, fpath, kg_path))
+            except Exception:
+                pass
+
+        if candidates:
+            # 选出最优: 非崩溃优先, 同类型选最高代, 必须有 KG 文件 (需恢复时)
+            best = (0, True, None, None)
+            for entry in candidates:
+                gen, is_crash, npath, kpath = entry
+                better = False
+                _, b_is_crash, _, _ = best
+                if not is_crash and b_is_crash:
+                    better = True
+                elif is_crash == b_is_crash and gen > best[0]:
+                    better = True
+                if better:
+                    best = entry
+            best_gen, _, neural_path, kg_path = best
+            if neural_path is None:
+                pass  # fall through to unified format
+
+            try:
+                # 读神经层 (小文件, 快速)
+                if orjson is not None:
+                    with open(neural_path, 'rb') as f:
+                        neural_data = orjson.loads(f.read())
+                else:
+                    with open(neural_path) as f:
+                        neural_data = json.load(f)
+
+                if not load_kg:
+                    return best_gen, neural_data
+
+                # 合并 KG 层
+                if kg_path and os.path.exists(kg_path):
+                    if orjson is not None:
+                        with open(kg_path, 'rb') as f:
+                            kg_data = orjson.loads(f.read())
+                    else:
+                        with open(kg_path) as f:
+                            kg_data = json.load(f)
+                    # 合并: 神经层为主, KG 数据补入
+                    merged = dict(neural_data)
+                    for k in ("vs.graph", "vs.cache", "emergent_edges",
+                               "hyp_registry", "promoted_concepts", "edges"):
+                        if k in kg_data:
+                            merged[k] = kg_data[k]
+                    merged["snapshot_version"] = kg_data.get("snapshot_version", 5)
+                    return best_gen, merged
+                else:
+                    # 只有神经层, 没有 KG (可能是崩溃快照无 KG)
+                    return best_gen, neural_data
+            except Exception:
+                pass
+
+        # ── 回退: 统一格式 (旧快照) ──
+        candidates = []
         for fpath in glob.glob(os.path.join(data_dir, "evo_snapshot_gen*.json")):
+            # 跳过分离文件
+            if "_kg.json" in fpath or "_neural.json" in fpath:
+                continue
             try:
                 with open(fpath, 'rb') as f:
                     head = f.read(2048)
@@ -5104,19 +5248,20 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                     candidates.append((gen, is_crash, fpath))
             except Exception:
                 pass
+
         if not candidates:
             return 0, None
-        # 选出最优: 非崩溃优先, 同类型选最高代
+
         best_gen, best_is_crash, best_path = 0, True, None
         for gen, is_crash, fpath in candidates:
             better = False
             if not is_crash and best_is_crash:
-                better = True  # 非崩溃 > 崩溃
+                better = True
             elif is_crash == best_is_crash and gen > best_gen:
-                better = True  # 同类型比代数
+                better = True
             if better:
                 best_gen, best_is_crash, best_path = gen, is_crash, fpath
-        # ── 第2遍: 只加载选中的那一个 ──
+
         if best_path is None:
             return 0, None
         try:
@@ -5137,6 +5282,7 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             data_dir = os.path.join(os.path.dirname(__file__), "..", "data")
         if keep is None:
             keep = EvoColony.MAX_SNAPSHOTS
+        # 清理所有快照文件 (统一 + 分离格式)
         files = sorted(glob.glob(os.path.join(data_dir, "evo_snapshot_gen*.json")), key=os.path.getmtime, reverse=True)
         for fpath in files[keep:]:
             try:

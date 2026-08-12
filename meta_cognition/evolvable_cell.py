@@ -87,9 +87,11 @@ class EvolvableCell:
         # 适应度跟踪
         self.total_reward = 0.0
         self.last_action: Optional[Action] = None
-        # 🧠 私有突触: 每边走独立权重 + 树突
+        # 🧠 私有突触: 每边走独立权重 + 树突 + 轴突
         self.weights: Dict[str, float] = {}  # target_node → 累积权重
-        self.dendrites: set = set()
+        self.dendrites: set = set()           # 树突: 我听哪些概念
+        self.axons: set = set()               # 轴突: 我投射了哪些突触边 (src, dst) tuples
+        self.myelin: Dict[tuple, float] = {}   # 髓鞘: 每条边的传导速度 (频繁走→变厚→更快)
         self.last_rewarded = False
 
         # 资格迹
@@ -493,6 +495,12 @@ class EvolvableCell:
             # 🧠 独立权重加成: 每边走自己的历史权重
             wt = _w.get(dst, 0)
             eig *= 1.0 + wt  # 权重连续性加成
+            # 🧠 人气加成: 被越多细胞走过的边越值得走
+            pop = getattr(self, '_popularity', {}).get((self.node, dst), 0)
+            eig *= 1.0 + pop * 2.0  # 0→1x, 1→3x
+            # 🧠 髓鞘加成: 我自己频繁走的边→高速公路 (习惯化)
+            mye = self.myelin.get((self.node, dst), 0)
+            eig *= 1.0 + mye * 2.0  # 0→1x, 3.0→7x
             # 🧠 私有网络加成: 我的边 > 图边
             if dst in my_edges:
                 eig *= 1.5
@@ -508,20 +516,26 @@ class EvolvableCell:
             if nb.get("emergent_nearby"):
                 eig *= 1.3
             scored.append((law, dst, dom, eig))
-        total_eig = sum(s[3] for s in scored)
-        if total_eig > 0:
-            r2 = random.random() * total_eig
-            cum = 0
-            for law, dst, dom, eig in scored:
-                cum += eig
-                if r2 <= cum:
-                    chosen = (law, dst, dom)
-                    break
-            else:
-                chosen = scored[-1][:3]
-            law, dst, dom = chosen
+        # ε-贪心探索: 概率 ε 均匀随机选边, 覆盖未探索区域
+        # 从0.3衰减到0.15保底 (500代后不再降), 防止长跑后探索完全死亡
+        epsilon = max(0.15, 0.3 / (1.0 + self.age / 500.0))
+        if random.random() < epsilon:
+            law, dst, dom = random.choice([(law, dst, dom) for law, dst, dom, _ in scored])
         else:
-            law, dst, dom = random.choice(verified)
+            total_eig = sum(s[3] for s in scored)
+            if total_eig > 0:
+                r2 = random.random() * total_eig
+                cum = 0
+                for law, dst, dom, eig in scored:
+                    cum += eig
+                    if r2 <= cum:
+                        chosen = (law, dst, dom)
+                        break
+                else:
+                    chosen = scored[-1][:3]
+                law, dst, dom = chosen
+            else:
+                law, dst, dom = random.choice([(l, d, dm) for l, d, dm, _ in scored])
         
         old = self.node
         self.node = dst

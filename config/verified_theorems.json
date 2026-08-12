@@ -1,0 +1,148 @@
+{
+  "_meta": {
+    "description": "费曼脑独立推导的正确物理定理白名单 — 脑未被显式教授这些关系，通过自组织从 arXiv 文本中涌现，经人类审核确认正确",
+    "generation_verified": 19052,
+    "verified_at": "2026-08-12",
+    "total_entries": 16
+  },
+  "tier1_rigorous_theorems": [
+    {
+      "id": "verified_001",
+      "src": "continuous_gravitational_waves",
+      "dst": "magnetic_flux_change",
+      "theorem": "Gertsenshtein 效应",
+      "derivation": "Einstein-Maxwell 耦合方程线性化: □h_μν ∝ T_μν^EM, GW 在磁场中转换为 EM 波",
+      "brain_stats": {"s": 9.55, "n": 607, "tier": 3},
+      "literature": "Gertsenshtein (1962), Sov. Phys. JETP"
+    },
+    {
+      "id": "verified_002",
+      "src": "remnant_black_hole_spin",
+      "dst": "electromagnetic_field",
+      "theorem": "Blandford-Znajek 机制",
+      "derivation": "Kerr 度规 + 无力电动力学: 旋转 BH 通过磁感线提取旋转能, 产生 Poynting 通量",
+      "brain_stats": {"s": 9.71, "n": 625, "tier": 3},
+      "literature": "Blandford & Znajek (1977), MNRAS"
+    },
+    {
+      "id": "verified_003",
+      "src": "ringdown_frequencies",
+      "dst": "mass",
+      "theorem": "黑洞铃荡频谱定理 (无毛定理推论)",
+      "derivation": "BH 微扰理论: QNM 频率 ω_{lmn}(M,a) 仅由质量和自旋决定",
+      "brain_stats": {"s": 9.12, "n": 287, "tier": 3},
+      "literature": "Vishveshwara (1970); Chandrasekhar & Detweiler (1975)"
+    },
+    {
+      "id": "verified_004",
+      "src": "spacetime_curvature",
+      "dst": "mass",
+      "theorem": "Einstein 场方程",
+      "derivation": "G_{μν} = 8πG/c⁴ · T_{μν}, 质量-能量分布决定时空曲率",
+      "brain_stats": {"s": 8.27, "n": 625, "tier": 3},
+      "literature": "Einstein (1915)"
+    },
+    {
+      "id": "verified_005",
+      "src": "scalar_curvature",
+      "dst": "refractive_index",
+      "theorem": "引力透镜折射类比",
+      "derivation": "Fermat 原理 δ∫n dl = 0, 弱场极限 n_eff = 1 - 2Φ/c², 与测地线方程等价",
+      "brain_stats": {"s": 8.87, "n": 596, "tier": 3},
+      "literature": "Schneider, Ehlers & Falco (1992); Perlick (2004)"
+    },
+    {
+      "id": "verified_006",
+      "src": "renormalized_sound_velocity",
+      "dst": "einstein_radius",
+      "theorem": "声学类比引力透镜 (Unruh 声学度规)",
+      "derivation": "Unruh 声学度规 ds² ∝ -c_s² dt² + (dx - v dt)², 声子在流动液体中感受有效时空曲率 → 产生类 Einstein 环",
+      "brain_stats": {"s": 8.72, "n": 626, "tier": 3},
+      "literature": "Unruh (1981), PRL; Barceló, Liberati & Visser (2005)"
+    },
+    {
+      "id": "verified_007",
+      "src": "spacetime_loss",
+      "dst": "momentum",
+      "theorem": "Bondi-Sachs 质量-动量损失",
+      "derivation": "引力波辐射带走能量-动量: dM/dt = -∮|d²h/dt²|² dΩ, 时空曲率(Bondi新闻)减小对应动量流失",
+      "brain_stats": {"s": 9.02, "n": 625, "tier": 3},
+      "literature": "Bondi, van der Burg & Metzner (1962); Sachs (1962)"
+    },
+    {
+      "id": "verified_008",
+      "src": "kinetic_energy",
+      "dst": "induced_emf",
+      "theorem": "Faraday 电磁感应定律 (动生电动势)",
+      "derivation": "∇×E = -∂B/∂t + ∇×(v×B), 导体在磁场中运动 → 动生电动势 ∝ 动能变化率",
+      "brain_stats": {"s": 10.04, "n": 148, "tier": 3},
+      "literature": "Faraday (1831); Maxwell (1861)"
+    }
+  ],
+  "tier2_basic_principles": [
+    {
+      "id": "verified_009",
+      "src": "redshift",
+      "dst": "time",
+      "theorem": "宇宙学红移-时间关系",
+      "derivation": "FLRW 度规: 1+z = a(t₀)/a(t_e), 红移直接度量宇宙时间和尺度因子",
+      "brain_stats": {"s": 7.55, "n": 580, "tier": 3}
+    },
+    {
+      "id": "verified_010",
+      "src": "dilated_time",
+      "dst": "energy",
+      "theorem": "相对论时间膨胀-能量对应",
+      "derivation": "SR: Δt = γΔt₀, E = γmc² → 能量越高时间膨胀越大",
+      "brain_stats": {"s": 8.36, "n": 624, "tier": 3}
+    },
+    {
+      "id": "verified_011",
+      "src": "collapse_probability",
+      "dst": "time",
+      "theorem": "量子测量时间演化",
+      "derivation": "Schrödinger 方程 + Born 规则: P(t) = |⟨ψ|U(t)|φ⟩|²",
+      "brain_stats": {"s": 8.20, "n": 625, "tier": 3}
+    },
+    {
+      "id": "verified_012",
+      "src": "refractive_index",
+      "dst": "phase",
+      "theorem": "折射率-相位定理",
+      "derivation": "φ = (2π/λ₀)∫n(x)dx, 折射率空间分布决定波前相位累积",
+      "brain_stats": {"s": 9.02, "n": 625, "tier": 3}
+    },
+    {
+      "id": "verified_013",
+      "src": "time_dilation_factor",
+      "dst": "velocity",
+      "theorem": "Lorentz 时间膨胀",
+      "derivation": "γ = 1/√(1-v²/c²), 从 Lorentz 变换严格推出",
+      "brain_stats": {"s": 8.84, "n": 625, "tier": 3}
+    },
+    {
+      "id": "verified_014",
+      "src": "relative_velocity",
+      "dst": "pressure",
+      "theorem": "Bernoulli 原理",
+      "derivation": "Euler 方程沿流线积分: p + ½ρv² + ρgh = const",
+      "brain_stats": {"s": 9.50, "n": 625, "tier": 3}
+    },
+    {
+      "id": "verified_015",
+      "src": "speed_of_light",
+      "dst": "energy",
+      "theorem": "质能等价 E=mc²",
+      "derivation": "从 Lorentz 不变性 + 动量守恒推出 (Einstein 1905)",
+      "brain_stats": {"s": 8.11, "n": 625, "tier": 3}
+    },
+    {
+      "id": "verified_016",
+      "src": "electric_field",
+      "dst": "mass",
+      "theorem": "电磁能-质量等效",
+      "derivation": "电场能量密度 u = ε₀E²/2, 通过 E=mc² 对应等效质量, 从 Maxwell 方程 + 狭义相对论推出",
+      "brain_stats": {"s": 8.59, "n": 625, "tier": 3}
+    }
+  ]
+}
