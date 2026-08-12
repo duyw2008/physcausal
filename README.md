@@ -138,7 +138,7 @@ physcausal/
 | 文档 | 内容 |
 |------|------|
 | [DESIGN_PHILOSOPHY.md](docs/DESIGN_PHILOSOPHY.md) | 设计哲学 + KG/神经分离 |
-| [NOUS_THEORY.md](docs/NOUS_THEORY.md) | 诺特闹理论 — 统一云、垃圾免疫、睡眠消化 |
+| [NOUS_THEORY.md](docs/NOUS_THEORY.md) | Nous 理论 — 统一云、垃圾免疫、睡眠消化 |
 | [DEEP_UNDERSTANDING_ARCHITECTURE.md](docs/DEEP_UNDERSTANDING_ARCHITECTURE.md) | 深刻理解的神经基础 |
 | [CHANGELOG.md](CHANGELOG.md) | 版本变更记录 |
 
