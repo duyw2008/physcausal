@@ -2,7 +2,7 @@
 
 > 不是造一个物理学家——是造一个能从数学原理中自己长出物理理解的自组织系统。
 >
-> 详见哲学深度：[诺特闹理论](NOUS_THEORY.md) | 神经科学映射：[深刻理解架构](DEEP_UNDERSTANDING_ARCHITECTURE.md)
+> 详见哲学深度：[Nous 理论](NOUS_THEORY.md) | 神经科学映射：[深刻理解架构](DEEP_UNDERSTANDING_ARCHITECTURE.md)
 
 ---
 
