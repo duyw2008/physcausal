@@ -44,7 +44,7 @@ class EvoColony:
     MEMORY_WARN_FRACTION = 0.60
     MEMORY_CRITICAL_FRACTION = 0.75
     MEMORY_FLUSH_FRACTION = 0.68
-    SNAPSHOT_INTERVAL = 100            # ↓500→100: 更频繁存快照, 重启少丢进度
+    SNAPSHOT_INTERVAL = 200            # ↓100→200: 降快照频率, 缓解 OOM (每代序列化 ~1.5G 内存峰值)
     MAX_SNAPSHOTS = 10           # 保留最近10个快照, 防止清理吃掉
     ABSTRACTION_THRESHOLD = 10
 
@@ -574,7 +574,17 @@ class EvoColony:
         if os.path.exists(path):
             try:
                 with open(path) as f:
-                    self._cell_shelf = json.load(f)
+                    shelf = json.load(f)
+                # 瘦身: from_seed 只读 node/genome/age/total_reward/last_action
+                # 历史遗留完整状态字段 (weights/dendrites/trace/prediction_model) 是死数据
+                self._cell_shelf = {}
+                for k, v in shelf.items():
+                    slim = [{"node": s.get("node", ""), "genome": s.get("genome", {}),
+                             "age": s.get("age", 0), "total_reward": s.get("total_reward", 0),
+                             "last_action": s.get("last_action", "step_forward")}
+                            for s in v if isinstance(s, dict)]
+                    if slim:
+                        self._cell_shelf[k] = slim
             except Exception:
                 self._cell_shelf = {}
 
@@ -4738,6 +4748,16 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             for law_name, dst, domain in node.get("effects", []):
                 if domain == "emergent":
                     emergent_edges.append([src, law_name, dst, domain])
+        # ☁️ cell_shelf 瘦身: from_seed 只读 node/genome/age/total_reward/last_action
+        # 历史遗留的 weights/dendrites/axons/myelin/trace/prediction_model 是死数据
+        shelf_slim = {}
+        for k, v in self._cell_shelf.items():
+            slim = [{"node": s.get("node", ""), "genome": s.get("genome", {}),
+                     "age": s.get("age", 0), "total_reward": s.get("total_reward", 0),
+                     "last_action": s.get("last_action", "step_forward")}
+                    for s in v if isinstance(s, dict)]
+            if slim:
+                shelf_slim[k] = slim
         return {
             "generation": self.generation, "cells": cells_data,
             "K": self._carrying_capacity,
@@ -4745,7 +4765,7 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             "vs.graph": vsa_data,
             "vs.cache": cache_data,
             "synaptic": self.synapse.to_dict() if hasattr(self, 'synapse') else {},
-            "cell_shelf": self._cell_shelf,  # ☁️ 磁盘种子库
+            "cell_shelf": shelf_slim,  # ☁️ 磁盘种子库 (瘦身)
             "emergent_edges": emergent_edges,
             "hyp_registry": list(self._hyp_registry) if hasattr(self, '_hyp_registry') else [],
             "promoted_concepts": list(self._promoted_concepts) if hasattr(self, '_promoted_concepts') else [],
@@ -4792,14 +4812,6 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             else:
                 with open(neural_path, 'w') as f:
                     json.dump(neural_data, f, ensure_ascii=False, indent=2)
-
-            # 统一格式（向后兼容，后续版本可移除）
-            if orjson is not None:
-                with open(path, 'wb') as f:
-                    f.write(orjson.dumps(data, option=orjson.OPT_INDENT_2))
-            else:
-                with open(path, 'w') as f:
-                    json.dump(data, f, ensure_ascii=False, indent=2)
             return True
         except Exception:
             return False
