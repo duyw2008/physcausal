@@ -2277,10 +2277,7 @@ class EvoColony:
         oracle_pe = 0.3
         candidates.append(("oracle", oracle_pe, self._llm_verify_hypotheses))
 
-        # WHY/ALT: 暂时禁用 (图遍历死循环 bug, 待修复)
-        # 原逻辑: feed 后冷却期跳过 + len(graph) < 1000
-        pass
-        """
+        # WHY/ALT: 重新启用 (max_depth=10 + try/except 防死循环)
         if not self._contradiction_nodes:
             self._detect_contradictions()
         if self._contradiction_nodes and not feed_cooldown:
@@ -2293,7 +2290,6 @@ class EvoColony:
                 self._alternate_why()
             except Exception:
                 pass
-        """
 
         # 其余模块按 PE 门槛全跑
 
