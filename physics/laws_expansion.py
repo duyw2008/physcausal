@@ -343,4 +343,137 @@ def register_expansion_laws(library) -> int:
                           ("radius", "wavelength_shift")],
     )); count += 1
 
+    # ═══════════════════════════════════════════════════════
+    # QFT / Higgs / 量子补全 (13)
+    # ═══════════════════════════════════════════════════════
+
+    library.register(PhysicsLaw(
+        name="SchrodingerEq", domain="quantum",
+        latex=r"i\hbar\frac{\partial}{\partial t}|\psi\rangle = \hat{H}|\psi\rangle",
+        inputs=["hamiltonian"], outputs=["wave_function"],
+        constraint_type=ConstraintType.SCM_EQUATION,
+        formula=lambda H, t=1.0: abs(H) * t,
+        causal_direction=[("hamiltonian", "wave_function")],
+    )); count += 1
+
+    library.register(PhysicsLaw(
+        name="Tunneling", domain="quantum",
+        latex=r"T \approx e^{-2\kappa d},\ \kappa=\sqrt{2m(V-E)}/\hbar",
+        inputs=["barrier_height", "barrier_width"],
+        outputs=["transmission_probability"],
+        constraint_type=ConstraintType.SCM_EQUATION,
+        formula=lambda V, d, E=1.0, m=1.0:
+            np.exp(-2*np.sqrt(max(2*m*(V-E), 0))*d) if V > E else 1.0,
+        causal_direction=[("barrier_height", "transmission_probability"),
+                          ("barrier_width", "transmission_probability")],
+    )); count += 1
+
+    library.register(PhysicsLaw(
+        name="SpinOrbit", domain="quantum",
+        latex=r"H_{SO} = \frac{1}{2m^2c^2}\frac{1}{r}\frac{dV}{dr}\mathbf{L}\cdot\mathbf{S}",
+        inputs=["orbital_angular_momentum", "spin_angular_momentum"],
+        outputs=["fine_structure_splitting"],
+        constraint_type=ConstraintType.SCM_EQUATION,
+        formula=lambda L, S: L * S * 1e-4,
+        causal_direction=[("orbital_angular_momentum", "fine_structure_splitting"),
+                          ("spin_angular_momentum", "fine_structure_splitting")],
+    )); count += 1
+
+    # ── 规范场论 ──
+    library.register(PhysicsLaw(
+        name="YangMills", domain="qft",
+        latex=r"F_{\mu\nu}^a = \partial_\mu A_\nu^a - \partial_\nu A_\mu^a + gf^{abc}A_\mu^b A_\nu^c",
+        inputs=["gauge_field"], outputs=["gauge_self_interaction"],
+        constraint_type=ConstraintType.SCM_EQUATION,
+        formula=lambda A: A * A,
+        causal_direction=[("gauge_field", "gauge_self_interaction")],
+    )); count += 1
+
+    library.register(PhysicsLaw(
+        name="RunningCoupling", domain="qft",
+        latex=r"\alpha(Q^2) = \frac{\alpha(\mu^2)}{1 - \beta_0\alpha(\mu^2)\ln(Q^2/\mu^2)}",
+        inputs=["energy_scale", "bare_coupling"],
+        outputs=["effective_coupling"],
+        constraint_type=ConstraintType.SCM_EQUATION,
+        formula=lambda Q, alpha0, beta0=0.1, mu=1.0:
+            alpha0 / max(1 - beta0*alpha0*np.log(max(Q/mu, 1.01)), 1e-10),
+        causal_direction=[("energy_scale", "effective_coupling"),
+                          ("bare_coupling", "effective_coupling")],
+    )); count += 1
+
+    library.register(PhysicsLaw(
+        name="AsymptoticFreedom", domain="qft",
+        latex=r"\alpha_s(Q^2) \xrightarrow{Q^2\to\infty} 0",
+        inputs=["energy_scale", "gauge_coupling"],
+        outputs=["effective_coupling"],
+        constraint_type=ConstraintType.SCM_EQUATION,
+        formula=lambda Q, g: g / max(np.log(max(Q, 1.01)), 0.1),
+        causal_direction=[("energy_scale", "effective_coupling"),
+                          ("gauge_coupling", "effective_coupling")],
+    )); count += 1
+
+    library.register(PhysicsLaw(
+        name="Confinement", domain="qft",
+        latex=r"V(r) \sim \sigma r\ \text{for large } r",
+        inputs=["quark_separation"], outputs=["string_tension"],
+        constraint_type=ConstraintType.SCM_EQUATION,
+        formula=lambda r, sigma=1.0: sigma * r,
+        causal_direction=[("quark_separation", "string_tension")],
+        forbidden_directions=[("string_tension", "quark_separation")],
+    )); count += 1
+
+    # ── 希格斯机制 ──
+    library.register(PhysicsLaw(
+        name="SpontaneousSymmetryBreaking", domain="qft",
+        latex=r"V(\phi) = -\mu^2|\phi|^2 + \lambda|\phi|^4,\ \langle\phi\rangle = v/\sqrt{2}",
+        inputs=["order_parameter"], outputs=["vacuum_expectation_value"],
+        constraint_type=ConstraintType.SCM_EQUATION,
+        formula=lambda phi, mu=1.0, lam=0.1: mu / np.sqrt(2*lam),
+        causal_direction=[("order_parameter", "vacuum_expectation_value")],
+        forbidden_directions=[("vacuum_expectation_value", "order_parameter")],
+    )); count += 1
+
+    library.register(PhysicsLaw(
+        name="GoldstoneTheorem", domain="qft",
+        latex=r"\text{broken generator} \Rightarrow \text{massless Goldstone boson}",
+        inputs=["broken_symmetry"], outputs=["goldstone_boson"],
+        constraint_type=ConstraintType.CONSERVATION,
+        formula=lambda bs: 1.0,
+        causal_direction=[("broken_symmetry", "goldstone_boson")],
+        forbidden_directions=[("goldstone_boson", "broken_symmetry")],
+    )); count += 1
+
+    library.register(PhysicsLaw(
+        name="HiggsMechanism", domain="qft",
+        latex=r"\text{gauge field eats Goldstone} \Rightarrow m_A = g v",
+        inputs=["gauge_coupling", "vacuum_expectation_value"],
+        outputs=["gauge_boson_mass"],
+        constraint_type=ConstraintType.SCM_EQUATION,
+        formula=lambda g, v: g * v,
+        causal_direction=[("gauge_coupling", "gauge_boson_mass"),
+                          ("vacuum_expectation_value", "gauge_boson_mass")],
+        forbidden_directions=[("gauge_boson_mass", "gauge_coupling")],
+    )); count += 1
+
+    library.register(PhysicsLaw(
+        name="VEVtoMass", domain="qft",
+        latex=r"m_f = y_f v / \sqrt{2}",
+        inputs=["vacuum_expectation_value", "yukawa_coupling"],
+        outputs=["fermion_mass"],
+        constraint_type=ConstraintType.SCM_EQUATION,
+        formula=lambda v, y: y * v / np.sqrt(2),
+        causal_direction=[("vacuum_expectation_value", "fermion_mass"),
+                          ("yukawa_coupling", "fermion_mass")],
+    )); count += 1
+
+    library.register(PhysicsLaw(
+        name="BrokenSymmetryToGauge", domain="qft",
+        latex=r"\partial_\mu \to D_\mu = \partial_\mu + igA_\mu,\ \langle\phi\rangle\neq 0 \Rightarrow m_A = gv",
+        inputs=["broken_symmetry"], outputs=["gauge_coupling"],
+        constraint_type=ConstraintType.DAG_EDGE,
+        formula=lambda bs: bs,
+        causal_direction=[("broken_symmetry", "gauge_coupling")],
+        forbidden_directions=[("gauge_coupling", "broken_symmetry")],
+    )); count += 1
+
     return count

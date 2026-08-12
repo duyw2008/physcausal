@@ -2280,12 +2280,12 @@ class EvoColony:
         # WHY/ALT: 重新启用 (max_depth=10 + try/except 防死循环)
         if not self._contradiction_nodes:
             self._detect_contradictions()
-        if self._contradiction_nodes and not feed_cooldown:
+        if self._contradiction_nodes:
             try:
                 self._why_contradictions()
             except Exception:
                 pass
-        if self._contradiction_nodes and not feed_cooldown:
+        if self._contradiction_nodes:
             try:
                 self._alternate_why()
             except Exception:

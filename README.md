@@ -1,143 +1,145 @@
-# PhysCausal Agent — Noether (诺特)
+# 费曼脑 (Feynman Brain) — 自主物理发现系统
 
-**物理为骨 · 因果为肌 · 进化驱动 · 自主生长**
+**自组织细胞殖民地 · 知识图谱 · 神经突触层 · 因果推理引擎**
 
-从物理第一性原理出发，自主发现、验证、学习的因果推理智能体。v0.4.0
-
-```
-身份:     Noether (诺特) — δS=0 的守护者, 300细胞进化殖民地的造物主
-
-元物理:   δS=0 (唯一生成根) → Euler-Lagrange / Hilbert / PathIntegral
-定律库:   257 条, 366 边, 379 节点, 50 跨域变量, 14 领域
-          5 层置信 (公理→共识→理论→假说→探索)
-          tier 0-2 物理学家领地, tier 3-4 殖民地投票
-
-进化:     300细胞, 6原子操作, 基因组驱动, 强化学习+自然选择
-          四策略均衡 (探索32% 标记14% 分裂18% 回声19%)
-          26500代稳态, 179条tier3假说
-
-喂养:     路径枯竭 → arXiv 动态搜索 → 图自增长 (335→487边)
-
-自主智能: 7 驱动 | 类比引擎 | 抽象引擎 | 审美引擎 | 增量学习
-核心发现: entropy 普适汇点 | action 统一源 (δS=0四分支)
-知识库:   15 篇文档 | 投票箱 | 自喂养循环
-```
-输出通道: paper (论文) / talk (发言) / viz (可视化)
-持久化:   data/ 统一存储 + memory (跨session记忆)
-
-测试:     179 全绿
-```
-
-## 快速开始
-
-```bash
-cd physcausal
-python agent.py
-```
-
-## 命令参考
+25000 个进化细胞在 6000 个物理概念的图谱上自主行走、投票、合成、推导，从 δS=0 出发涌现跨域物理连接。
 
 ```
-══ 对话与探索 ═══════════════════════════════════════════
-  ask <question>               LLM 物理问答 (DeepSeek API)
-  talk                         Noether 主动发言 (观察+建议)
-  viz                          驱动面板 + 类比图 + 因果链
-  memory                       持久记忆浏览
-
-══ 研究方向 ═══════════════════════════════════════════════
-  focus                        交互式方向选择 (9 个方向)
-  focus <tag>                  快捷设置 (QG/QM/EM/IB/GU/CD/CU/CB/KS)
-  focus none                   取消聚焦
-
-══ 大胆假设 ═══════════════════════════════════════════════
-  speculate                    无约束假说 (tier 4 沙盒)
-  speculate --save             保存到 data/auto_laws.json
-
-══ 小心求证 ═══════════════════════════════════════════════
-  suggest                      交互式建议控制台 (1-9/a/q)
-  suggest --run                一键执行最高优先级
-  suggest --run-all             全交叉验证流水线
-  research                     完整研究循环 v2
-   → 惊喜检测 + 优先级 + 鲁棒性 + 留一法 + 归档
-
-══ 学习与类比 ═══════════════════════════════════════════
-  analogy                      因果链类比 (64 条跨域共鸣)
-  learn                        特征权重训练 (11 对正样本)
-  innovate                     创新引擎报告
-  strategy                     元RL策略优化 (UCB1探索/利用)
-
-══ 核心推理 ═══════════════════════════════════════════════
-  chain <var> <change>         正向因果传播
-  plan <start> <target>        反向规划最优路径
-  plan bridge <d1> <d2>        领域桥接搜索
-
-══ 数据与外部 ═══════════════════════════════════════════
-  data <csv> [target]          实验数据 → 因果发现
-  ingest <topic>               arXiv 论文 → 断言提取 (LLM)
-
-══ 成果输出 ═══════════════════════════════════════════════
-  paper                        自动生成研究论文 (Abstract→Refs)
-
-══ 自主运行 ═══════════════════════════════════════════════
-  autonomous [n]               自主思考 (默认 15 轮)
-  watch                        定时后台 (每 30 分钟)
-  watch stop                   停止后台
-  status                       系统状态
-  dissonance                   认知失调报告
-  meta                         元学习摘要
+当前状态 (gen ~20300):
+  细胞: ~25,000        图节点: 5,982       comp:合成概念: 2,641
+  突触边: 5,687         定律库: 422          t3 假说: 3,049
+  t1/t2 验证: 480       多神经元共识: 60.1%   跨域桥: 11
+  知识域: 力学/电磁/热力/量子/GR/QFT/光学/流体/声学/现代
 ```
 
 ## 架构
 
 ```
-┌───────────────────────────────────────────────────┐
-│                 PhysCausal                         │
-│                                                   │
-│  输入层       因果核心        输出层              │
-│  ┌──────┐   ┌──────────┐   ┌──────────┐         │
-│  │ ask  │   │ δS=0 根  │   │ paper    │         │
-│  │ data │ → │ tier 0-4 │ → │ talk     │         │
-│  │ingest│   │ analogy   │   │ viz      │         │
-│  └──────┘   │ learn     │   │ memory   │         │
-│             └──────────┘   └──────────┘         │
-│                                                   │
-│  白盒: 因果推理 + 发言    黑盒: 图嵌入 + 学习     │
-│  可审计                   模式涌现               │
-└───────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│                    费曼脑 (Feynman Brain)              │
+│                                                      │
+│  进化殖民地              知识图谱 (KG)                │
+│  ┌─────────────┐       ┌──────────────────┐         │
+│  │ EvolvableCell│ walk  │ 概念节点 (vs.cache)│        │
+│  │ · 基因组驱动  │ ────→ │ · math_verified    │        │
+│  │ · 9 操作类型  │ ←───  │ · emergent        │        │
+│  │ · 树突/轴突   │ 投票  │ · Compose→Concept │        │
+│  │ · 髓鞘高速公路 │       │ · 跨域桥接        │        │
+│  └─────────────┘       └──────────────────┘         │
+│         ↓                      ↓                    │
+│  神经突触层 (SynapticLayer)    认知调度器              │
+│  ┌─────────────┐       ┌──────────────────┐         │
+│  │ · s/n/tier   │       │ · derive (sympy)  │        │
+│  │ · STDP 强化  │       │ · intervene       │        │
+│  │ · 密度竞争    │       │ · WHY/ALT 矛盾    │        │
+│  │ · 睡眠巩固    │       │ · 预测反馈        │        │
+│  └─────────────┘       │ · INTERVENE       │        │
+│                         └──────────────────┘         │
+│  方程库 (422 定律)                                    │
+│  ┌──────────────────────────────────────────┐       │
+│  │ 力学/电磁/热力/量子/QFT/GR/光学/流体/声学  │       │
+│  │ δS=0 生成根 → Euler-Lagrange/Hilbert/     │       │
+│  │ PathIntegral → 力/时空曲率/量子振幅       │       │
+│  └──────────────────────────────────────────┘       │
+└──────────────────────────────────────────────────────┘
 ```
 
-## 研究方向 (focus)
+## 核心机制
 
-| Tag | 方向 | 难度 | 状态 |
-|-----|------|------|------|
-| QG | 量子引力与时空因果结构 | ★★★★★ | |
-| QM | 量子基础与测量问题 | ★★★★★ | |
-| EM | 涌现与时间箭头 | ★★★ | |
-| IB | 信息本原论 (It from Bit) | ★★★★ | 当前 |
-| GU | 几何统一纲领 (Wheeler) | ★★★★★ | |
-| CD | 因果发现方法论 | ★★ | |
-| CU | 因果统一纲领 | ★★★★ | |
-| CB | 跨域桥接 | ★★★ | |
-| KS | 知识手册编纂 | ★ | |
+### 细胞行走
+每个细胞是独立智能体，携带基因组决定行为倾向（step_forward/backward/mark/echo/split/intervene/derive/probe/rest）。细胞在图上行走，通过以下机制选边：
 
-## 数据存储
+- **ε-greedy 探索** (15%): 随机选已有边
+- **随机突触新生** (1%): 跳到图中任意节点创建全新连接
+- **加权选择** (84%): 综合 EIG×髓鞘×人气×树突的加权路由
+
+### 知识图谱 vs 神经层 (KG/Neural Separation)
+人脑同构——知识图谱存「教科书」（客观关系），神经突触层存「学生的笔记」（细胞投票共识）。突触从零积累，不直接写入 KG 边。图=干净，脑=噪声中学习。
+
+### Compose→Concept
+细胞反复走的路径 A→B→C 在睡眠中合成为 `comp:A__C` 概念节点。2641 个合成概念构成了脑的「词汇量」，是类比和跨域桥接的基础。
+
+### 认知调度器
+自由能驱动的竞争调度——各模块输出预测误差，误差大的优先执行。derive (sympy 公式推导)、intervene (物理定律验证)、WHY/ALT (矛盾检测) 按需触发。
+
+### 睡眠三阶段
+- **密度竞争**: 高连接度节点削弱弱边
+- **幽灵修剪**: 移除无突触支持的图边
+- **结构巩固**: s>1 的强边睡眠重放强化
+- **噪声审计**: t0-t3 的 hyp/arXiv碎片降级
+
+### 预测反馈
+细胞行走时比较预测 s 与实际 s 的偏差，偏差大的反向边触发 sympy derive 建立反馈回路——人脑预测编码的轻量实现。
+
+## 快速开始
+
+```bash
+# 查看状态
+cat ~/physcausal/data/evo_colony.json | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'gen={d[\"generation\"]} cells={d[\"cells\"]}')"
+
+# 启动 (systemd 独立 cgroup, 不会被 gateway 重启误杀)
+systemd-run --user --unit=feynman-brain --same-dir --collect \
+  bash -c 'cd ~/physcausal && exec /usr/bin/python3 -B -u run_evo.py >> data/evo_output.log 2>&1'
+
+# 停止 (优雅退出, 自动存档)
+systemctl --user stop feynman-brain
+
+# 健康体检
+python3 ~/physcausal/scripts/health_report.py
+```
+
+## 关键发现
+
+| 发现 | 类型 | 机制 |
+|------|------|------|
+| broken_symmetry → gauge_coupling → mass | Higgs 链 | 方程库桥 + 细胞共识 |
+| gauge_coupling → mass (s=6.5, n=125) | 独立重发现 | emergent 行走 |
+| heat_power ↔ mass (电磁↔引力) | 跨域桥 | t0-2 跨域 |
+| universal_mass_ratio → decoherence_dynamics | 量子-经典桥 ⚡ | t3 speculative |
+| curvature → new_physics_parameters | 几何→新物理 ⚡ | t3 speculative |
+
+⚡ = speculative (细胞发现, 未经 sympy 或教材确认)
+
+## 设计哲学
+
+**只给容量，不给方法。** 不硬编码「应发现什么」，给机制让发现自然涌现。
+- 强制加层级模块 = 给方法。吸引子通过 coincidence 聚团 + 生态位分化自发涌现 = 给容量。
+- 硬编码因果边 = 教材。细胞行走 + 投票共识 → emergent 边 = 发现。
+
+**结构决定结果，噪声创造路径。** 脑的结构一致性逼出规律，随机探索发现新路。
+
+**少重启，多收敛。** 脑需要连续运行数天积累共识。改代码→批量修→一次重启→至少跑一天不动。
+
+## 项目结构
 
 ```
 physcausal/
-├── data/         持久化数据 (auto_laws/scores/focus/memory...)
-├── reports/      论文和报告 (gitignored)
-├── docs/         13 篇知识文档
-├── tests/        179 测试
-└── agent.py      命令入口
+├── run_evo.py              主运行入口
+├── meta_cognition/
+│   ├── evo_colony.py        殖民地核心 (认知调度/睡眠/derive/intervene)
+│   ├── evolvable_cell.py    进化细胞 (行走/基因组/树突/髓鞘)
+│   ├── synaptic_layer.py    突触层 (s/n/tier/STDP)
+│   └── feed_queue.py        知识注入队列
+├── physics/
+│   ├── laws.py              定律库 (422 条)
+│   ├── laws_expansion.py    定律扩展 (EM/光学/声学/QFT/Higgs)
+│   └── astronomy_laws.py    天文定律
+├── scripts/
+│   ├── health_report.py     10 维能力体检
+│   ├── cron_health_check.py Cron 健康检查
+│   └── start_brain.sh       启动脚本
+├── data/                    运行时数据 (快照/日志/殖民地状态)
+├── docs/                    设计文档
+└── references/              ~100 篇诊断/修复/分析参考
 ```
 
 ## 文档
 
 | 文档 | 内容 |
 |------|------|
-| [DESIGN_PHILOSOPHY.md](docs/DESIGN_PHILOSOPHY.md) | 设计哲学 + 架构 + 当前状态 |
+| [DESIGN_PHILOSOPHY.md](docs/DESIGN_PHILOSOPHY.md) | 设计哲学 + KG/神经分离 |
 | [NOUS_THEORY.md](docs/NOUS_THEORY.md) | 诺特闹理论 — 统一云、垃圾免疫、睡眠消化 |
-| [DEEP_UNDERSTANDING_ARCHITECTURE.md](docs/DEEP_UNDERSTANDING_ARCHITECTURE.md) | 深刻理解的神经基础与架构映射 |
+| [DEEP_UNDERSTANDING_ARCHITECTURE.md](docs/DEEP_UNDERSTANDING_ARCHITECTURE.md) | 深刻理解的神经基础 |
 | [CHANGELOG.md](CHANGELOG.md) | 版本变更记录 |
 
 ## 许可证

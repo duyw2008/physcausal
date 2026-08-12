@@ -521,6 +521,16 @@ class EvolvableCell:
         epsilon = max(0.15, 0.3 / (1.0 + self.age / 500.0))
         if random.random() < epsilon:
             law, dst, dom = random.choice([(law, dst, dom) for law, dst, dom, _ in scored])
+        # 🧠 随机突触新生: 1%概率跳到图中任意节点, 创建全新连接
+        # 不同于ε-greedy(随机选已有边), 这是跨越式探索——连接原本无关联的概念
+        elif random.random() < 0.01:
+            all_nodes = list(self.graph.keys())
+            if all_nodes:
+                dst = random.choice(all_nodes)
+                law = "random_jump"
+                dom = "emergent"
+            else:
+                law, dst, dom = random.choice([(l, d, dm) for l, d, dm, _ in scored])
         else:
             total_eig = sum(s[3] for s in scored)
             if total_eig > 0:

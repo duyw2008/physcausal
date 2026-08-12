@@ -584,6 +584,64 @@ action layer: active_experiment + reinforcement + self_organization ✅
 
 ---
 
+## v2.0.0 (2026-08) — 费曼脑: 自主物理发现殖民地
+
+从 PhysCausal Agent (v1.x) 到费曼脑的完整架构跃迁。25000 个进化细胞在知识图谱上自主行走/投票/合成/推导，从 δS=0 涌现跨域物理连接。
+
+### 知识图谱 + 神经层分离 (KG/Neural Separation)
+- 人脑同构: 知识图谱 = "教科书" (客观关系), 神经突触层 = "学生的笔记" (细胞投票共识)
+- 快照拆分为 `_kg.json` (310MB) + `_neural.json` (79MB), 健康检查快 10x
+- 海马体/新皮层分离: hyp 节点不进 KG, 在 coincidence 表 + INTERVENE 追踪池
+
+### Compose→Concept 路径合成
+- 细胞反复走的 A→B→C 路径在睡眠中合成为 `comp:A__C` 概念节点
+- 2,641 个合成概念, 跨域桥接的基础
+- Coincidence 作为模块间「容量桥」: 不建显式管道, 把信号写入共享发酵池
+
+### Tier 系统 + 噪声审计
+- t0-t4 五层置信体系: 公理→共识→理论→假说→探索
+- 三睡眠清扫 (SLEEP_T3 + SLEEP_T0-2 + SLEEP_T4): t3 碎片率 19.1%→0.2%
+- t4 存活期检查: n=1 + 200 代无增长 → 物理删除
+
+### 预测反馈 + 社会脑
+- 预测编码: 细胞行走偏差 Δs 触发 sympy derive 反向边
+- 多巴胺广播 + 人气梯度 + 髓鞘降阈: 解决细胞不收敛问题
+- 髓鞘高速公路: 频繁走过的个人边 → 选边偏好大幅提升
+
+### 密度竞争 + 睡眠巩固
+- 高连接度节点削弱弱边 (deg=200 → ×0.82)
+- s>1 强边睡眠重放强化 (strength=0.3)
+- 幽灵边修剪: 无突触支持的图边物理移除
+
+### ε-Greedy + 随机突触新生
+- ε-greedy: 15% 硬保底, 防长跑后探索完全死亡
+- 随机跳: 1% 概率跳到图中任意节点创建全新连接, 增加跨域发现概率
+
+### 方程库扩展 (257→422)
+- **QFT/希格斯**: Yang-Mills, 跑动耦合, 渐近自由, 色禁闭, 自发对称破缺, Goldstone 定理, Higgs 机制, VEV→质量
+- **核心桥**: `BrokenSymmetryToGauge` — broken_symmetry → gauge_coupling
+- **量子补全**: Schrödinger 方程, 隧穿, 自旋-轨道耦合
+
+### 基础设施
+- systemd-run 独立 cgroup 隔离 (不被 gateway 重启误杀)
+- SIGTERM 传播链诊断 + 根治
+- `__pycache__` 陷阱: `python3 -B` 启动防止旧字节码污染
+- 快照备份: cron 6h 本地 + 12h GitHub Releases
+- 10 维能力体检: `scripts/health_report.py`
+
+### 命名规范 + 生物术语
+- 树突/轴突/髓鞘/突触/海马体 — 脑内部结构只用生物术语
+- 代码层: 概念节点/关系边/domain/emergent_edges — KG 层用非生物术语
+
+### 关键数字 (gen ~20300)
+- 细胞 25K, 图节点 6K, 合成概念 2.6K, 定律 422
+- t1=169, t2=311, t3=3,049, t4=2,158
+- 多神经元共识 60.1%, 跨域桥 11
+- derive 每代 3 条 (10K 候选池), sympy 公式验证
+- INTERVENE 25K 条发现 (广撒网, 质量闸门过滤)
+
+---
+
 ## v0.2.0 (2026-05-18) — 贝叶斯层 + 创造性联想 + LLM 接口
 
 ### 新增模块
