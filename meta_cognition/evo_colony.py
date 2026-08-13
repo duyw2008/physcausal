@@ -4811,10 +4811,12 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             kg_path = path.replace(".json", "_kg.json")
             if orjson is not None:
                 with open(kg_path, 'wb') as f:
-                    f.write(orjson.dumps(kg_data, option=orjson.OPT_INDENT_2))
+                    # OPT_SERIALIZE_NUMPY: vs.graph 含 numpy float32, 直接序列化避免 tolist 膨胀
+                    f.write(orjson.dumps(kg_data, option=orjson.OPT_INDENT_2 | orjson.OPT_SERIALIZE_NUMPY))
             else:
                 with open(kg_path, 'w') as f:
-                    json.dump(kg_data, f, ensure_ascii=False, indent=2)
+                    json.dump(kg_data, f, ensure_ascii=False, indent=2,
+                              default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o))
 
             # 分离神经层 (cells, synaptic, cell_shelf)
             neural_data = {

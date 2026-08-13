@@ -193,14 +193,14 @@ class VSAEngine:
     # ═══════ 序列化 ═══════
 
     def to_dict(self) -> dict:
-        """快照序列化"""
+        """快照序列化 — 直接返回 numpy 数组 (orjson OPT_SERIALIZE_NUMPY 序列化, 避免 tolist 膨胀 ~850MB)"""
         return {
             "dim": self.dim,
-            "node_vectors": {k: v.tolist() for k, v in self.node_vectors.items()},
-            "mem_effects": {k: v.tolist() for k, v in self.mem_effects.items()},
-            "mem_causes": {k: v.tolist() for k, v in self.mem_causes.items()},
-            "V_FWD": self.V_FWD.tolist(),
-            "V_BWD": self.V_BWD.tolist(),
+            "node_vectors": {k: v for k, v in self.node_vectors.items()},
+            "mem_effects": {k: v for k, v in self.mem_effects.items()},
+            "mem_causes": {k: v for k, v in self.mem_causes.items()},
+            "V_FWD": self.V_FWD,
+            "V_BWD": self.V_BWD,
         }
 
     def from_dict(self, data: dict):
