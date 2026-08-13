@@ -46,6 +46,7 @@ class EvoColony:
     MEMORY_FLUSH_FRACTION = 0.68
     SNAPSHOT_INTERVAL = 200            # ↓100→200: 降快照频率, 缓解 OOM (每代序列化 ~1.5G 内存峰值)
     MAX_SNAPSHOTS = 10           # 保留最近10个快照, 防止清理吃掉
+    SHELF_MAX_SEEDS = 300000     # cell_shelf 总记录数上限 (LRU 淘汰, 防无界膨胀 → OOM)
     ABSTRACTION_THRESHOLD = 10
 
     METHODOLOGY_NODES = {
@@ -585,6 +586,8 @@ class EvoColony:
                             for s in v if isinstance(s, dict)]
                     if slim:
                         self._cell_shelf[k] = slim
+                # 加载即 trim: 历史 shelf 可能已超上限 (防启动后内存超限)
+                self._trim_shelf()
             except Exception:
                 self._cell_shelf = {}
 
@@ -624,9 +627,31 @@ class EvoColony:
             shelf_writes += 1
         self.cells = [s[1] for s in scores[count:]]
         self._build_neighbor_cache()  # 重建缓存: 存活细胞指向新list, 旧list(含沉淀细胞)被GC回收
+        self._trim_shelf()  # 容量上限: 防 cell_shelf 无界膨胀
         self._save_cell_shelf()
         if shelf_writes:
             print(f"  ☁️ 沉淀: -{shelf_writes} → 磁盘 (内存:{len(self.cells)})")
+
+    def _trim_shelf(self):
+        """cell_shelf 容量上限: 超限从最拥挤概念删最旧种子 (FIFO, 旧基因组价值低)"""
+        total = sum(len(v) for v in self._cell_shelf.values())
+        overflow = total - self.SHELF_MAX_SEEDS
+        if overflow <= 0:
+            return
+        removed = 0
+        for node in sorted(self._cell_shelf, key=lambda n: -len(self._cell_shelf[n])):
+            seeds = self._cell_shelf[node]
+            n_del = min(len(seeds), overflow - removed)
+            if n_del >= len(seeds):
+                del self._cell_shelf[node]
+                removed += len(seeds)
+            else:
+                del seeds[:n_del]  # 删最旧 n_del 条 (FIFO 头部)
+                removed += n_del
+            if removed >= overflow:
+                break
+        if removed:
+            print(f"  [SHELF-TRIM] -{removed} seeds (上限 {self.SHELF_MAX_SEEDS})")
 
     def _incubate_cells(self):
         """孵化: 热点概念从磁盘拉回基因组孵化细胞"""
