@@ -198,9 +198,9 @@ class EvoColony:
         # ☁️ 统一云架构
         self._cell_shelf: dict = {}          # {node: [seed_dict, ...]} 磁盘基因组库
         self._walk_buffer: list = []          # [(walk, generation), ...] 待消化走步
-        self._activity_history: dict = {}     # {id(cell): [gen_bits]} 最近活性跟踪
+        self._activity_history: dict = {}     # {cell.cell_id: [gen_bits]} 最近活性跟踪
         self.WALK_DIGEST_WINDOW = 50          # 走步保留代数
-        self.MEMORY_CELL_CAP = 20000          # 内存软上限
+        self.MEMORY_CELL_CAP = 15000          # 内存软上限 (20000→15000: 缓解OOM, 砍25%细胞数)
         self.ACTIVITY_FLOOR = 0.05            # 活性低于此值 → 沉淀
         self._load_cell_shelf()
 
@@ -601,7 +601,7 @@ class EvoColony:
         """活性分数 = reward × 图度 × 近10代walk率"""
         nd = self.graph.get(cell.node, {})
         degree = len(nd.get("causes", [])) + len(nd.get("effects", []))
-        recent_walks = self._activity_history.get(id(cell), [])[-10:]
+        recent_walks = self._activity_history.get(cell.cell_id, [])[-10:]
         walk_rate = sum(recent_walks) / max(len(recent_walks), 1)
         return max(0.001, cell.total_reward * max(1, degree) * walk_rate)
 
@@ -620,8 +620,10 @@ class EvoColony:
         for _, cell in precipitate:
             seed = cell.to_seed()
             self._cell_shelf.setdefault(cell.node, []).append(seed)
+            setattr(cell, '_neighbors_cache', None)  # 打破引用循环, 让GC能回收孤儿细胞
             shelf_writes += 1
         self.cells = [s[1] for s in scores[count:]]
+        self._build_neighbor_cache()  # 重建缓存: 存活细胞指向新list, 旧list(含沉淀细胞)被GC回收
         self._save_cell_shelf()
         if shelf_writes:
             print(f"  ☁️ 沉淀: -{shelf_writes} → 磁盘 (内存:{len(self.cells)})")
@@ -792,12 +794,12 @@ class EvoColony:
             cell.total_reward *= REWARD_DECAY
 
             # 振荡节律
-            if self._dopa_cohort and id(cell) in self._dopa_cohort:
-                cohort_gen = self._dopa_cohort[id(cell)]
+            if self._dopa_cohort and cell.cell_id in self._dopa_cohort:
+                cohort_gen = self._dopa_cohort[cell.cell_id]
                 if self.generation - cohort_gen <= 30:
                     cell._osc_boost = 2.0
                 else:
-                    del self._dopa_cohort[id(cell)]
+                    del self._dopa_cohort[cell.cell_id]
             # 好奇绑定矛盾
             if self._contradiction_nodes:
                 if not hasattr(cell, "_last_contradiction_visit"):
@@ -828,7 +830,7 @@ class EvoColony:
                 did_walk = result["type"] != "rest"
                 # 🧠 社会脑: 走过的细胞加入活跃池
                 if did_walk:
-                    self._active_cohort.append(id(cell))
+                    self._active_cohort.append(cell.cell_id)
                     if len(self._active_cohort) > self._active_pool_max:
                         self._active_cohort = self._active_cohort[-self._active_pool_max:]
                 if result["type"] == "split" and "child" in result:
@@ -861,7 +863,7 @@ class EvoColony:
                             self._reverse_candidates.append((src, dst, delta, self.generation))
 
             # ☁️ 追踪活性历史
-            history = self._activity_history.setdefault(id(cell), [])
+            history = self._activity_history.setdefault(cell.cell_id, [])
             history.append(1 if did_walk else 0)
             if len(history) > 10:
                 history.pop(0)
@@ -872,7 +874,7 @@ class EvoColony:
                 _total_walks += len(wm)
                 for walk in wm[-3:]:  # 最近3条 (微增覆盖)
                     if len(walk) >= 2:
-                        self._walk_buffer.append((list(walk), self.generation, id(cell) % 10000))
+                        self._walk_buffer.append((list(walk), self.generation, cell.cell_id))
                         # 轴突投射: 记录细胞投了哪些突触边
                         for step in walk:
                             if len(step) >= 3:
@@ -888,7 +890,7 @@ class EvoColony:
             reward_delta = self.total_rewards - getattr(self, '_last_broadcast_rewards', 0)
             broadcast_share = reward_delta * 0.15  # 15% 分给池子
             active_ids = set(self._active_cohort[-100:])  # 最近 100 个活跃细胞
-            cell_map = {id(c): c for c in self.cells if id(c) in active_ids}
+            cell_map = {c.cell_id: c for c in self.cells if c.cell_id in active_ids}
             shared = broadcast_share / max(len(cell_map), 1)
             for c in cell_map.values():
                 c.total_reward += shared
@@ -926,6 +928,38 @@ class EvoColony:
                     self.graph.add_edge(child.node, dst, "hebbian_shortcut", "probe")
                 self._probe_edges[(child.node, dst)] = self.generation
 
+    def _memory_health_check(self):
+        """内存体检: 统计关键dict大小 + 对象类型分布, 定位累积源"""
+        import gc
+        from collections import Counter
+        sizes = {
+            'coincidence': len(getattr(self, '_coincidence', {})),
+            'known_paths': len(getattr(self, '_known_paths', set())),
+            'probe_edges': len(getattr(self, '_probe_edges', {})),
+            'cell_shelf_seeds': sum(len(v) for v in getattr(self, '_cell_shelf', {}).values()),
+            'activity_history': len(getattr(self, '_activity_history', {})),
+            'walk_buffer': len(getattr(self, '_walk_buffer', [])),
+            'reverse_candidates': len(getattr(self, '_reverse_candidates', [])),
+            'composed_birth': len(getattr(self, '_composed_birth', {})),
+            'contradiction_nodes': len(getattr(self, '_contradiction_nodes', set())),
+            'edge_last_seen': len(getattr(self, '_edge_last_seen', {})),
+            'sensory_cache': len(getattr(self, '_sensory_cache', {})),
+            'blocked_backup': len(getattr(self, '_blocked_backup', {})),
+            'dopa_cohort': len(getattr(self, '_dopa_cohort', {})),
+            'hyp_registry': len(getattr(self, '_hyp_registry', set())),
+            'synapse_act': len(self.synapse.activations),
+            'graph_cache': len(self.graph._cache),
+            'cells': len(self.cells),
+        }
+        type_counter = Counter(type(o).__name__ for o in gc.get_objects())
+        # 孤儿细胞回收验证: gc.collect 前 vs 后
+        n_before = type_counter.get('EvolvableCell', 0)
+        gc.collect()
+        n_after = sum(1 for o in gc.get_objects() if type(o).__name__ == 'EvolvableCell')
+        print(f"  [MEM-HEALTH] gen={self.generation} {sizes}", flush=True)
+        print(f"  [MEM-HEALTH] 对象top10={type_counter.most_common(10)}", flush=True)
+        print(f"  [MEM-HEALTH] EvolvableCell: gc前{n_before} → gc后{n_after} (回收{n_before-n_after})", flush=True)
+
     def _apply_deaths(self, stats: dict, K: int):
         """密度死亡 + 饥饿死亡 — 纯渐进, 无硬砍"""
         pop = len(self.cells)
@@ -935,10 +969,10 @@ class EvoColony:
             frac_over = min(1.0, (density - self.DENSITY_DEATH_K_HALF) / (3.0 - self.DENSITY_DEATH_K_HALF))
             death_rate = self.DENSITY_DEATH_MAX_RATE * frac_over
             ranked = sorted(self.cells, key=lambda c: c.total_reward)
-            rank_of = {id(c): i / max(len(ranked) - 1, 1) for i, c in enumerate(ranked)}
+            rank_of = {c.cell_id: i / max(len(ranked) - 1, 1) for i, c in enumerate(ranked)}
             survivors = []
             for cell in self.cells:
-                rank_frac = rank_of.get(id(cell), 1.0)
+                rank_frac = rank_of.get(cell.cell_id, 1.0)
                 if random.random() < 1.0 - death_rate * (1.0 - rank_frac):
                     survivors.append(cell)
                 else:
@@ -950,10 +984,10 @@ class EvoColony:
         if pop > 50:
             cutoff = max(1, int(pop * self.STARVATION_PERCENTILE))
             ranked = sorted(self.cells, key=lambda c: c.total_reward)
-            bottom = set(id(c) for c in ranked[:cutoff])
+            bottom = set(c.cell_id for c in ranked[:cutoff])
             survivors = []
             for cell in self.cells:
-                if id(cell) in bottom and random.random() < self.STARVATION_DEATH_RATE:
+                if cell.cell_id in bottom and random.random() < self.STARVATION_DEATH_RATE:
                     stats["starvation_deaths"] += 1
                     stats["deaths"] += 1
                 else:
@@ -1107,7 +1141,7 @@ class EvoColony:
                         # 📖 arXiv 书架: 细胞走完后瞥一眼
                         if walk and len(walk) >= 2:
                             cell_node = walk[-1][2] if len(walk[-1]) >= 3 else cell.node
-                            self.arxiv_reading.cell_glance(cell_node, id(cell), colony=self)
+                            self.arxiv_reading.cell_glance(cell_node, cell.cell_id, colony=self)
                         
                         # 🧠 工作记忆编码: 走桥接节点 → 记入 buffer
                         if walk and len(walk) >= 2 and self._proprio_field:
@@ -1543,7 +1577,7 @@ class EvoColony:
                                     f"hyp/abs node blocked from tier promotion")
                                 continue
                             # 物理定律证实: 强化 + 升级 tier
-                            self.synapse.strengthen(id(cell) % 10000, from_node, to_node, 0.5, self.generation)
+                            self.synapse.strengthen(cell.cell_id, from_node, to_node, 0.5, self.generation)
                             if key in self.synapse.tiers and self.synapse.tiers[key] > 2:
                                 self.synapse.tiers[key] = 2  # 物理验证→tier2
                             self.synapse._physics_check(key)  # 补物理验证记录
@@ -1569,7 +1603,7 @@ class EvoColony:
                                 f"laws={relevant_laws}, effect={effect}")
                         else:
                             # 无明确证实/证伪, 但有关联公式: 标记为实验
-                            self.synapse.strengthen(id(cell) % 10000, from_node, to_node, 0.15, self.generation)
+                            self.synapse.strengthen(cell.cell_id, from_node, to_node, 0.15, self.generation)
                             if key in self.synapse.tiers and self.synapse.tiers[key] > 3:
                                 self.synapse.tiers[key] = 3
                             self.synapse._physics_check(key)  # 补物理验证记录
@@ -1691,6 +1725,16 @@ class EvoColony:
                 self._save_coincidence()
                 self._save_walk_memory()
 
+                # 清理死细胞的活性历史 (activity_history 无清理会永久累积)
+                live_ids = {c.cell_id for c in self.cells}
+                for cid in list(self._activity_history.keys()):
+                    if cid not in live_ids:
+                        self._activity_history.pop(cid, None)
+
+                # 强制回收孤儿对象 (打破引用循环后仍残留的)
+                import gc
+                gc.collect()
+
                 self._hot_hubs = BrainChemistry.compute_hot_hubs(self._coincidence)
                 self.synapse.decay_retrograde()
                 self.synapse.apply_retrograde(self.generation)
@@ -1729,6 +1773,9 @@ class EvoColony:
             # 8. ☁️ 云人口管理
             self._precipitate_cells()     # 低活性 → 磁盘
             self._incubate_cells()        # 热点概念 ← 磁盘
+
+            if self.generation % 10 == 0:
+                self._memory_health_check()
 
         # 云统计: 每500代汇报
         if self.generation % 500 == 0:
@@ -2743,23 +2790,8 @@ class EvoColony:
             edge['s'] *= max(0.7, min(0.9, decay))  # clamp [0.7, 0.9]
             edge['c'] = max(1, int(edge['c'] * 0.8))
         
-        # 1b. 密度竞争: 节点出边越多, 弱边衰减越快 (自限, 无硬上限)
-        #     生物学类比: 突触竞争有限神经营养因子, 密度越高淘汰越烈
-        node_degree = {}
-        for key in self.synapse.activations:
-            src = key[0] if isinstance(key, tuple) else key.split('|||')[0]
-            node_degree[src] = node_degree.get(src, 0) + 1
-        density_penalty_applied = 0
-        for key, edge in list(self.synapse.activations.items()):
-            src = key[0] if isinstance(key, tuple) else key.split('|||')[0]
-            deg = node_degree.get(src, 0)
-            if deg > 20:
-                # 密度越高惩罚越重: deg=50 → ×0.91, deg=100 → ×0.86, deg=200 → ×0.82
-                penalty = max(0.80, 1.0 - (deg - 20) * 0.001)
-                edge['s'] *= penalty
-                density_penalty_applied += 1
-        if density_penalty_applied:
-            print(f"  [DENSITY] {density_penalty_applied} edges penalized (degree > 20)")
+        # (已移除 degree>20 密度惩罚 2026-08-13: 突触应随学习线性增长, 防癌变由细胞层
+        #  分裂门槛 MIN_SPLIT_REWARD + 承载容量 CARRYING_CAPACITY 负责, 不再衰减记忆)
         
         # 2. 自然淘汰: s<0.01 的边视为消失 (极低, 跟0没区别)
         eliminated = []
@@ -2807,7 +2839,6 @@ class EvoColony:
         #       生物学类比: 慢波睡眠期间海马体向新皮层重放重要记忆
         consolidated = 0
         if hasattr(self, 'synapse') and hasattr(self.synapse, 'tiers'):
-            from meta_cognition.synaptic_layer import neuron_fire_on_path
             for key, tier in list(self.synapse.tiers.items()):
                 if tier > 3:
                     continue
@@ -2816,21 +2847,10 @@ class EvoColony:
                 n_val = len(edge.get('n', set()))
                 if s_val < 1.0 or n_val < 2:
                     continue
-                src = key[0] if isinstance(key, tuple) else key.split('|||')[0]
-                dst = key[1] if isinstance(key, tuple) else key.split('|||')[1]
-                # 虚拟细胞走这条边, 加固突触 (强度 1.5, 比普通重放高)
+                # 睡眠巩固: 直接加固突触强度, 不虚增神经元共识 (consolidate 非新神经元走过)
                 for _ in range(min(3, int(n_val // 10) + 1)):
-                    fake_walk = [(src, 'sleep_consolidate', dst)]
-                    fake_cell = type('C', (), {
-                        'current_walk': fake_walk,
-                        'walk_memory': [fake_walk],
-                        'node': src,
-                        'genome': {},
-                        'trace': {},
-                        'intrinsic_curiosity': 1.0,
-                        'total_reward': 0,
-                    })()
-                    neuron_fire_on_path(fake_cell, self.synapse, self.generation, strength=0.3)
+                    edge['s'] = min(edge['s'] + 0.3, 100.0)
+                    edge['c'] += 1
                     consolidated += 1
         if consolidated:
             print(f"  [CONSOLIDATE] {consolidated} high-tier edges replayed (s>1, n>=2)")
@@ -2900,7 +2920,7 @@ class EvoColony:
                     strength = 0.25 if cell.total_reward > 10 else 0.12
                     for step in best:
                         if len(step) >= 3:
-                            self.synapse.strengthen(id(cell) % 10000, step[0], step[2], strength, self.generation)
+                            self.synapse.strengthen(cell.cell_id, step[0], step[2], strength, self.generation)
                             cell.axons.add((step[0], step[2]))  # 轴突投射
                             k = (step[0], step[2])
                             cell.myelin[k] = min(3.0, cell.myelin.get(k, 0) + 0.05)  # 睡眠髓鞘化(减半)
@@ -3597,7 +3617,7 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 if cell.node in new_set or any(
                     n in new_set for n in self._neighbors_of(cell.node)
                 ):
-                    self._dopa_cohort[id(cell)] = cohort_id
+                    self._dopa_cohort[cell.cell_id] = cohort_id
                     cell.goal = hotspot  # 强化: 附近神经元也设目标
 
     def _feed_knowledge(self):
@@ -5723,7 +5743,7 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 if len(step) >= 3:
                     w_src, _law, w_dst = step[0], step[1], step[2]
                     if w_src and w_dst and w_src != w_dst:
-                        self.synapse.strengthen(id(cell) % 10000, w_src, w_dst, 0.3, self.generation)
+                        self.synapse.strengthen(cell.cell_id, w_src, w_dst, 0.3, self.generation)
 
         # 图变了, 重建引用
         if edges_added > 0:

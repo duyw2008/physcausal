@@ -49,11 +49,19 @@ class EvolvableCell:
     GENOME_MAX = 3.0            # 单基因权重上限 (防止 runaway)
     MAX_WALK_MEMORY = 10
     MAX_WALK_CANDIDATES = 200  # 积分-触发: 游走时只取前 N 条最强边
-    
+
+    _cell_id_counter = 0
+
+    @classmethod
+    def _next_cell_id(cls) -> int:
+        cls._cell_id_counter += 1
+        return cls._cell_id_counter
+
     def __init__(self, node_id: str, graph: Dict, board: 'Blackboard',
                  genome: Optional[Dict[str, float]] = None,
                  myelin=None, neuro=None, min_split_reward: float = 0.5):
         self.node = node_id
+        self.cell_id = EvolvableCell._next_cell_id()  # 稳定唯一ID, 替代 id()%10000 的碰撞/复用
         self.graph = graph
         self.board = board
         self.age = 0
