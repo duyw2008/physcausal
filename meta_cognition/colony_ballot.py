@@ -270,4 +270,4 @@ def cell_vote_on_path(cell, ballot: ColonyBallot, generation: int):
             src, law, dst = step[0], step[1], step[2]
             # 信心 = 路径长度归一化
             confidence = min(1.0, len(cell.current_walk) / 10.0)
-            ballot.cast_vote(id(cell) % 10000, src, dst, confidence, generation)
+            ballot.cast_vote(cell.cell_id, src, dst, confidence, generation)

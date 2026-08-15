@@ -47,6 +47,7 @@ class EvoColony:
     SNAPSHOT_INTERVAL = 200            # ↓100→200: 降快照频率, 缓解 OOM (每代序列化 ~1.5G 内存峰值)
     MAX_SNAPSHOTS = 10           # 保留最近10个快照, 防止清理吃掉
     SHELF_MAX_SEEDS = 300000     # cell_shelf 总记录数上限 (LRU 淘汰, 防无界膨胀 → OOM)
+    ARXIV_FEED_ENABLED = False   # arXiv 摄入开关: False=纯符号运行 (arXiv碎片是auto_laws污染主源, 2026-08-15停用)
     ABSTRACTION_THRESHOLD = 10
 
     METHODOLOGY_NODES = {
@@ -951,7 +952,7 @@ class EvoColony:
                 self._ensure_node(dst)
                 if self._valid_edge("probe"):
                     self.graph.add_edge(child.node, dst, "hebbian_shortcut", "probe")
-                self._probe_edges[(child.node, dst)] = self.generation
+                    self._probe_edges[(child.node, dst)] = self.generation
 
     def _memory_health_check(self):
         """内存体检: 统计关键dict大小 + 对象类型分布, 定位累积源"""
@@ -3658,6 +3659,8 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         self._arxiv_feed()
 
     def _arxiv_feed(self):
+        if not self.ARXIV_FEED_ENABLED:
+            return
         nodes = Counter(c.node for c in self.cells)
         hotspots = [n for n, _ in nodes.most_common(5)]
         if not hotspots:
@@ -4529,7 +4532,7 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         功能相关的节点在向量空间中自然靠拢。
         探针优先连接邻近节点→模块涌现→小世界拓扑自发生成。
         """
-        PROBES_PER_NODE = 5; PROBE_AGE_LIMIT = 300
+        PROBES_PER_NODE = 5; PROBE_AGE_LIMIT = 60
         nodes = Counter(c.node for c in self.cells)
         hotspots = [n for n, _ in nodes.most_common(20) if nodes[n] >= 3]
         spawned = 0
