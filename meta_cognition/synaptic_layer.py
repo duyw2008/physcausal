@@ -65,6 +65,12 @@ class SynapticLayer:
     RETROGRADE_DEPRESSION = -3      # 后向信号≤此数 → 前向LTD加速 (连接有毒)
     RETROGRADE_DECAY = 0.05         # 每50代后向信号衰减比例
 
+    # LLM 残留词 / 非物理概念黑名单: _physics_check 直接拒绝 (防 arXiv 碎片溜进"通过验证")
+    _LLM_JUNK_WORDS = (
+        'analyzing', 'analyze', 'robot_foot', '未在给定', 'todo', 'none',
+        'null', 'undefined', 'example', 'placeholder', 'xxx', 'nan',
+    )
+
     def __init__(self):
         # v3: 前向 + 后向
         self.activations: Dict[Tuple[str, str], dict] = {}   # 前向 {(src,dst): {n,g,s,c}}
@@ -234,6 +240,12 @@ class SynapticLayer:
 
             constraint = PhysicsConstrainedDAG(list(all_vars))
             issues = []
+
+            # 节点有效性: LLM 残留词 / 非物理概念直接拒绝 (防 arXiv 碎片溜进"通过验证")
+            for node in (src, dst):
+                nl = node.lower()
+                if any(w in nl for w in self._LLM_JUNK_WORDS):
+                    issues.append(f"llm_junk: {node}")
 
             for f_src, f_dst in constraint.forbidden_edges:
                 if f_src == src and f_dst == dst:
@@ -426,7 +438,9 @@ class SynapticLayer:
                     src, dst = key_str.split('|||')
                     key = (src, dst)
                     # 恢复神经元集合 (持久化的采样)
-                    neuron_ids = set(info.get('neurons', []))
+                    # 2026-08-13: cell_id 自增在重启后归零, 磁盘旧神经元ID(旧id%10000, 0-9999)
+                    # 会与新 cell_id 空间冲突 → 清空重新累积 (旧细胞已不存在, 共识理应重算)
+                    neuron_ids = set()
                     self.activations[key] = {
                         'n': neuron_ids,
                         'g': info.get('g', 0),
@@ -602,7 +616,8 @@ def neuron_fire_on_path(neuron, synapse: SynapticLayer, generation: int, strengt
             src, law, dst = step[0], step[1], step[2]
             if strength is None:
                 strength = min(1.0, len(neuron.current_walk) / 10.0)
-            synapse.strengthen(id(neuron) % 10000, src, dst, strength, generation)
+            neuron_id = getattr(neuron, 'cell_id', id(neuron) % 10000)
+            synapse.strengthen(neuron_id, src, dst, strength, generation)
 
 
 def mirror_strengthen(synapse: SynapticLayer, src: str, dst: str,
