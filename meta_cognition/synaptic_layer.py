@@ -18,7 +18,7 @@ tier 4:   探索编码 — 初始状态
 from __future__ import annotations
 from typing import Dict, List, Tuple, Optional
 from collections import defaultdict
-import time, json, os
+import time, json, os, re
 
 
 MEMORY_PATH = None
@@ -65,11 +65,13 @@ class SynapticLayer:
     RETROGRADE_DEPRESSION = -3      # 后向信号≤此数 → 前向LTD加速 (连接有毒)
     RETROGRADE_DECAY = 0.05         # 每50代后向信号衰减比例
 
-    # LLM 残留词 / 非物理概念黑名单: _physics_check 直接拒绝 (防 arXiv 碎片溜进"通过验证")
-    _LLM_JUNK_WORDS = (
-        'analyzing', 'analyze', 'robot_foot', '未在给定', 'todo', 'none',
-        'null', 'undefined', 'example', 'placeholder', 'xxx', 'nan',
-    )
+    # LLM 残留词 / 论文结构标签黑名单: _physics_check 直接拒绝 (防 arXiv 碎片溜进"通过验证")
+    # token 级匹配 (按 :|_ 分割), 避免 'null' 误杀 null_boundary(引力) / 'section' 误杀 cross_section
+    _LLM_JUNK_WORDS = frozenset({
+        'analyzing', 'analyze', 'abstract', 'mediators', 'introduction',
+        'conclusion', 'references', 'robot_foot', '未在给定', 'todo',
+        'undefined', 'example', 'placeholder', 'xxx', 'nan', 'none',
+    })
 
     def __init__(self):
         # v3: 前向 + 后向
@@ -241,11 +243,12 @@ class SynapticLayer:
             constraint = PhysicsConstrainedDAG(list(all_vars))
             issues = []
 
-            # 节点有效性: LLM 残留词 / 非物理概念直接拒绝 (防 arXiv 碎片溜进"通过验证")
+            # 节点有效性: LLM 残留词 / 论文结构标签直接拒绝 (token 级匹配, 防 arXiv 碎片溜进"通过验证")
             for node in (src, dst):
-                nl = node.lower()
-                if any(w in nl for w in self._LLM_JUNK_WORDS):
-                    issues.append(f"llm_junk: {node}")
+                tokens = re.split(r'[:|_]+', node.lower())
+                junk = [t for t in tokens if t in self._LLM_JUNK_WORDS]
+                if junk:
+                    issues.append(f"llm_junk: {node} ({','.join(junk)})")
 
             for f_src, f_dst in constraint.forbidden_edges:
                 if f_src == src and f_dst == dst:
