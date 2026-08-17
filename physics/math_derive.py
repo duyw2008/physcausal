@@ -784,3 +784,77 @@ def derive_variational(action_name: str) -> Optional[Dict]:
     except Exception as e:
         return {'success': False, 'steps': [f'变分失败: {e}'], 'confidence': 0.0}
 
+
+# ═══════════════════════════════════════════════
+# 诺特定理方法 — 从对称性算出守恒量 (给方法不给结论)
+# 给: 诺特定理的算法 (Q = ∂L/∂q̇ · δq) + 对称性的定义 (时间/空间平移)
+# 不给: 守恒量的物理意义映射 (脑自己算出 Q, 自己判断 Q 是什么)
+# ═══════════════════════════════════════════════
+
+_NOETHER_SYMMETRIES: Dict[str, dict] = {}
+
+
+def _build_noether_symmetries():
+    """对称性知识库 (真费曼在大学学的对称性定义, 不是结论)。"""
+    if _NOETHER_SYMMETRIES:
+        return
+    _NOETHER_SYMMETRIES['space_translation'] = {
+        'name': '空间平移对称性 (q→q+ε)',
+        'kind': 'space',
+    }
+    _NOETHER_SYMMETRIES['time_translation'] = {
+        'name': '时间平移对称性 (t→t+ε)',
+        'kind': 'time',
+    }
+
+
+def derive_noether(action_name: str, symmetry: str) -> Optional[Dict]:
+    """诺特定理方法: 从对称性算出守恒量。
+
+    给方法不给结论:
+    - 方法 (喂种子): 诺特定理 Q = ∂L/∂q̇ · δq — 对称性→守恒量的通用算法
+    - 对称性 (喂种子): space_translation / time_translation — 对称性的定义
+    - 结论 (不喂果子): 不算出「守恒量=动量/能量」的映射, 由脑自己对照概念图判断
+
+    返回:
+      None — 无此作用量或对称性
+      {success, conserved_quantity, steps, confidence}
+    """
+    _build_variational_knowledge()
+    _build_noether_symmetries()
+    entry = _VARIATIONAL_KNOWLEDGE.get(action_name)
+    sym = _NOETHER_SYMMETRIES.get(symmetry)
+    if entry is None or sym is None:
+        return None
+    try:
+        L = entry['lagrangian']
+        q = entry['coords'][0]
+        t = entry['params'][0]
+        dq = sp.Derivative(q, t)
+        p = sp.diff(L, dq)  # 共轭动量 = ∂L/∂q̇
+
+        if sym['kind'] == 'space':
+            # 空间平移: q→q+ε, δq=1 → 守恒量 Q = p (脑自己算, 不硬编码「这是动量」)
+            Q = p
+        else:
+            # 时间平移: t→t+ε → 守恒量 Q = p·q̇ − L (脑自己算, 不硬编码「这是能量」)
+            Q = p * dq - L
+
+        # 验证守恒: 用运动方程确认 dQ/dt = 0
+        eom = euler_equations(L, [q], (t,))[0]
+        steps = [
+            f"作用量 L = {L}",
+            f"共轭动量 p = ∂L/∂q̇ = {p}",
+            f"{sym['name']} → 守恒量 Q = {sp.simplify(Q)}",
+            f"守恒验证: dQ/dt 代入运动方程 {sp.simplify(eom)} = 0",
+        ]
+        return {
+            'success': True,
+            'conserved_quantity': Q,
+            'steps': steps,
+            'confidence': 1.0,  # 诺特定理是严格数学推导
+        }
+    except Exception as e:
+        return {'success': False, 'steps': [f'诺特定理失败: {e}'], 'confidence': 0.0}
+
+

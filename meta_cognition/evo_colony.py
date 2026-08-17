@@ -3077,7 +3077,7 @@ class EvoColony:
         if getattr(self, '_variational_done', False):
             return
         self._variational_done = True
-        from physics.math_derive import derive_variational
+        from physics.math_derive import derive_variational, derive_noether
         derived = 0
         for action_name in ('EulerLagrange', 'KleinGordon'):
             try:
@@ -3092,8 +3092,19 @@ class EvoColony:
             self._record_discovery(f"action --δS=0--> {action_name}", "variational",
                                    f"运动方程: {eom}")
             derived += 1
+        # 诺特定理: 从对称性算守恒量 (方法) — 守恒量由脑自己算, 物理意义自己判断
+        for symmetry in ('space_translation', 'time_translation'):
+            try:
+                n = derive_noether('EulerLagrange', symmetry)
+            except Exception:
+                continue
+            if not n or not n.get('success'):
+                continue
+            self._record_discovery(f"noether: EulerLagrange/{symmetry}", "noether",
+                                   f"守恒量 Q = {n['conserved_quantity']}")
+            derived += 1
         if derived:
-            print(f"  [VARIATIONAL] +{derived} 运动方程从 δS=0 变分生成 (给方法不给结论)")
+            print(f"  [VARIATIONAL] +{derived} 运动方程/守恒量从 δS=0 变分+诺特定理生成 (给方法不给结论)")
 
     def _enforce_causal_closure(self):
         """因果闭包约束: 每个有 effects 的节点必须有 cause-chain 到 tier≤1。
