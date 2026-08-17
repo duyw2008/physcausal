@@ -416,6 +416,14 @@ class VSAGraph:
     def _rebuild_cache(self, node_id: str):
         effects_raw = self.vsa.query_effects(node_id)
         causes_raw = self.vsa.query_causes(node_id)
+        # 因果域优先: δS=0 变分(axomatic/physics/derive)决定意义, 词共现(emergent)作背景
+        # 细胞读 graph 时因果邻居排前面 → walk 偏向因果网, 不被词共现糊糊带偏
+        _CAUSAL_DOMAINS = {'axomatic', 'physics', 'derive'}
+        def _rank(item):
+            # item = (target, domain, score): 因果域排前, 同域按 score 降序
+            return (0 if item[1] in _CAUSAL_DOMAINS else 1, -item[2])
+        effects_raw.sort(key=_rank)
+        causes_raw.sort(key=_rank)
         effects = [(domain, dst, domain) for dst, domain, _ in effects_raw]
         causes = [(src, domain, domain) for src, domain, _ in causes_raw]
 

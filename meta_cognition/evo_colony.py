@@ -36,7 +36,7 @@ class EvoColony:
     VALID_EDGE_DOMAINS = {"math_verified", "mechanics", "electromagnetism",
                           "thermodynamics", "quantum", "optics",
                           "modern", "general_relativity", "emergent",
-                          "qcd", "research", "axomatic"}
+                          "qcd", "research", "axomatic", "physics"}
     DENSITY_DEATH_K_HALF = 0.5             # ↓0.7→0.5: 更早触发密度死亡
     DENSITY_DEATH_MAX_RATE = 1.0          # 去盖: 密度极高时可杀100%
     STARVATION_PERCENTILE = 0.10         # ↑0.08→0.10: 更大饥饿范围
@@ -1603,7 +1603,7 @@ class EvoColony:
                                     f"hyp/abs node blocked from tier promotion")
                                 continue
                             # 物理定律证实: 强化 + 升级 tier
-                            self.synapse.strengthen(cell.cell_id, from_node, to_node, 0.5, self.generation)
+                            self.synapse.strengthen(cell.cell_id, from_node, to_node, 0.5, self.generation, signal='causal')
                             if key in self.synapse.tiers and self.synapse.tiers[key] > 2:
                                 self.synapse.tiers[key] = 2  # 物理验证→tier2
                             self.synapse._physics_check(key)  # 补物理验证记录
@@ -3029,6 +3029,7 @@ class EvoColony:
         self._sort_graph_by_edge_s()      # 按 s 值重排边序
         self._audit_t3_noise()            # 清理弱 t3 噪声
         self._audit_t2_noise()            # 清理 t0-2 噪声 (hyp/abs/碎片/自环)
+        self._check_bidirectional_contradiction()  # 双向伪因果 → t3 (去伪存真)
         self._audit_t4_survival()         # t4 存活期检查: n=1+s停滞 → 删除
         self._prune_stale_emergent()      # 🧠 持续清理: 没人走的 emergent 标签摘除
         # ☁️ 消化 walk 缓冲区
@@ -3149,20 +3150,32 @@ class EvoColony:
             if best_edge:
                 src, dst, formula = best_edge
                 key = (src, dst)
-                if key not in self.synapse.activations:
-                    self.synapse.strengthen(self.synapse.SYS_CLOSURE, src, dst, 0.35, self.generation)
-                self.synapse.tiers[key] = 0  # 因果闭包边 = 公理级（tier0），成为新锚点
-                # 用 add_edge 双写 VSA+缓存，避免 rebuild 覆盖
-                self.graph.add_edge(src, dst, 'causal_closure', 'axomatic')
-                self._record_discovery(f"{src}->{dst}", "causal_closure",
-                                       f"formula={formula}")
-                # 防 VSA 重建覆盖: 清除 dirty 标记，保护手动添加的因果边
-                self.graph._dirty.discard(src)
-                self.graph._dirty.discard(dst)
-                self._closure_fixed.add(node_id)  # 记录已修复
-                repaired += 1
-                if repaired == 1:
-                    print(f"  [CLOSURE] {src} --[{formula}]--> {dst} (dangling→anchored)")
+                # 因果方向判定: 只有 δS=0 变分产物才是公理级锚点
+                status = self.synapse.causal_status(src, dst)
+                if status == 'causal':
+                    # δS=0 变分产物 → 公理级 (tier0), 成为新锚点
+                    if key not in self.synapse.activations:
+                        self.synapse.strengthen(self.synapse.SYS_CLOSURE, src, dst, 0.35, self.generation, signal='causal')
+                    self.synapse.tiers[key] = 0
+                    # 用 add_edge 双写 VSA+缓存，避免 rebuild 覆盖
+                    self.graph.add_edge(src, dst, 'causal_closure', 'axomatic')
+                    self._record_discovery(f"{src}->{dst}", "causal_closure",
+                                           f"formula={formula}")
+                    # 防 VSA 重建覆盖: 清除 dirty 标记，保护手动添加的因果边
+                    self.graph._dirty.discard(src)
+                    self.graph._dirty.discard(dst)
+                    self._closure_fixed.add(node_id)  # 记录已修复
+                    repaired += 1
+                    if repaired == 1:
+                        print(f"  [CLOSURE] {src} --[{formula}]--> {dst} (dangling→anchored)")
+                elif status == 'forbidden':
+                    # 反因果 (δS=0 禁止方向) → 拒绝, 标记已处理避免重试
+                    self._closure_fixed.add(node_id)
+                else:
+                    # 代数变形/未验证 → 只作关联 (不进公理层), 标记已处理
+                    if key not in self.synapse.activations:
+                        self.synapse.strengthen(self.synapse.SYS_CLOSURE, src, dst, 0.35, self.generation, signal='associative')
+                    self._closure_fixed.add(node_id)
 
         if repaired:
             print(f"  [CLOSURE] {repaired}/{len(dangling[:3])} dangling nodes repaired (gen {self.generation})")
@@ -3237,18 +3250,30 @@ class EvoColony:
                 if result and result.get('success'):
                     formula = str(result.get('relation', result.get('steps', ['?'])[0]))[:60]
                     key = (dst, src)
-                    if key not in self.synapse.activations:
-                        self.synapse.strengthen(self.synapse.SYS_FEEDBACK, dst, src, 0.25, self.generation)
-                    self.synapse.tiers[key] = 1  # tier 1: 反馈边，低于公理
-                    self.graph.add_edge(dst, src, 'predictive_feedback', 'axomatic')
-                    self.graph._dirty.discard(dst)
-                    self.graph._dirty.discard(src)
-                    self._record_discovery(f"{dst}->{src}", "predictive_feedback",
-                                           f"Δs={total_delta:.2f} formula={formula}")
-                    repaired += 1
-                    self._feedback_fixed.add(reverse_key)
-                    if repaired == 1:
-                        print(f"  [FEEDBACK] {dst} --[{formula}]--> {src} (Δs={total_delta:.2f})", flush=True)
+                    # 因果方向判定: 只有 δS=0 变分产物 (定律库 causal_direction) 才是真因果
+                    status = self.synapse.causal_status(dst, src)
+                    if status == 'causal':
+                        # δS=0 变分支持此反向 → 真因果, 进 tier1
+                        if key not in self.synapse.activations:
+                            self.synapse.strengthen(self.synapse.SYS_FEEDBACK, dst, src, 0.25, self.generation, signal='causal')
+                        self.synapse.tiers[key] = 1  # tier 1: δS=0 变分反向边
+                        self.graph.add_edge(dst, src, 'predictive_feedback', 'axomatic')
+                        self.graph._dirty.discard(dst)
+                        self.graph._dirty.discard(src)
+                        self._record_discovery(f"{dst}->{src}", "predictive_feedback",
+                                               f"Δs={total_delta:.2f} formula={formula}")
+                        repaired += 1
+                        if repaired == 1:
+                            print(f"  [FEEDBACK] {dst} --[{formula}]--> {src} (Δs={total_delta:.2f})", flush=True)
+                    elif status == 'forbidden':
+                        # 反因果 (δS=0 禁止方向) → 明确拒绝, 不进因果层
+                        self._record_discovery(f"{dst}->{src}", "feedback_forbidden",
+                                               f"Δs={total_delta:.2f} formula={formula} (δS=0 forbids)")
+                    else:
+                        # unverified: 代数变形/词共现 → 只作关联, 永不进因果层
+                        if key not in self.synapse.activations:
+                            self.synapse.strengthen(self.synapse.SYS_FEEDBACK, dst, src, 0.25, self.generation, signal='associative')
+                    self._feedback_fixed.add(reverse_key)  # 标记已处理, 不重复 derive
             except Exception:
                 continue
         if repaired:
@@ -3327,7 +3352,13 @@ class EvoColony:
     # ═══════ arXiv 验证: 只验证不产新知识 ═══════
 
     def _validate_with_arxiv(self):
-        """验证最近的 math_verified 边: 搜 arXiv 确认, 只调 tier 不进图"""
+        """[已停用] arXiv 词共现验证 —— 伪因果根源, 违背纯符号运行原则。
+
+        原逻辑: 搜 arXiv, 论文标题含两概念词 → '确认'因果设 tier2。
+        问题: 肿瘤分类论文含 'mass'(肿块) 词 → 误确认物理质量因果。
+        因果方向唯一来源是 δS=0 变分 (定律库 causal_direction), 词共现≠因果。
+        """
+        return  # 停用
         # 收集最近未验证的 math_verified 边
         candidates = []
         for key, edge in self.synapse.activations.items():
@@ -3827,6 +3858,43 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 parts.append(f"t{t}:{n} noise+{w} weak")
         if parts:
             print(f"  [SLEEP_T0-2] {' | '.join(parts)} demoted → t4 (hyp/abs/碎片/自环/弱边)")
+
+    def _check_bidirectional_contradiction(self):
+        """方向一致性: tier2 双向边若定律库不承认双向因果 → 降 tier3 (去伪存真)
+
+        因果方向是单向的 (δS=0 变分: action→force 等), 双向 tier2 通常意味着
+        词共现被误标成了因果。只有定律库明确的双向 (如 mass↔spacetime_curvature) 才是合法的。
+        """
+        if not hasattr(self, 'synapse'):
+            return
+        tiers = getattr(self.synapse, 'tiers', {})
+        from physics.laws import library
+        legal = set()
+        for law in library._laws:
+            for cd in law.causal_direction:
+                legal.add(cd)
+        demoted = 0
+        seen = set()
+        for (a, b), tier in list(tiers.items()):
+            if tier != 2:
+                continue
+            if (a, b) in seen or (b, a) in seen:
+                continue
+            if (b, a) in tiers and tiers[(b, a)] == 2:
+                seen.add((a, b))
+                for direction in ((a, b), (b, a)):
+                    if direction not in legal:
+                        tiers[direction] = 3
+                        # 清除假因果凭证: 历史遗留的 causal_n/external_validated
+                        # (改动前 FEEDBACK代数变形/arxiv词共现 误标成 causal 的残留)
+                        edge = self.synapse.activations.get(direction)
+                        if edge:
+                            edge['causal_n'] = set()
+                        self.synapse.external_validated.pop(direction, None)
+                        demoted += 1
+        if demoted:
+            print(f"  [BIDIR] -{demoted} bidirectional t2 edges demoted → t3 (no legal bidir causal support)")
+        return demoted
 
     def _audit_t4_survival(self):
         """t4 存活期检查: n=1 + s值停滞超过 STALE_GENS → 删边
@@ -4810,6 +4878,7 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             "generation": self.generation, "cells": cells_data,
             "K": self._carrying_capacity,
             "edges": edge_count,
+            "cell_id_counter": EvolvableCell._cell_id_counter,  # 持久化 cell_id 计数器 (防重启归零→ID冲突→共识清空)
             "vs.graph": vsa_data,
             "vs.cache": cache_data,
             "synaptic": self.synapse.to_dict() if hasattr(self, 'synapse') else {},
@@ -4928,6 +4997,10 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         cells_data = data.get("cells", [])
         if not cells_data:
             return 0
+        # 恢复 cell_id 计数器 (防重启归零 → 新旧 cell_id 冲突 → 神经元共识错乱)
+        counter = data.get("cell_id_counter", 0)
+        if counter:
+            EvolvableCell._cell_id_counter = max(EvolvableCell._cell_id_counter, counter)
         # 恢复 VSA (v3+ 快照) — 仅恢复向量数据, 不预热查询矩阵
         vsa_data = data.get("vs.graph", {})
         if vsa_data and hasattr(self.graph, 'vsa'):
@@ -5767,13 +5840,15 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         })
 
         # 🛣️ 全路径强化: 走过的正确路径变高速公路
+        # (derive 是代数变形, 只有 δS=0 变分方向才标因果, 其余只作关联)
         walk = result.get("walk", [])
         if walk and edges_added > 0:
             for step in walk:
                 if len(step) >= 3:
                     w_src, _law, w_dst = step[0], step[1], step[2]
                     if w_src and w_dst and w_src != w_dst:
-                        self.synapse.strengthen(cell.cell_id, w_src, w_dst, 0.3, self.generation)
+                        sig = 'causal' if self.synapse.causal_status(w_src, w_dst) == 'causal' else 'associative'
+                        self.synapse.strengthen(cell.cell_id, w_src, w_dst, 0.3, self.generation, signal=sig)
 
         # 图变了, 重建引用
         if edges_added > 0:

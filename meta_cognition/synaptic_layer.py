@@ -43,6 +43,7 @@ class SynapticLayer:
 
     LTP_THRESHOLD: int = 10
     CONSOLIDATION_THRESHOLD: int = 50
+    CAUSAL_CONSOLIDATION_THRESHOLD: int = 2  # t3→t2: 需 2+ 独立因果通道 (词共现再多也不能单独升因果层)
     LTD_WINDOW: int = 400  # 边衰减窗口 (微增容错)
     ELIMINATION_THRESHOLD: int = 3
     STDP_WINDOW: int = 50       # 时序窗口: 反向走在此窗口内触发STDP
@@ -98,6 +99,8 @@ class SynapticLayer:
             'activations': {f"{k[0]}|||{k[1]}": {
                 'n': len(v['n']), 'g': v['g'], 's': round(v['s'], 2), 'c': v['c'],
                 'neurons': list(v['n'])[:self.MAX_NEURONS_PER_EDGE],
+                'causal_n': list(v.get('causal_n', set()))[:self.MAX_NEURONS_PER_EDGE],
+                'assoc_n': list(v.get('assoc_n', set()))[:self.MAX_NEURONS_PER_EDGE],
                 't4_birth': v.get('t4_birth', 0)
             } for k, v in self.activations.items() if v.get('c', 0) >= 1},
             'tiers': {f"{k[0]}|||{k[1]}": v for k, v in self.tiers.items()},
@@ -114,6 +117,8 @@ class SynapticLayer:
             if len(parts) == 2:
                 self.activations[(parts[0], parts[1])] = {
                     'n': set(v.get('neurons', [])),
+                    'causal_n': set(v.get('causal_n', [])),
+                    'assoc_n': set(v.get('assoc_n', [])),
                     'g': v.get('g', 0),
                     's': v.get('s', 0.1),
                     'c': v.get('c', 1),
@@ -136,19 +141,32 @@ class SynapticLayer:
     # ── 前向操作 (不变) ──
 
     def strengthen(self, neuron_id: int, src: str, dst: str,
-                   strength: float, generation: int):
-        """神经元走过一条边 → 突触强化"""
+                   strength: float, generation: int, signal: str = 'associative'):
+        """神经元走过一条边 → 突触强化
+
+        signal: 'causal'      — 有方向的因果验证 (sympy推导 / 物理定律证实 / 因果闭包 / 预测反馈)
+                'associative' — 无方向的词共现 (细胞行走 / 书架回放 / 海马体组合)
+        词共现只能积累关联, 不能单独把边推上 tier2 因果层。
+        """
         key = (src, dst)
         edge = self.activations.get(key)
 
         if edge is None:
-            edge = {'n': set(), 'g': generation, 's': 0.0, 'c': 0, 't4_birth': generation}
+            edge = {'n': set(), 'g': generation, 's': 0.0, 'c': 0, 't4_birth': generation,
+                    'causal_n': set(), 'assoc_n': set()}
             self.activations[key] = edge
 
         # 防御: 如果 n 不是 set (旧数据或 bug), 修复为 set
         if not isinstance(edge.get('n'), set):
             edge['n'] = set()
         edge['n'].add(neuron_id)
+        # 信号来源记录: 因果 vs 共现 (旧数据缺省字段, setdefault 兼容)
+        edge.setdefault('causal_n', set())
+        edge.setdefault('assoc_n', set())
+        if signal == 'causal':
+            edge['causal_n'].add(neuron_id)
+        else:
+            edge['assoc_n'].add(neuron_id)
         edge['g'] = generation
         # 🏋️ BCM 突触竞争: 低 s → Hebbian 增强, 高 s → 自限抑制
         # s=0→×1.0, s=3→×1.3(峰值), s=5→×0.81, s=10→×0.42
@@ -224,10 +242,45 @@ class SynapticLayer:
             edge.pop('t4_birth', None)  # 晋升成功 → 撤销死刑计时器
             edge.pop('eligible_since', None)
 
-        # ── t3 → t2 巩固 ──
-        if current == 3 and unique >= self.CONSOLIDATION_THRESHOLD:
-            if self.external_validated.get(key, False):
+        # ── t3 → t2 巩固 (需 2+ 独立因果通道 + 外部验证, 词共现再多也不能单独升因果层) ──
+        if current == 3:
+            causal_unique = len(edge.get('causal_n', set()))
+            if causal_unique >= self.CAUSAL_CONSOLIDATION_THRESHOLD and self.external_validated.get(key, False):
                 self.tiers[key] = 2
+
+    # ── 因果方向判定 (δS=0 变分) ──
+    _causal_dirs: Optional[set] = None
+    _forbidden_dirs: Optional[set] = None
+
+    @classmethod
+    def _load_causal_dirs(cls):
+        """惰性加载定律库因果方向 (δS=0 变分产物), 全实例共享缓存"""
+        if cls._causal_dirs is not None:
+            return
+        from physics.laws import library
+        cd = set(); fd = set()
+        for law in library._laws:
+            for s, d in law.causal_direction:
+                cd.add((s, d))
+            for s, d in law.forbidden_directions:
+                fd.add((s, d))
+        cls._causal_dirs = cd
+        cls._forbidden_dirs = fd
+
+    def causal_status(self, src: str, dst: str) -> str:
+        """因果方向判定 — 唯一依据 δS=0 变分 (定律库 causal_direction + forbidden_directions)
+
+        返回:
+          'causal'     — (src,dst) 是 δS=0 变分的正向产物 (如 action→force)
+          'forbidden'  — (src,dst) 是反因果 (如 force→action)
+          'unverified' — 不在定律库, 可能是代数变形/词共现, 非因果
+        """
+        self._load_causal_dirs()
+        if (src, dst) in self._causal_dirs:
+            return 'causal'
+        if (src, dst) in self._forbidden_dirs:
+            return 'forbidden'
+        return 'unverified'
 
     def _physics_check(self, key: Tuple[str, str]):
         src, dst = key
@@ -440,12 +493,13 @@ class SynapticLayer:
                 for key_str, info in edges.items():
                     src, dst = key_str.split('|||')
                     key = (src, dst)
-                    # 恢复神经元集合 (持久化的采样)
-                    # 2026-08-13: cell_id 自增在重启后归零, 磁盘旧神经元ID(旧id%10000, 0-9999)
-                    # 会与新 cell_id 空间冲突 → 清空重新累积 (旧细胞已不存在, 共识理应重算)
-                    neuron_ids = set()
+                    # 恢复神经元集合 (持久化的采样) — 保留共识, 避免 tier 边因共识归零而降级
+                    # 注: cell_id 计数器已持久化 (见 evo_colony 快照), 新旧 cell_id 不冲突, 无需清空
+                    neuron_ids = set(info.get('neurons', []))
                     self.activations[key] = {
                         'n': neuron_ids,
+                        'causal_n': set(info.get('causal_n', [])),
+                        'assoc_n': set(info.get('assoc_n', [])),
                         'g': info.get('g', 0),
                         's': info.get('s', 0.0),
                         'c': info.get('c', 0),
@@ -523,6 +577,8 @@ class SynapticLayer:
                 edges[f"{key[0]}|||{key[1]}"] = {
                     'n': len(edge['n']),
                     'neurons': neuron_sample,
+                    'causal_n': list(edge.get('causal_n', set()))[:self.MAX_NEURONS_PER_EDGE],
+                    'assoc_n': list(edge.get('assoc_n', set()))[:self.MAX_NEURONS_PER_EDGE],
                     'g': edge['g'],
                     's': round(edge['s'], 2),
                     'c': edge['c'],

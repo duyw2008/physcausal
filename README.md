@@ -5,10 +5,9 @@
 25000 个进化细胞在 6000 个物理概念的图谱上自主行走、投票、合成、推导，从 δS=0 出发涌现跨域物理连接。
 
 ```
-当前状态 (gen ~20300):
-  细胞: ~25,000        图节点: 5,982       comp:合成概念: 2,641
-  突触边: 5,687         定律库: 422          t3 假说: 3,049
-  t1/t2 验证: 480       多神经元共识: 60.1%   跨域桥: 11
+当前状态 (gen ~26700):
+  细胞: ~15,000        图节点: ~6,000       定律库: 333 定律 / 524 因果方向
+  突触边: ~6,800       tier2: 4 (纯 δS=0 变分)  注入: 524 因果边 (physics 域)
   知识域: 力学/电磁/热力/量子/GR/QFT/光学/流体/声学/现代
 ```
 
@@ -71,6 +70,19 @@
 ### 预测反馈
 细胞行走时比较预测 s 与实际 s 的偏差，偏差大的反向边触发 sympy derive 建立反馈回路——人脑预测编码的轻量实现。
 
+### 因果方向：δS=0 变分是唯一判定
+因果方向的唯一来源是 δS=0 变分（`action→force` 欧拉-拉格朗日、`action→spacetime_curvature` 希尔伯特、`action→quantum_amplitude` 路径积分）。三类伪因果被逐层堵死：
+
+- **词共现伪因果**（arXiv 文本两词高频同现）→ signal 闸门（`causal`/`associative` 区分）
+- **代数伪因果**（F=ma 解成 m=F/a 当因果）→ `causal_status` 三态判定（causal/forbidden/unverified）
+- **双向伪因果**（force↔mass）→ 方向一致性检查 + 一次性清理 296 条假因果 tier2
+
+### 定律库注入：给路径不给结论
+定律库 524 条 `causal_direction` 通过 `inject_laws.py` 注入 KG（`physics` 域），只给细胞可走的因果路径、不标 tier。脑自动撒细胞到 physics hub → 行走 → Hebbian 强化 → δS=0 闸门验证 → 晋升——结构从学习中涌现，不是注入的结论。
+
+### 分布式特征：VSA 域分化
+概念意义 = 高维向量（分布式），边按域分存储。`_rebuild_cache` 因果域（axomatic/physics/derive）优先排序，细胞读图时因果邻居排前面——causal 域里的用法才是真意义，emergent（词共现）沦为背景。
+
 ## 快速开始
 
 ```bash
@@ -105,6 +117,7 @@ python3 ~/physcausal/scripts/health_report.py
 **只给容量，不给方法。** 不硬编码「应发现什么」，给机制让发现自然涌现。
 - 强制加层级模块 = 给方法。吸引子通过 coincidence 聚团 + 生态位分化自发涌现 = 给容量。
 - 硬编码因果边 = 教材。细胞行走 + 投票共识 → emergent 边 = 发现。
+- 给路径（KG 边，细胞可走）≠ 给结论（标 tier）。定律库 causal_direction 注入是给路径——结构仍是脑走出来的，不是注入的结论。
 
 **结构决定结果，噪声创造路径。** 脑的结构一致性逼出规律，随机探索发现新路。
 
@@ -115,13 +128,17 @@ python3 ~/physcausal/scripts/health_report.py
 ```
 physcausal/
 ├── run_evo.py              主运行入口
+├── inject_laws.py          定律库因果方向 → KG 注入 (524 边, physics 域, 给路径不给 tier)
+├── inject_sm.py            标准模型结构化知识注入
+├── inject_greens.py        格林函数知识注入
+├── inject_homotopy.py      同伦代数知识注入
 ├── meta_cognition/
 │   ├── evo_colony.py        殖民地核心 (认知调度/睡眠/derive/intervene)
 │   ├── evolvable_cell.py    进化细胞 (行走/基因组/树突/髓鞘)
-│   ├── synaptic_layer.py    突触层 (s/n/tier/STDP)
+│   ├── synaptic_layer.py    突触层 (s/n/tier/STDP/causal_status)
 │   └── feed_queue.py        知识注入队列
 ├── physics/
-│   ├── laws.py              定律库 (422 条)
+│   ├── laws.py              定律库 (333 条 / 524 causal_direction)
 │   ├── laws_expansion.py    定律扩展 (EM/光学/声学/QFT/Higgs)
 │   └── astronomy_laws.py    天文定律
 ├── scripts/
