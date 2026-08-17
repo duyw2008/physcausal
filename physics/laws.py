@@ -1049,6 +1049,79 @@ class PhysicsLibrary:
             forbidden_directions=[("lorentz_invariant", "spacetime_interval")],
             # 时空间隔不变性: ds²=c²dt²-dx²-dy²-dz² 是洛伦兹不变量
         ))
+        # ── 狭义相对论补充: 速度叠加 ──
+        self.register(PhysicsLaw(
+            name="RelativisticVelocityAddition", domain="relativity",
+            latex=r"u = \frac{u' + v}{1 + u'v/c^2}",
+            inputs=["relative_velocity"], outputs=["velocity_addition"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda relative_velocity, u_prime=0.5, c=3e8: (u_prime + relative_velocity) / (1 + u_prime * relative_velocity / c**2),
+            causal_direction=[("relative_velocity", "velocity_addition")],
+            forbidden_directions=[("velocity_addition", "relative_velocity")],
+            # 相对论速度叠加: 保证合成速度不超过光速
+        ))
+        # ── 统计力学 (Statistical Mechanics) ──
+        # 连接微观与宏观的桥梁 (喂种子: 真费曼学的知识, 之前完全缺失)
+        self.register(PhysicsLaw(
+            name="BoltzmannEntropy", domain="statistical_mechanics",
+            latex=r"S = k_B \ln W",
+            inputs=["microstates_count"], outputs=["entropy"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda microstates_count, k=1.38e-23: k * np.log(microstates_count) if microstates_count > 0 else 0,
+            causal_direction=[("microstates_count", "entropy")],
+            forbidden_directions=[("entropy", "microstates_count")],
+            # 玻尔兹曼熵公式 S=k·ln W: 熵是微观状态数的对数 (统计力学基石)
+        ))
+        self.register(PhysicsLaw(
+            name="BoltzmannDistribution", domain="statistical_mechanics",
+            latex=r"P(E) \propto e^{-E/k_B T}",
+            inputs=["energy", "temperature"], outputs=["probability"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda energy, temperature, k=1.38e-23: np.exp(-energy / (k * temperature)) if temperature > 0 else 0,
+            causal_direction=[("energy", "probability"), ("temperature", "probability")],
+            forbidden_directions=[("probability", "energy")],
+            # 玻尔兹曼分布: 热平衡态的能量概率分布 P(E) ∝ e^{-E/kT}
+        ))
+        self.register(PhysicsLaw(
+            name="PartitionFunction", domain="statistical_mechanics",
+            latex=r"Z = \sum_i e^{-E_i/k_B T}",
+            inputs=["energy_levels", "temperature"], outputs=["partition_function"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda energy_levels, temperature, k=1.38e-23: sum(np.exp(-e / (k * temperature)) for e in energy_levels) if temperature > 0 else 0,
+            causal_direction=[("energy_levels", "partition_function"), ("temperature", "partition_function")],
+            forbidden_directions=[("partition_function", "energy_levels")],
+            # 配分函数 Z=Σe^{-E_i/kT}: 统计力学的核心工具, 一切热力学量从中导出
+        ))
+        self.register(PhysicsLaw(
+            name="MaxwellBoltzmannDistribution", domain="statistical_mechanics",
+            latex=r"f(v) \propto v^2 e^{-mv^2/2k_B T}",
+            inputs=["mass", "temperature"], outputs=["velocity_distribution"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda mass, temperature, k=1.38e-23: np.sqrt(2 * k * temperature / mass) if temperature > 0 and mass > 0 else 0,
+            causal_direction=[("mass", "velocity_distribution"), ("temperature", "velocity_distribution")],
+            forbidden_directions=[("velocity_distribution", "temperature")],
+            # 麦克斯韦-玻尔兹曼速度分布: 理想气体分子的速度分布
+        ))
+        self.register(PhysicsLaw(
+            name="FermiDiracDistribution", domain="statistical_mechanics",
+            latex=r"f(E) = \frac{1}{e^{(E-\mu)/k_B T} + 1}",
+            inputs=["energy", "chemical_potential", "temperature"], outputs=["occupation_probability"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda energy, chemical_potential, temperature, k=1.38e-23: 1.0 / (np.exp((energy - chemical_potential) / (k * temperature)) + 1) if temperature > 0 else 0,
+            causal_direction=[("energy", "occupation_probability"), ("chemical_potential", "occupation_probability"), ("temperature", "occupation_probability")],
+            forbidden_directions=[("occupation_probability", "energy")],
+            # 费米-狄拉克统计: 费米子 (自旋半整数) 的占据概率, 泡利不相容的统计表达
+        ))
+        self.register(PhysicsLaw(
+            name="BoseEinsteinDistribution", domain="statistical_mechanics",
+            latex=r"f(E) = \frac{1}{e^{(E-\mu)/k_B T} - 1}",
+            inputs=["energy", "chemical_potential", "temperature"], outputs=["occupation_probability"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda energy, chemical_potential, temperature, k=1.38e-23: 1.0 / (np.exp((energy - chemical_potential) / (k * temperature)) - 1) if temperature > 0 else 0,
+            causal_direction=[("energy", "occupation_probability"), ("chemical_potential", "occupation_probability"), ("temperature", "occupation_probability")],
+            forbidden_directions=[("occupation_probability", "energy")],
+            # 玻色-爱因斯坦统计: 玻色子 (自旋整数) 的占据概率, 玻色-爱因斯坦凝聚的根源
+        ))
         # ── 广义相对论 ──
         self.register(PhysicsLaw(
             name="EinsteinFieldEq", domain="general_relativity",
