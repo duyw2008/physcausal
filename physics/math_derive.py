@@ -716,54 +716,58 @@ def quick_check(src_name: str, dst_name: str) -> Tuple[bool, str]:
 
 
 # ═══════════════════════════════════════════════
-# δS=0 变分推导 — 从作用量生成运动方程 (而非存储结论)
-# 给容量: sympy 的欧拉-拉格朗日变分工具, 脑能对作用量自主变分出运动方程
+# δS=0 变分方法 — 给方法不给结论
+# 给: 变分法 (euler_equations) + 作用量的形式 (知识, 真费曼在大学学的)
+# 不给: 变分结果映射 (脑自己算运动方程, 自己判断物理意义)
 # ═══════════════════════════════════════════════
 
-_VARIATIONAL_ACTIONS: Dict[str, dict] = {}
+_VARIATIONAL_KNOWLEDGE: Dict[str, dict] = {}
 
 
-def _build_variational_actions():
-    """惰性构建作用量模板库: name -> {lagrangian, coords, params, eom_meaning, output_concept}"""
-    if _VARIATIONAL_ACTIONS:
+def _build_variational_knowledge():
+    """作用量知识库 (真费曼在大学学的知识, 不是结论)。
+
+    只提供作用量的形式 L(q, q̇, t), 不提供「变分结果是什么」——
+    那是脑用变分法自己算出来、自己对照概念图判断的。
+    """
+    if _VARIATIONAL_KNOWLEDGE:
         return
     t, x = sp.symbols('t x')
     m = sp.Symbol('m', positive=True)
 
-    # 1. 经典力学: L = ½m q̇² − V(q) → m q̈ + V'(q) = 0 → F = ma
+    # 1. 力学作用量: L = T − V = ½m q̇² − V(q)  (知识: 真费曼学的作用量形式)
     q = sp.Function('q')(t)
     dq = sp.Derivative(q, t)
     V = sp.Function('V')
-    _VARIATIONAL_ACTIONS['EulerLagrange'] = {
+    _VARIATIONAL_KNOWLEDGE['EulerLagrange'] = {
         'lagrangian': sp.Rational(1, 2) * m * dq**2 - V(q),
         'coords': [q], 'params': (t,),
-        'eom_meaning': 'F=ma (牛顿第二定律: m q̈ = −V\'(q))',
-        'output_concept': 'force',
     }
 
-    # 2. 标量场: L = ½(∂φ/∂t)² − ½(∂φ/∂x)² − ½m²φ² → Klein-Gordon
+    # 2. 标量场作用量: L = ½(∂φ)² − ½m²φ²  (知识: 场论作用量形式)
     phi = sp.Function('phi')(t, x)
     dphi_t = sp.Derivative(phi, t)
     dphi_x = sp.Derivative(phi, x)
-    _VARIATIONAL_ACTIONS['KleinGordon'] = {
+    _VARIATIONAL_KNOWLEDGE['KleinGordon'] = {
         'lagrangian': sp.Rational(1, 2) * (dphi_t**2 - dphi_x**2) - sp.Rational(1, 2) * m**2 * phi**2,
         'coords': [phi], 'params': (t, x),
-        'eom_meaning': 'Klein-Gordon 方程 (□φ + m²φ = 0)',
-        'output_concept': 'wave_function',
     }
 
 
 def derive_variational(action_name: str) -> Optional[Dict]:
-    """δS=0 变分: 从作用量生成运动方程。
+    """δS=0 变分方法: 对作用量变分, 得到运动方程。
+
+    给方法不给结论: 返回运动方程 (sympy 变分的产物), 不返回「它是什么物理」——
+    那由脑自己对照概念图判断 (符号→概念映射)。
 
     action_name: 作用量名 (如 'EulerLagrange', 'KleinGordon')
 
     返回:
-      None — 无此作用量模板
-      {success, steps, equation, eom_meaning, output_concept, confidence}
+      None — 无此作用量
+      {success, steps, equation, confidence}
     """
-    _build_variational_actions()
-    entry = _VARIATIONAL_ACTIONS.get(action_name)
+    _build_variational_knowledge()
+    entry = _VARIATIONAL_KNOWLEDGE.get(action_name)
     if entry is None:
         return None
     try:
@@ -775,8 +779,6 @@ def derive_variational(action_name: str) -> Optional[Dict]:
             'success': True,
             'steps': steps,
             'equation': eoms[0] if eoms else None,
-            'eom_meaning': entry['eom_meaning'],
-            'output_concept': entry['output_concept'],
             'confidence': 1.0,  # 变分是严格数学推导, 非启发式
         }
     except Exception as e:

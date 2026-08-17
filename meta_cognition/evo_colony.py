@@ -3066,19 +3066,19 @@ class EvoColony:
     # ═══════ 内存 ═══════
 
     def _enforce_variational_root(self):
-        """δS=0 变分根: 从作用量生成运动方程, 作为公理级因果边注入。
+        """δS=0 变分根: 对作用量变分, 得到运动方程 (给方法不给结论)。
 
-        理解 = 生成, 不是检索。定律库 latex 有正确公式但 formula 是假的数值近似,
-        这里用 sympy 欧拉-拉格朗日变分真正推导出运动方程 (如 L=½m q̇²−V → F=ma),
-        把 δS=0 从「对照表」升级成「生成器」。
+        给: 变分法 (euler_equations) + 作用量形式 (知识, 真费曼在大学学的)。
+        不给: 变分结果映射 — 运动方程由脑自己算, 物理意义由脑自己对照概念图判断
+        (不硬编码 action→force, 那是结论不是方法)。
 
-        只跑一次 (变分是确定性推导, 结果不随代际变化)。
+        只跑一次 (变分是确定性推导)。
         """
         if getattr(self, '_variational_done', False):
             return
         self._variational_done = True
         from physics.math_derive import derive_variational
-        injected = 0
+        derived = 0
         for action_name in ('EulerLagrange', 'KleinGordon'):
             try:
                 result = derive_variational(action_name)
@@ -3086,20 +3086,14 @@ class EvoColony:
                 continue
             if not result or not result.get('success'):
                 continue
-            src = 'action'
-            dst = result['output_concept']
-            if not dst or dst == src:
-                continue
-            key = (src, dst)
-            if key not in self.synapse.activations:
-                self.synapse.strengthen(self.synapse.SYS_CLOSURE, src, dst, 0.5, self.generation, signal='causal')
-            self.synapse.tiers[key] = 0  # δS=0 变分产物 = 公理级
-            self.graph.add_edge(src, dst, 'variational', 'axomatic')
-            self._record_discovery(f"{src}->{dst}", "variational",
-                                   f"δS=0 变分 → {result['eom_meaning']}")
-            injected += 1
-        if injected:
-            print(f"  [VARIATIONAL] +{injected} 运动方程从 δS=0 变分生成 (理解=生成, 非检索)")
+            eom = result['equation']
+            # 变分得到的运动方程作为「发现」记录 — 不硬编码结果映射,
+            # 方程描述什么物理由脑后续对照概念图自己判断 (符号→概念)
+            self._record_discovery(f"action --δS=0--> {action_name}", "variational",
+                                   f"运动方程: {eom}")
+            derived += 1
+        if derived:
+            print(f"  [VARIATIONAL] +{derived} 运动方程从 δS=0 变分生成 (给方法不给结论)")
 
     def _enforce_causal_closure(self):
         """因果闭包约束: 每个有 effects 的节点必须有 cause-chain 到 tier≤1。
