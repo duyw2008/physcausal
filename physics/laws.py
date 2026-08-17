@@ -977,6 +977,78 @@ class PhysicsLibrary:
             # magnetic_field 已连接 Lorentz 力: magnetic_field → lorentz_force
             # 完整链条: 5D metric → gauge_field → magnetic_field → lorentz_force
         ))
+        # ── 狭义相对论 (Special Relativity) ──
+        # 两大假设 + 核心推论 (喂种子: 真费曼在大学学的知识, 不是结论)
+        self.register(PhysicsLaw(
+            name="SpeedOfLightInvariance", domain="relativity",
+            latex=r"c = \text{const}\ \forall\ \text{inertial frames}",
+            inputs=[], outputs=["light_speed_invariance"],
+            constraint_type=ConstraintType.CONSERVATION,
+            formula=lambda: 3e8,
+            causal_direction=[],
+            forbidden_directions=[],
+            # 光速不变原理: 光速对所有惯性系恒定 (狭义相对论两大假设之一)
+        ))
+        self.register(PhysicsLaw(
+            name="RelativityPrinciple", domain="relativity",
+            latex=r"\text{物理定律在所有惯性系形式相同}",
+            inputs=[], outputs=["relativity_principle"],
+            constraint_type=ConstraintType.CONSERVATION,
+            formula=lambda: 1.0,
+            causal_direction=[],
+            forbidden_directions=[],
+            # 相对性原理: 物理定律在所有惯性系形式相同 (两大假设之二)
+        ))
+        self.register(PhysicsLaw(
+            name="LorentzFactor", domain="relativity",
+            latex=r"\gamma = \frac{1}{\sqrt{1 - v^2/c^2}}",
+            inputs=["relative_velocity"], outputs=["lorentz_factor"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda relative_velocity, c=3e8: 1.0 / np.sqrt(1 - relative_velocity**2 / c**2) if relative_velocity < c else float('inf'),
+            causal_direction=[("relative_velocity", "lorentz_factor")],
+            forbidden_directions=[("lorentz_factor", "relative_velocity")],
+            # 洛伦兹因子 γ=1/√(1-v²/c²): 相对速度决定时间膨胀/长度收缩的程度
+        ))
+        self.register(PhysicsLaw(
+            name="LorentzTransformation", domain="relativity",
+            latex=r"x' = \gamma(x - vt),\ t' = \gamma(t - vx/c^2)",
+            inputs=["relative_velocity"], outputs=["lorentz_transformation"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda relative_velocity, c=3e8: relative_velocity / c,
+            causal_direction=[("relative_velocity", "lorentz_transformation")],
+            forbidden_directions=[("lorentz_transformation", "relative_velocity")],
+            # 洛伦兹变换: 惯性系间坐标变换 (光速不变+相对性原理的推论)
+        ))
+        self.register(PhysicsLaw(
+            name="MassEnergyEquivalence", domain="relativity",
+            latex=r"E = mc^2",
+            inputs=["rest_mass"], outputs=["rest_energy"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda rest_mass, c=3e8: rest_mass * c**2,
+            causal_direction=[("rest_mass", "rest_energy")],
+            forbidden_directions=[("rest_energy", "rest_mass")],
+            # 质能方程 E=mc²: 质量与能量等价 (狭义相对论最著名的结论)
+        ))
+        self.register(PhysicsLaw(
+            name="RelativisticEnergyMomentum", domain="relativity",
+            latex=r"E^2 = (pc)^2 + (mc^2)^2",
+            inputs=["momentum", "rest_mass"], outputs=["total_energy"],
+            constraint_type=ConstraintType.SCM_EQUATION,
+            formula=lambda momentum, rest_mass, c=3e8: np.sqrt((momentum * c)**2 + (rest_mass * c**2)**2),
+            causal_direction=[("momentum", "total_energy"), ("rest_mass", "total_energy")],
+            forbidden_directions=[("total_energy", "momentum")],
+            # 相对论能量-动量关系 E²=(pc)²+(mc²)²: 连接动量和静质量的能量
+        ))
+        self.register(PhysicsLaw(
+            name="SpacetimeIntervalInvariance", domain="relativity",
+            latex=r"ds^2 = c^2 dt^2 - dx^2 - dy^2 - dz^2",
+            inputs=["spacetime_interval"], outputs=["lorentz_invariant"],
+            constraint_type=ConstraintType.CONSERVATION,
+            formula=lambda spacetime_interval: spacetime_interval,
+            causal_direction=[("spacetime_interval", "lorentz_invariant")],
+            forbidden_directions=[("lorentz_invariant", "spacetime_interval")],
+            # 时空间隔不变性: ds²=c²dt²-dx²-dy²-dz² 是洛伦兹不变量
+        ))
         # ── 广义相对论 ──
         self.register(PhysicsLaw(
             name="EinsteinFieldEq", domain="general_relativity",
