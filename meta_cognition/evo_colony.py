@@ -3054,6 +3054,8 @@ class EvoColony:
                 print(f"  ☁️ shelf: {shelf_replayed} genomes replayed")
         # 🧠 sympy 推导感知: coincidence 热点自动验证
         self.derive_perception.try_derive_from_hotspots(self)
+        # 🧮 δS=0 变分根: 从作用量生成运动方程 (理解=生成, 非检索) — 只跑一次
+        self._enforce_variational_root()
         # 🔗 因果闭包: 结构一致性约束 — 悬挂效应节点必须补链 (QFT: 对称性→规范场)
         self._enforce_causal_closure()
         # 🧠 预测反馈: 偏差驱动的反向边推导 (predictive coding: 大脑向下预测/向上偏差)
@@ -3062,6 +3064,42 @@ class EvoColony:
             self._last_feedback_gen = self.generation
 
     # ═══════ 内存 ═══════
+
+    def _enforce_variational_root(self):
+        """δS=0 变分根: 从作用量生成运动方程, 作为公理级因果边注入。
+
+        理解 = 生成, 不是检索。定律库 latex 有正确公式但 formula 是假的数值近似,
+        这里用 sympy 欧拉-拉格朗日变分真正推导出运动方程 (如 L=½m q̇²−V → F=ma),
+        把 δS=0 从「对照表」升级成「生成器」。
+
+        只跑一次 (变分是确定性推导, 结果不随代际变化)。
+        """
+        if getattr(self, '_variational_done', False):
+            return
+        self._variational_done = True
+        from physics.math_derive import derive_variational
+        injected = 0
+        for action_name in ('EulerLagrange', 'KleinGordon'):
+            try:
+                result = derive_variational(action_name)
+            except Exception:
+                continue
+            if not result or not result.get('success'):
+                continue
+            src = 'action'
+            dst = result['output_concept']
+            if not dst or dst == src:
+                continue
+            key = (src, dst)
+            if key not in self.synapse.activations:
+                self.synapse.strengthen(self.synapse.SYS_CLOSURE, src, dst, 0.5, self.generation, signal='causal')
+            self.synapse.tiers[key] = 0  # δS=0 变分产物 = 公理级
+            self.graph.add_edge(src, dst, 'variational', 'axomatic')
+            self._record_discovery(f"{src}->{dst}", "variational",
+                                   f"δS=0 变分 → {result['eom_meaning']}")
+            injected += 1
+        if injected:
+            print(f"  [VARIATIONAL] +{injected} 运动方程从 δS=0 变分生成 (理解=生成, 非检索)")
 
     def _enforce_causal_closure(self):
         """因果闭包约束: 每个有 effects 的节点必须有 cause-chain 到 tier≤1。
