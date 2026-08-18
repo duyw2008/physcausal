@@ -92,6 +92,7 @@ class EvoColony:
             n = feed_enrichment()
             if n > 0:
                 self._rebuild_graph()
+            self._inject_enrich_edges()
         except Exception:
             pass
 
@@ -3828,6 +3829,28 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         self._save_injected_edges()
         # VSA 自动处理冷热边 — 不再需要 strip
 
+    def _inject_enrich_edges(self):
+        """δS=0 因果边注入: enrich 定律注册在 init 建图之后, 必须显式补入图。
+
+        否则 600+ 条因果边只存在 laws 列表, 细胞永远走不到 (吸收率 69% 的根因)。
+        幂等: 已存在的边跳过。快照恢复后也会调用 (from_dict 覆盖会清掉注入边)。
+        """
+        try:
+            from physics.laws import library
+            injected = 0
+            for law in library._laws:
+                if law.causal_direction:
+                    for src, dst in law.causal_direction:
+                        node_eff = self.graph.get(src, {}) or {}
+                        exists = any(e[1] == dst for e in node_eff.get("effects", []))
+                        if not exists:
+                            self.graph.add_edge(src, dst, law.name, law.domain)
+                            injected += 1
+            if injected:
+                print(f"[ENRICH] 补注入 {injected} 条 enrich 因果边进图")
+        except Exception:
+            pass
+
     def _strip_cold_edges(self):
         """VSA 模式下冷边不需要剥离 — 所有边都在向量叠加中"""
         pass
@@ -4041,6 +4064,11 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             for src, node in self.graph._cache.items():
                 for law_name, dst, domain in node.get("effects", []):
                     if domain in ("research", "abstraction", "derive"):
+                        # δS=0 白名单: LLM 词共现残留(llm: 前缀)不持久化, 防止复活
+                        if str(law_name).startswith("llm:"):
+                            continue
+                        if not (self._is_physics_concept(src) and self._is_physics_concept(dst)):
+                            continue
                         edges.append([src, law_name, dst, domain])
             with open(self._injected_path(), 'w') as f:
                 json.dump(edges, f, ensure_ascii=False)
@@ -5116,16 +5144,23 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         if cache_data and hasattr(self.graph, '_cache'):
             from meta_cognition.vsa_memory import _WriteThroughList
             for node_id, entry in cache_data.items():
-                # δS=0 白名单: emergent/probe 域的碎片边过滤 (vs.cache 是完整图, 含历史碎片边)
+                # δS=0 白名单: LLM 词共现残留(llm: 前缀边)过滤; emergent/probe 域碎片过滤
+                # teacher 轨迹边(research 域, teacher: 前缀)是合法种子, 保留
                 _eff = []
                 for e in entry.get("effects", []):
                     dom = e[2] if len(e) > 2 else ""
+                    law = e[0] if len(e) > 0 else ""
+                    if str(law).startswith("llm:"):
+                        continue
                     if dom in ("emergent", "probe") and not (self._is_physics_concept(node_id) and self._is_physics_concept(e[1])):
                         continue
                     _eff.append(tuple(e))
                 _cau = []
                 for c in entry.get("causes", []):
                     dom = c[2] if len(c) > 2 else ""
+                    law = c[1] if len(c) > 1 else ""
+                    if str(law).startswith("llm:"):
+                        continue
                     if dom in ("emergent", "probe") and not (self._is_physics_concept(c[0]) and self._is_physics_concept(node_id)):
                         continue
                     _cau.append(tuple(c))
@@ -5228,6 +5263,8 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         concept_data = data.get("promoted_concepts", [])
         if concept_data:
             self._promoted_concepts = set(concept_data)
+        # enrich 因果边: from_dict 覆盖会清掉 init 注入的边, 必须补回
+        self._inject_enrich_edges()
         return restored
 
     def _inject_physics_bridges(self, max_bridges: int = 50):
