@@ -14,9 +14,22 @@ arXiv 论文抓取 + 细胞共识闸门
 """
 
 from __future__ import annotations
-import json, os, time, random
+import json, os, time, random, re
 from typing import Dict, List, Optional, Tuple, Set
 from collections import defaultdict
+
+# LLM 提取的论文结构标签 / 非物理概念黑名单 (防 Abstract 等误当成物理概念)
+# 与 synaptic_layer._LLM_JUNK_WORDS 保持一致
+_PAPER_JUNK = frozenset({
+    'abstract', 'analyzing', 'analyze', 'mediators', 'introduction',
+    'conclusion', 'references', 'robot_foot', '未在给定', 'todo',
+    'undefined', 'example', 'placeholder', 'xxx', 'nan', 'none',
+})
+
+
+def _is_junk(name: str) -> bool:
+    """token 级匹配 (按 :|_ 分割), 避免误杀 null_boundary/cross_section"""
+    return any(t in _PAPER_JUNK for t in re.split(r'[:|_]+', str(name).lower()))
 
 
 class ArxivReadingList:
@@ -61,8 +74,9 @@ class ArxivReadingList:
             "glance_count": 0,
             "promoted": False,
         }
-        # 只保留有有效概念对的论文
-        valid = [c for c in entry["concepts"] if c["src"] and c["dst"]]
+        # 只保留有有效概念对的论文 (过滤论文结构标签 Abstract 等垃圾词)
+        valid = [c for c in entry["concepts"] if c["src"] and c["dst"]
+                 and not _is_junk(c["src"]) and not _is_junk(c["dst"])]
         if not valid:
             return
         entry["concepts"] = valid
