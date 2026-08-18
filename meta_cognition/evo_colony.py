@@ -241,6 +241,37 @@ class EvoColony:
             return
         self.graph.setdefault(node_id, {"causes": [], "effects": []})
 
+    def _is_physics_concept(self, node_id: str) -> bool:
+        """δS=0 白名单: 节点的所有非数字单词都必须在定律库概念集里。
+
+        碎片(dark/eta/magic/theta_d...)不在定律库 → 拒绝。
+        组合概念(comp:mass__kinetic_energy)拆词后逐词检查。
+        真因果只来自 δS=0 变分(定律库),词共现≠因果。
+        """
+        if not node_id or node_id.startswith(('hyp:', 'abs:')):
+            return False
+        cleaned = node_id
+        for pfx in ('comp:', 'emergent:', 'native:'):
+            if cleaned.startswith(pfx):
+                cleaned = cleaned[len(pfx):]
+        # 按 __ (组合分隔符) 拆成分; 每个成分作为完整概念查白名单
+        # (kinetic_energy 是一个完整概念, 不能拆成 kinetic+energy)
+        parts = [p for p in cleaned.lower().replace(':', '__').split('__') if p]
+        legal = getattr(self, '_physics_concepts_lower', None)
+        if legal is None:
+            from physics.laws import library
+            legal = set()
+            for law in library._laws:
+                for c in list(law.inputs) + list(law.outputs):
+                    legal.add(c.lower())
+                for src, dst in law.causal_direction:
+                    legal.add(src.lower()); legal.add(dst.lower())
+            self._physics_concepts_lower = legal
+        for p in parts:
+            if p not in legal:
+                return False
+        return True
+
     def _valid_edge(self, domain: str) -> bool:
         """边域白名单: 只有证明过的域能进入因果图"""
         return domain in self.VALID_EDGE_DOMAINS
@@ -950,6 +981,9 @@ class EvoColony:
                     continue
                 self._ensure_node(child.node)
                 self._ensure_node(dst)
+                # δS=0 白名单: 碎片/非物理概念不建探针突触
+                if not (self._is_physics_concept(child.node) and self._is_physics_concept(dst)):
+                    continue
                 if self._valid_edge("probe"):
                     self.graph.add_edge(child.node, dst, "hebbian_shortcut", "probe")
                     self._probe_edges[(child.node, dst)] = self.generation
@@ -1302,6 +1336,9 @@ class EvoColony:
                                     first, last = parts[0], parts[-1]
                                     if first == last:
                                         continue  # 自环, 跳过
+                                    # δS=0 白名单: 碎片概念不长组合捷径
+                                    if not (self._is_physics_concept(first) and self._is_physics_concept(last)):
+                                        continue
                                     if first in self.graph and last in self.graph:
                                         exists = any(e[1] == last for e in self.graph[first].get("effects",[]))
                                         if not exists:
@@ -3009,6 +3046,9 @@ class EvoColony:
                     exists = any(e[1] == w2_end for e in 
                                 self.graph[w1_start].get('effects',[]))
                     if not exists:
+                        # δS=0 白名单: 碎片概念不长睡眠组合捷径
+                        if not (self._is_physics_concept(w1_start) and self._is_physics_concept(w2_end)):
+                            continue
                         self.graph[w1_start].setdefault('effects',[]).append(
                             ('sleep_composed', w2_end, 'emergent'))
                         self.graph[w2_end].setdefault('causes',[]).append(
@@ -4021,7 +4061,7 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 exists = any(e[1] == dst and e[2] == domain
                             for e in self.graph[src]["effects"])
                 if not exists:
-                    self.graph.add_edge(src, dst, law_name, "domain")
+                    self.graph.add_edge(src, dst, law_name, domain)
                     restored += 1
             if restored:
                 print(f"[INJECTED_LOAD] +{restored} edges (research/abstraction)")
@@ -4058,7 +4098,7 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                     exists = any(e[1] == dst and e[2] == domain
                                 for e in self.graph[src]["effects"])
                     if not exists:
-                        self.graph.add_edge(src, dst, law_name, "domain")
+                        self.graph.add_edge(src, dst, law_name, domain)
                         seeded_edges += 1
             print(f"[TEACHER] {len(self._teacher_trajectories)} trajectories, "
                   f"{seeded_edges} edges seeded "
@@ -4527,6 +4567,8 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 restored = 0
                 for src, law_name, dst, domain in edges[:HEBBIAN_RESTORE_LIMIT]:
                     if domain == "emergent":
+                        if not (self._is_physics_concept(src) and self._is_physics_concept(dst)):
+                            continue  # δS=0 白名单: 过滤历史碎片边
                         self._ensure_node(src)
                         self._ensure_node(dst)
                         exists = any(e[1] == dst and e[2] == "emergent"
@@ -4606,7 +4648,12 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             return 0
         
         grown = 0
+        _skipped_frag = 0
         for (src, dst), count in self._coincidence.items():
+            # δS=0 白名单: 碎片/非物理概念不长共现边 (词共现≠因果)
+            if not (self._is_physics_concept(src) and self._is_physics_concept(dst)):
+                _skipped_frag += 1
+                continue
             effective = base_threshold - _hub_bonus(max(node_degree[src], node_degree[dst]))
             # 层级加工: 跨域提高门槛
             d_src = _primary_domain(src)
@@ -4632,8 +4679,11 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                     self._emergent_birth[(src, dst)] = self.generation
                     self._edge_birth[(src, dst)] = self.generation
                     grown += 1
-        if grown:
-            self._save_emergent_edges()
+        if grown or _skipped_frag:
+            if _skipped_frag:
+                print(f"  [WHITELIST] _grow_shortcuts 过滤 {_skipped_frag} 个碎片对 (coincidence 总 {len(self._coincidence)})", flush=True)
+            if grown:
+                self._save_emergent_edges()
 
     def _spawn_probes(self):
         """树突棘探针: 热点节点伸试探边, 偏向语义邻近节点 (类脑拓扑学习)
@@ -4693,6 +4743,9 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                     continue
                 self._ensure_node(src)
                 self._ensure_node(dst)
+                # δS=0 白名单: 碎片概念不建语义探针
+                if not (self._is_physics_concept(src) and self._is_physics_concept(dst)):
+                    continue
                 self.graph.add_edge(src, dst, "probe", "probe")
                 self._probe_edges[(src, dst)] = self.generation
                 spawned += 1
@@ -4786,6 +4839,9 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                      if count >= self.ABSTRACTION_THRESHOLD]
         hot_pairs.sort(key=lambda x: -x[1])
         for (src, dst), count in hot_pairs[:5]:
+            # δS=0 白名单: 碎片概念不建抽象节点
+            if not (self._is_physics_concept(src) and self._is_physics_concept(dst)):
+                continue
             abs_name = f"abs:{src}__{dst}"
             if abs_name in self.graph:
                 continue
@@ -5053,13 +5109,24 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         if cache_data and hasattr(self.graph, '_cache'):
             from meta_cognition.vsa_memory import _WriteThroughList
             for node_id, entry in cache_data.items():
+                # δS=0 白名单: emergent/probe 域的碎片边过滤 (vs.cache 是完整图, 含历史碎片边)
+                _eff = []
+                for e in entry.get("effects", []):
+                    dom = e[2] if len(e) > 2 else ""
+                    if dom in ("emergent", "probe") and not (self._is_physics_concept(node_id) and self._is_physics_concept(e[1])):
+                        continue
+                    _eff.append(tuple(e))
+                _cau = []
+                for c in entry.get("causes", []):
+                    dom = c[2] if len(c) > 2 else ""
+                    if dom in ("emergent", "probe") and not (self._is_physics_concept(c[0]) and self._is_physics_concept(node_id)):
+                        continue
+                    _cau.append(tuple(c))
                 self.graph._cache[node_id] = {
                     "effects": _WriteThroughList(
-                        [tuple(e) for e in entry.get("effects", [])],
-                        _vsa_graph=self.graph, _node_id=node_id, _direction="effects"),
+                        _eff, _vsa_graph=self.graph, _node_id=node_id, _direction="effects"),
                     "causes": _WriteThroughList(
-                        [tuple(c) for c in entry.get("causes", [])],
-                        _vsa_graph=self.graph, _node_id=node_id, _direction="causes"),
+                        _cau, _vsa_graph=self.graph, _node_id=node_id, _direction="causes"),
                 }
             # 同步 edge_count
             self.graph._edge_count = sum(
@@ -5135,6 +5202,8 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         if emergent_data:
             restored_em = 0
             for src, law_name, dst, domain in emergent_data:
+                if not (self._is_physics_concept(src) and self._is_physics_concept(dst)):
+                    continue  # δS=0 白名单: 过滤历史碎片边
                 self._ensure_node(src)
                 self._ensure_node(dst)
                 exists = any(e[1] == dst and e[2] == "emergent"
