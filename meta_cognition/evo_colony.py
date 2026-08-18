@@ -4055,7 +4055,12 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             with open(path) as f:
                 edges = json.load(f)
             restored = 0
+            skipped_frag = 0
             for src, law_name, dst, domain in edges:
+                # δS=0 白名单: LLM 词共现残留(arXiv 版面词/llm: 前缀)不进图
+                if not (self._is_physics_concept(src) and self._is_physics_concept(dst)):
+                    skipped_frag += 1
+                    continue
                 self._ensure_node(src)
                 self._ensure_node(dst)
                 exists = any(e[1] == dst and e[2] == domain
@@ -4063,6 +4068,8 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 if not exists:
                     self.graph.add_edge(src, dst, law_name, domain)
                     restored += 1
+            if skipped_frag:
+                print(f"[INJECTED_LOAD] 过滤 {skipped_frag} 条碎片注入边 (白名单)")
             if restored:
                 print(f"[INJECTED_LOAD] +{restored} edges (research/abstraction)")
             return restored
