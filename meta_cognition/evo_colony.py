@@ -893,6 +893,12 @@ class EvoColony:
                     self.total_rewards += settle
                     stats["rewards"] += int(settle)
                     print(f"  [SETTLE] {str(cell.cell_id)[:8]} {str(cell.node)[:28]}: +{settle:.2f} 学会(gen {self.generation})")
+                # 🆕 探索计数 (EIG 价值消耗): 节点被 step_forward 到达 → 消耗"未开发"属性
+                if result.get("type") == "step_forward":
+                    _dst = result.get("to")
+                    if _dst and _dst in self.graph._cache:
+                        _e = self.graph._cache[_dst]
+                        _e["explore_count"] = _e.get("explore_count", 0) + 1
                 # 🧠 社会脑: 走过的细胞加入活跃池
                 if did_walk:
                     self._active_cohort.append(cell.cell_id)
@@ -4984,6 +4990,7 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             cache_data[node_id] = {
                 "effects": [list(e) for e in entry.get("effects", [])],
                 "causes": [list(c) for c in entry.get("causes", [])],
+                "explore_count": entry.get("explore_count", 0),  # 🆕 探索计数持久化
             }
         # emergent edges: 原子绑定到快照，重启不丢
         emergent_edges = []
@@ -5162,6 +5169,7 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                         _eff, _vsa_graph=self.graph, _node_id=node_id, _direction="effects"),
                     "causes": _WriteThroughList(
                         _cau, _vsa_graph=self.graph, _node_id=node_id, _direction="causes"),
+                    "explore_count": entry.get("explore_count", 0),  # 🆕 探索计数恢复
                 }
             # 同步 edge_count
             self.graph._edge_count = sum(

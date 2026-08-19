@@ -334,6 +334,7 @@ class VSAGraph:
                     _vsa_graph=self, _node_id=node_id, _direction="causes"),
                 "effects": _WriteThroughList([],
                     _vsa_graph=self, _node_id=node_id, _direction="effects"),
+                "explore_count": 0,  # 🆕 节点被探索次数 (EIG 价值消耗)
             }
         elif node_id in self._dirty:
             self._rebuild_cache(node_id)
@@ -383,6 +384,7 @@ class VSAGraph:
 
     def __setitem__(self, node_id: str, value: dict):
         self.vsa.get_or_create_vector(node_id)
+        value.setdefault("explore_count", 0)  # 🆕 外部条目兜底
         # 确保 lists 是 write-through
         value["effects"] = _WriteThroughList(
             value.get("effects", []),
@@ -427,11 +429,13 @@ class VSAGraph:
         effects = [(domain, dst, domain) for dst, domain, _ in effects_raw]
         causes = [(src, domain, domain) for src, domain, _ in causes_raw]
 
+        _prev_ec = self._cache.get(node_id, {}).get("explore_count", 0)
         self._cache[node_id] = {
             "causes": _WriteThroughList(causes,
                 _vsa_graph=self, _node_id=node_id, _direction="causes"),
             "effects": _WriteThroughList(effects,
                 _vsa_graph=self, _node_id=node_id, _direction="effects"),
+            "explore_count": _prev_ec,  # 🆕 重建缓存保留探索计数
         }
         self._dirty.discard(node_id)
 

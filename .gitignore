@@ -20,3 +20,8 @@ data/auto_laws.json
 data/injected_edges.json
 data/proprioception.json
 data/evo_output.log
+
+# 备份与原始 feed 数据 — not for git
+data/feed_processed/
+physcausal_backups/
+data/evo_output.log.bak*

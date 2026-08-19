@@ -113,6 +113,7 @@ class EvolvableCell:
         self.current_walk: List[Tuple[str, str, str]] = []
         self.walk_memory: List[List[Tuple[str, str, str]]] = []
         self._sensory_memory: List[Dict] = []
+        self._visited_nodes: set = set()  # 🆕 访问过的节点集 (RPE 发现奖的首次性判定)
         
         # 工作记忆: 前额叶 active_buffer
         from meta_cognition.working_memory import WorkingMemory
@@ -334,6 +335,10 @@ class EvolvableCell:
         """内在好奇: 预测'从 src 会去哪'→ 对比实际 → 落差驱动好奇
         升级: 两跳预言 — 走 src→dst 时预测 dst 的去向, 下一跳验证
         """
+        # 🆕 到达记录 (RPE 首次性): 细胞访问过的节点集 — 发现=首次到达, 重复=熟悉
+        first_visit = dst not in self._visited_nodes
+        self._visited_nodes.add(dst)
+
         # 学会检测: 更新前的主流预测 (most_common 翻转 = 学习事件)
         if src not in self.prediction_model:
             self.prediction_model[src] = Counter()
@@ -384,8 +389,10 @@ class EvolvableCell:
         if prev_predicted is not None and prev_predicted != dst:
             # 落空: 意外到达 — 看实际价值决定 RPE 正负
             info_gain = self._expected_info_gain(dst)
-            if info_gain >= 1.6:  # 低度未开发节点 = 高信息 (与 _expected_info_gain 阈值一致)
+            if first_visit and info_gain >= 1.6:
+                # 首次到达 + 低度未开发节点 = 高信息 (与 _expected_info_gain 阈值一致)
                 return 2.0  # 意外命中高价值: 发现! 多巴胺爆发
+            # 重复到达: 熟悉节点不算"发现", 走学会通道 (+1.0) 或不奖
             # 普通落空: 无奖励 (prediction_error 已驱动好奇)
         return 0.0
 
@@ -400,7 +407,13 @@ class EvolvableCell:
         in_d = len(nd["causes"]); out_d = len(nd["effects"])
         deg = in_d + out_d
         # 1. 结构缺口: 低度=未开发→高信息
-        if deg <= 1:      score *= 1.6
+        #    🆕 探索价值随被探索次数消耗: 反复到达的节点不再是"未开发" (防 0 度永动机)
+        ec = nd.get("explore_count", 0)
+        if deg <= 1:
+            if ec < 5:      score *= 1.6
+            elif ec < 20:   score *= 1.3
+            elif ec < 50:   score *= 1.0
+            else:           score *= 0.8   # 被探索 50+ 次 → 价值耗尽
         elif deg <= 3:    score *= 1.3
         elif deg >= 15:   score *= 0.8  # 枢纽→信息冗余
         # 2. 域新颖度: 少访问的域→高信息
@@ -941,6 +954,7 @@ class EvolvableCell:
         child.current_walk = []
         child.walk_memory = []   # 记忆不继承
         child._sensory_memory = []  # 感官记忆也不继承
+        child._visited_nodes = set()  # 🆕 访问记录也不继承 (发现奖按细胞独立)
         
         # 🏠 分裂消耗: 亲代付出能量代价 (抑制无限繁殖)
         SPLIT_COST = 3.0   # ↑1.5→3.0: 代谢税下高分裂代价

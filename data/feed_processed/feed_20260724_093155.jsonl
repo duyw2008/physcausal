@@ -1,2 +1,0 @@
-{"source": "derive", "type": "edge", "data": {"src": "energy_level", "dst": "mass", "law": "derive:energy_level→mass", "domain": "math_verified", "initial_s": 0.3}, "ts": 1784856701.435211}
-{"source": "derive", "type": "edge", "data": {"src": "action", "dst": "mass", "law": "derive:action→mass", "domain": "math_verified", "initial_s": 0.3}, "ts": 1784856701.4393804}

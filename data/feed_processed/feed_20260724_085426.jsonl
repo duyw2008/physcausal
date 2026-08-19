@@ -1,2 +1,0 @@
-{"source": "test", "type": "concept", "data": {"name": "test_proprioception_feed", "domain": "unknown"}, "ts": 1784854460.5586128}
-{"source": "test", "type": "stimulus", "data": {"text": "test stimulus for feed queue pipeline", "boost": 2.0, "duration": 10}, "ts": 1784854460.5587282}

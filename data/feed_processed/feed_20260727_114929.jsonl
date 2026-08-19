@@ -1,7 +1,0 @@
-{"source": "arxiv", "type": "concept", "data": {"name": "happy_code_holographic_tensor_network", "domain": "quantum", "initial_s": 0.005, "paper": "2607.12047"}}
-{"source": "arxiv", "type": "edge", "data": {"src": "happy_code", "dst": "ads_cft_correspondence", "domain": "quantum", "initial_s": 0.005, "paper": "2607.12047"}}
-{"source": "arxiv", "type": "edge", "data": {"src": "flm_formula", "dst": "holographic_entanglement_entropy", "domain": "quantum", "initial_s": 0.005, "paper": "2607.12047"}}
-{"source": "arxiv", "type": "edge", "data": {"src": "non_stabilizerness_magic", "dst": "emergent_gravity_signatures", "domain": "quantum", "initial_s": 0.005, "paper": "2607.12047"}}
-{"source": "arxiv", "type": "edge", "data": {"src": "quantum_wormhole_code", "dst": "spacetime_emergence", "domain": "quantum", "initial_s": 0.005, "paper": "2607.12047"}}
-{"source": "arxiv", "type": "edge", "data": {"src": "quantum_computer", "dst": "spacetime_emergence_testbed", "domain": "experiment", "initial_s": 0.005, "paper": "2607.12047"}}
-{"source": "arxiv", "type": "concept", "data": {"name": "holographic_error_correcting_code", "domain": "quantum", "initial_s": 0.01, "paper": "2607.12047"}}

@@ -1,3 +1,0 @@
-{"source": "derive", "type": "edge", "data": {"src": "energy_level", "dst": "mass", "law": "derive:energy_level→mass", "domain": "math_verified", "initial_s": 0.3}, "ts": 1785294367.8760958}
-{"source": "derive", "type": "edge", "data": {"src": "gauge_field", "dst": "gluon_helicity", "law": "derive:gauge_field→gluon_helicity", "domain": "math_verified", "initial_s": 0.3}, "ts": 1785294367.8784232}
-{"source": "derive", "type": "edge", "data": {"src": "hyp:non_chiral_fermions:space_time_dimensions", "dst": "hyp:energy_level:optimal_privacy_mechanism", "law": "derive:hyp:non_chiral_fermi→hyp:energy_level:opt", "domain": "math_verified", "initial_s": 0.3}, "ts": 1785294367.8964927}

@@ -1,2 +1,0 @@
-{"source": "derive", "type": "edge", "data": {"src": "energy_level", "dst": "mass", "law": "derive:energy_level→mass", "domain": "math_verified", "initial_s": 0.3}, "ts": 1784944901.3522964}
-{"source": "derive", "type": "edge", "data": {"src": "gauge_field", "dst": "gluon_helicity", "law": "derive:gauge_field→gluon_helicity", "domain": "math_verified", "initial_s": 0.3}, "ts": 1784944901.3545563}
