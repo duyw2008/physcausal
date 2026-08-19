@@ -331,7 +331,9 @@ class EvolvableCell:
         return result
 
     def _learn_and_curate(self, src: str, dst: str, dom: str):
-        """内在好奇: 预测'从 src 会去哪'→ 对比实际 → 落差驱动好奇"""
+        """内在好奇: 预测'从 src 会去哪'→ 对比实际 → 落差驱动好奇
+        升级: 两跳预言 — 走 src→dst 时预测 dst 的去向, 下一跳验证
+        """
         # 学会检测: 更新前的主流预测 (most_common 翻转 = 学习事件)
         if src not in self.prediction_model:
             self.prediction_model[src] = Counter()
@@ -371,6 +373,20 @@ class EvolvableCell:
         if (dst != src and prev_predicted is not None and new_predicted is not None
                 and prev_predicted != dst and new_predicted == dst):
             return 1.0   # 学习事件: 一次只发一次 (主流已翻转后不再触发)
+
+        # 🧩 奖赏预测误差 (RPE): 预测是隐式副产物, 只有落空才产生信号
+        # 预期 = src 的旧主流预测 (prev_predicted, 本次行走更新前的预期)
+        # 走 src→dst 时对比实际:
+        #   actual == predicted → RPE≈0 确认 (平缓, 无奖励)
+        #   actual != predicted 且 dst 高信息增益 → RPE 正 = 意外命中 = 发现! (多巴胺爆发)
+        #   actual != predicted 且 dst 普通 → RPE 负 (误差已驱动好奇, 不惩罚)
+        # 关键: 不显式"预言" — 预期一直在跑, 只有落空时根据实际价值产生信号
+        if prev_predicted is not None and prev_predicted != dst:
+            # 落空: 意外到达 — 看实际价值决定 RPE 正负
+            info_gain = self._expected_info_gain(dst)
+            if info_gain >= 1.6:  # 低度未开发节点 = 高信息 (与 _expected_info_gain 阈值一致)
+                return 2.0  # 意外命中高价值: 发现! 多巴胺爆发
+            # 普通落空: 无奖励 (prediction_error 已驱动好奇)
         return 0.0
 
     def _expected_info_gain(self, dst: str) -> float:
