@@ -107,6 +107,7 @@ class EvolvableCell:
         # 🧩 内在好奇: 预测落差驱动探索
         self.prediction_model: Dict[str, Counter] = {}  # node → {next_node: count}
         self.prediction_error: float = 0.0              # 最近一次预测误差
+        self._prev_pe: float = 0.0                      # 上一次预测误差 (消化检测: 落空→命中=学会)
         self.intrinsic_curiosity: float = 1.0           # 累积好奇 (>1.0=探索, <1.0=深耕)
         # 路径记忆
         self.current_walk: List[Tuple[str, str, str]] = []
@@ -331,10 +332,14 @@ class EvolvableCell:
 
     def _learn_and_curate(self, src: str, dst: str, dom: str):
         """内在好奇: 预测'从 src 会去哪'→ 对比实际 → 落差驱动好奇"""
-        # 学习: 更新预测模型
+        # 学会检测: 更新前的主流预测 (most_common 翻转 = 学习事件)
         if src not in self.prediction_model:
             self.prediction_model[src] = Counter()
-        self.prediction_model[src][dst] += 1
+        prev_model = self.prediction_model[src]
+        prev_predicted = prev_model.most_common(1)[0][0] if prev_model else None
+        # 学习: 更新预测模型 — 自环不算"去向"预测 (src→src 是停留, 不参与主流竞争, 防枢纽节点刷翻转)
+        if dst != src:
+            self.prediction_model[src][dst] += 1
         # 限制模型大小
         if len(self.prediction_model) > 50:
             self.prediction_model.pop(next(iter(self.prediction_model)))
@@ -345,15 +350,28 @@ class EvolvableCell:
             if prev_node in self.prediction_model:
                 expected = self.prediction_model[prev_node]
                 predicted = expected.most_common(1)[0][0] if expected else None
-                # 预测误差: 意料之外 = 0.3, 意料之中 = 0
-                self.prediction_error = 0.3 if predicted != src else 0.0
+                # 保存旧误差 (供观察, 奖励改用翻转检测)
+                self._prev_pe = self.prediction_error
+                # 预测误差: 预测"从 prev_node 会去哪" vs 实际去的 dst
+                self.prediction_error = 0.3 if predicted != dst else 0.0
             else:
+                self._prev_pe = self.prediction_error
                 self.prediction_error = 0.2  # 全新探索
         
         # 好奇累积: 预测误差驱动探索欲 (>1.0 更多探索, <1.0 深耕)
         self.intrinsic_curiosity *= 0.95  # 衰减
         self.intrinsic_curiosity += self.prediction_error * 0.5
         self.intrinsic_curiosity = max(0.3, min(3.0, self.intrinsic_curiosity))
+
+        # 🧩 学会奖励 (规则, 非管道): 主流预测翻转为 dst = 这条转移成为细胞的主流认知
+        # 门槛: 必须先形成过主流认知 (prev_predicted 非空) 再被反超, 一次采样不算学会
+        # 自环翻转 (src→src) 不奖: 学会打转是坏习惯, 跟习惯化刹车对着干
+        new_model = self.prediction_model[src]
+        new_predicted = new_model.most_common(1)[0][0] if new_model else None
+        if (dst != src and prev_predicted is not None and new_predicted is not None
+                and prev_predicted != dst and new_predicted == dst):
+            return 1.0   # 学习事件: 一次只发一次 (主流已翻转后不再触发)
+        return 0.0
 
     def _expected_info_gain(self, dst: str) -> float:
         """局部预期信息增益: 只基于图结构和自身记忆
@@ -579,8 +597,9 @@ class EvolvableCell:
                 self.dendrites = set(random.sample(causes, min(20, len(causes))))
         
         # 🧩 内在好奇: 预测学习 + 好奇心更新
-        self._learn_and_curate(old, dst, dom)
+        settle = self._learn_and_curate(old, dst, dom)
         return {"type": "step_forward", "from": old, "to": dst, "via": law,
+                "settle": settle,
                 "axon": self.axon[0] if self.axon else None,
                 "axon_strength": self.axon[1] if self.axon else 0}
     
@@ -632,8 +651,12 @@ class EvolvableCell:
         forbidden = library.forbidden_edges(list(all_words))
         
         def _match(f_src, f_dst, src_words, dst_words):
-            """模糊匹配: 看公式边是否跟 walk 边的单词重叠"""
-            return (f_src in src_words or f_src in dst_words) and (f_dst in src_words or f_dst in dst_words)
+            """方向敏感匹配: 因果方向 f_src→f_dst 必须与 walk 方向 start→end 一致。
+
+            f_src 只能在 start 侧, f_dst 只能在 end 侧; 反方向不匹配。
+            依据: 因果方向唯一来源是 δS=0 变分 (定律库 causal_direction), 词共现≠因果。
+            """
+            return (f_src in src_words) and (f_dst in dst_words)
         
         confirmed = any(_match(f_src, f_dst, start_words, end_words) for f_src, f_dst in forced)
         refuted = any(_match(f_src, f_dst, start_words, end_words) for f_src, f_dst in forbidden)

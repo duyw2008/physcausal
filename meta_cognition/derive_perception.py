@@ -23,6 +23,7 @@ class DerivePerception:
         self._failed_pairs: Dict[tuple, int] = {}   # (src,dst) → 失败次数
         self._failed_gen: Dict[tuple, int] = {}      # (src,dst) → 最近失败代数
         self._derive_history: List[Dict] = []
+        self._derived_pairs: set = set()   # 已推导成功 → 好奇心衰减(最小自由能: 已验证=低惊奇=低探索价值)
 
     def try_derive_from_hotspots(self, colony, force: bool = False) -> int:
         gen = getattr(colony, 'generation', 0)
@@ -50,15 +51,20 @@ class DerivePerception:
             result = self._do_derive(src, dst)
             if result and result.get("success"):
                 relation = str(result.get("relation", f"{src}→{dst}"))
+                confidence = result.get("confidence", 0.5)
                 law_name = f"derive:{src[:20]}→{dst[:20]}"
+                # 交叉验证置信 → 注入强度: 殊途同归(0.95)高 s, 单桥链(0.65)低 s 等验证
                 colony.feed_queue.feed_edge(
                     src, dst,
                     law=law_name,
                     source="derive",
                     domain="math_verified",
-                    initial_s=self.DERIVED_INITIAL_S,
+                    initial_s=self.DERIVED_INITIAL_S * confidence,
                 )
-                colony._coincidence[(src, dst)] = colony._coincidence.get((src, dst), 0) + 5
+                # 好奇心衰减 (最小自由能): 已验证的关系降低探索价值, 让未探索的对上位
+                if key in colony._coincidence:
+                    colony._coincidence[key] = max(1, colony._coincidence[key] // 2)
+                self._derived_pairs.add(key)
                 successes += 1
                 self._derive_history.append({
                     "gen": gen, "src": src, "dst": dst,
@@ -67,7 +73,11 @@ class DerivePerception:
                 })
                 if len(self._derive_history) > 20:
                     self._derive_history = self._derive_history[-20:]
-                print(f"  [DERIVE] ✅ {src}→{dst}: {relation[:60]}")
+                n_paths = result.get("n_paths", 1)
+                conf_tag = f"conf={confidence:.2f}"
+                if n_paths > 1:
+                    conf_tag += f" ({n_paths}路径殊途同归)"
+                print(f"  [DERIVE] ✅ {src}→{dst}: {relation[:50]} [{conf_tag}]")
             else:
                 if key in colony._coincidence:
                     colony._coincidence[key] = max(1, colony._coincidence[key] - 3)
@@ -125,7 +135,11 @@ class DerivePerception:
                     candidates.append((a, b_node, 10))
                     seen.add((a, b_node))
 
-        candidates.sort(key=lambda x: -x[2])
+        def novelty_factor(a: str, b: str) -> float:
+            # 最小自由能: 已验证的对 (任一方向) 探索价值打 1 折
+            return 0.1 if (a, b) in self._derived_pairs or (b, a) in self._derived_pairs else 1.0
+
+        candidates.sort(key=lambda x: -(x[2] * novelty_factor(x[0], x[1])))
         return candidates
 
     def _do_derive(self, src: str, dst: str) -> Optional[Dict]:

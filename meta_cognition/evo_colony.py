@@ -886,6 +886,13 @@ class EvoColony:
                 cell._last_result = result
                 self.total_actions += 1
                 did_walk = result["type"] != "rest"
+                # 🧩 消化奖励: 细胞学会了(预测落空→命中) → 兑现多巴胺 (规则涌现, 无管道)
+                settle = result.get("settle", 0.0)
+                if settle > 0:
+                    cell.receive_reward(settle)
+                    self.total_rewards += settle
+                    stats["rewards"] += int(settle)
+                    print(f"  [SETTLE] {str(cell.cell_id)[:8]} {str(cell.node)[:28]}: +{settle:.2f} 学会(gen {self.generation})")
                 # 🧠 社会脑: 走过的细胞加入活跃池
                 if did_walk:
                     self._active_cohort.append(cell.cell_id)
@@ -1489,7 +1496,7 @@ class EvoColony:
                         if len(walk) >= 6:
                             cell.current_walk = []
 
-                # 🔬 反事实干预奖励: 尝试就奖 + 惊喜越大奖越多
+                # 🔬 反事实干预: 基线行为奖 (惊奇走预测误差通道, 消化后由规则兑现)
                 elif cell.last_action == "intervene":
                     # 基线: 选择干预这个行为本身值得奖励
                     cell.receive_reward(0.03)
@@ -1497,18 +1504,8 @@ class EvoColony:
                     self.total_rewards += 0.18
                     stats["rewards"] += 1
                     rewarded = True
-                    # 惊喜: 干预越意外 → 模型修正价值越大
-                    result = getattr(cell, '_last_result', {})
-                    if result.get("type") == "intervene":
-                        effect = abs(result.get("effect", 0))
-                        if effect > 0.01:
-                            surprise_reward = effect * 5.0
-                            cell.receive_reward(surprise_reward)
-                            self.total_rewards += surprise_reward
-                            stats["rewards"] += int(surprise_reward)
-                            rewarded = True
 
-                # 🔍 数值触觉: probe → LLM 定量分析 → 惊奇越大奖越多
+                # 🔍 数值触觉: probe → LLM 定量分析 → 基线行为奖 (消化后由规则兑现)
                 elif cell.last_action == "probe":
                     result = getattr(cell, '_last_result', {})
                     if result.get("type") == "probe" and result.get("start"):
@@ -1522,11 +1519,7 @@ class EvoColony:
                         budget = getattr(self, '_probe_budget_counter', 5)
                         if budget > 0:
                             self._probe_budget_counter = budget - 1
-                            surprise = self._handle_probe(cell, result)
-                            if surprise > 0:
-                                cell.receive_reward(surprise)
-                                self.total_rewards += surprise
-                                stats["rewards"] += int(surprise)
+                            self._handle_probe(cell, result)
 
                 # 📐 推导通道: derive → LLM 推理链 → 成功注入新边就大奖
                 elif cell.last_action == "derive":

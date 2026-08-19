@@ -629,7 +629,9 @@ def derive(src_name: str, dst_name: str) -> Optional[Dict]:
     if len(relevant) < 1:
         return None
 
-    # 尝试通过方程链连接
+    # 收集所有推导路径的结果 — 不提前返回, 多路径殊途同归 = 交叉验证
+    found = []  # (relation, path_label, base_conf)
+
     # 策略1: 直接替换 — 如果有一个方程同时含 src 和 dst
     for name, eq in relevant:
         free = eq.free_symbols
@@ -638,16 +640,11 @@ def derive(src_name: str, dst_name: str) -> Optional[Dict]:
                 # 尝试解出 dst 关于 src 的表达式
                 sol = solve(eq, dst_sym)
                 if sol:
-                    return {
-                        "success": True,
-                        "steps": [f"{name}: {eq}"],
-                        "relation": Eq(dst_sym, sol[0]),
-                        "confidence": 0.9,
-                    }
+                    found.append((Eq(dst_sym, sol[0]), f"direct:{name}", 0.9))
             except Exception:
                 pass
 
-    # 策略2: 两跳推导 — 通过共享中间变量
+    # 策略2: 两跳推导 — 通过共享中间变量 (收集所有共享符号的解, 不提前返回)
     src_eqs = [(n, e) for n, e in relevant if src_sym in e.free_symbols]
     dst_eqs = [(n, e) for n, e in relevant if dst_sym in e.free_symbols]
     for sn, se in src_eqs:
@@ -668,27 +665,49 @@ def derive(src_name: str, dst_name: str) -> Optional[Dict]:
                     subbed = de.subs(mid, mid_expr[0])
                     sol = solve(subbed, dst_sym)
                     if sol:
-                        return {
-                            "success": True,
-                            "steps": [
-                                f"{sn}: {se} → {mid} = {mid_expr[0]}",
-                                f"{dn}: {de} → {dst_sym} = {sol[0]}",
-                            ],
-                            "relation": Eq(dst_sym, sol[0]),
-                            "confidence": 0.7,
-                        }
+                        found.append((Eq(dst_sym, sol[0]),
+                                      f"bridge:{sn}→{dn} via {mid}", 0.7))
                 except Exception:
                     continue
 
-    # 有相关方程但推导失败
-    if src_sym is not None and dst_sym is not None:
+    if not found:
         return {
             "success": False,
             "steps": [f"{n}: {e}" for n, e in relevant[:3]],
             "confidence": 0.1,
         }
 
-    return None
+    # ═══ 交叉验证: 按公式去重, 多路径命中 = 殊途同归 → 置信叠加 ═══
+    from collections import defaultdict
+    by_formula = defaultdict(list)
+    for rel, path, conf in found:
+        by_formula[str(rel)].append((rel, path, conf))
+
+    best = None
+    for formula, paths in by_formula.items():
+        rel, _, _ = paths[0]
+        labels = [p[1] for p in paths]
+        has_direct = any("direct" in p for p in labels)
+        n_bridge = sum(1 for p in labels if "bridge" in p)
+        # 置信: 殊途同归 > 直接解 > 单桥链(跨方程符号身份可疑, 降权等验证)
+        if has_direct and n_bridge >= 1:
+            conf = 0.95      # 直接解 + 独立桥链 → 两条路得出同一公式
+        elif n_bridge >= 2:
+            conf = 0.85      # 两条独立桥链
+        elif has_direct:
+            conf = 0.9       # 单方程直接解 (符号身份在方程内自洽)
+        else:
+            conf = 0.65      # 单桥链 — 跨方程同一符号可能身份不同 (如 m=中心质量 vs 物体质量)
+        if best is None or conf > best["confidence"]:
+            best = {
+                "success": True,
+                "steps": labels,
+                "relation": rel,
+                "confidence": conf,
+                "n_paths": len(paths),
+            }
+
+    return best
 
 
 def quick_check(src_name: str, dst_name: str) -> Tuple[bool, str]:

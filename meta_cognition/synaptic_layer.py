@@ -49,6 +49,8 @@ class SynapticLayer:
     STDP_WINDOW: int = 50       # 时序窗口: 反向走在此窗口内触发STDP
     MAX_NEURONS_PER_EDGE: int = 2000  # 快照序列化安全上限 (live 系统无上限)
     TIER4_WINDOW: int = 500     # tier 4 晋升窗口期: 超时未晋升→消除 (放宽, 给新边更多时间积累神经元共识)
+    HABITUATION_RATE: float = 0.001  # 习惯化: 重复共现衰减 (仅 associative 信号)
+    # c=54(mass正常) → ×0.95 无感; c=15437(coherent_flow碎片) → ×0.06 近停
 
     # 系统级神经元 ID: 无细胞上下文的系统操作使用这些唯一ID
     # 不同操作类型贡献不同"神经元"→ 多操作验证的边更容易晋升 t4→t3
@@ -176,6 +178,12 @@ class SynapticLayer:
         else:
             bcm_factor = 1.3 / (1.0 + (s_val - 3.0) * 0.3)
         bonus = strength * bcm_factor
+        # 🧠 习惯化 (habituation): 重复共现衰减 — 防死胡同转圈
+        # 真实大脑: 同一刺激反复出现 → 反应减弱 → 逼细胞去探索新路径
+        # 只作用于 associative(词共现), causal(真因果验证) 不衰减
+        # c=54 → ×0.95 无感; c=15437 → ×0.06 近停
+        if signal == 'associative':
+            bonus *= 1.0 / (1.0 + edge['c'] * self.HABITUATION_RATE)
         edge['s'] = min(edge['s'] + bonus, 100.0)
         edge['c'] += 1
         
