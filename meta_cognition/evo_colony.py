@@ -5845,6 +5845,8 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 "result": cached.get("result", ""), "cached": True,
                 "gen": self.generation,
             })
+            if len(cell._sensory_memory) > 20:  # 🆕 感官记忆有界 (防泄漏)
+                cell._sensory_memory = cell._sensory_memory[-20:]
             return 0.0
         
         # 调 LLM 获取数值关系
@@ -5897,6 +5899,8 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             "result": response, "cached": False,
             "gen": self.generation,
         })
+        if len(cell._sensory_memory) > 20:  # 🆕 感官记忆有界 (防泄漏)
+            cell._sensory_memory = cell._sensory_memory[-20:]
         
         # 惊奇 = 结果长度 / 5 (定性答案短, 定量答案长且信息量大)
         surprise = min(2.0, len(response) / 80)
@@ -5919,6 +5923,8 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 "result": "cached", "cached": True,
                 "gen": self.generation,
             })
+            if len(cell._sensory_memory) > 20:  # 🆕 感官记忆有界 (防泄漏)
+                cell._sensory_memory = cell._sensory_memory[-20:]
             return 0
 
         # 🧮 sympy 推导
@@ -5995,6 +6001,8 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             "math_verified": edges_added,
             "gen": self.generation,
         })
+        if len(cell._sensory_memory) > 20:  # 🆕 感官记忆有界 (防泄漏)
+            cell._sensory_memory = cell._sensory_memory[-20:]
 
         # 🛣️ 全路径强化: 走过的正确路径变高速公路
         # (derive 是代数变形, 只有 δS=0 变分方向才标因果, 其余只作关联)
