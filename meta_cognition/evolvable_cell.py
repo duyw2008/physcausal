@@ -439,7 +439,13 @@ class EvolvableCell:
                 if len(step) >= 3 and step[2] == dst:
                     familiar_count += 1
         if familiar_count > 0:
-            score *= 1.0 + min(0.5, familiar_count * 0.05)  # 熟悉节点→+5%~50% 概率提升
+            # 🏠 熟悉度饱和: 低熟悉促进聚团, 高熟悉=已验证→探索价值衰减 (最小自由能)
+            if familiar_count <= 3:
+                score *= 1.0 + familiar_count * 0.05        # +5%~15% 聚团
+            elif familiar_count <= 8:
+                score *= 1.0 + 0.15 * (1 - (familiar_count - 3) / 5.0)  # 15%→0
+            else:
+                score *= 0.8                                 # 已验证=低探索价值
         # 4. 结构角色: 孤儿/死胡同→缺口引力
         if in_d == 0 and out_d > 0:  score *= 1.2
         elif out_d == 0 and in_d > 0: score *= 1.2
@@ -538,9 +544,9 @@ class EvolvableCell:
         # 🧠 私有权重加成: 每边有独立权重
         _w = self.weights
         for law, dst, dom in verified:
-            # 🧠 髓鞘快车道: 高频边直接跃迁
+            # 🧠 髓鞘快车道: 高频边快速跃迁 (效率习惯化, 但不无限吸积→封顶3.0)
             if (self.node, dst) in _myelin:
-                scored.append((law, dst, dom, 999.0))
+                scored.append((law, dst, dom, 3.0))
                 continue
             eig = self._expected_info_gain(dst)
             if curiosity != 1.0:
@@ -550,12 +556,22 @@ class EvolvableCell:
             # 🧠 独立权重加成: 每边走自己的历史权重
             wt = _w.get(dst, 0)
             eig *= 1.0 + wt  # 权重连续性加成
-            # 🧠 人气加成: 被越多细胞走过的边越值得走
+            # 🧠 人气饱和: 低人气促进聚团(群体吸引), 高人气=已被充分强化→探索价值衰减
             pop = getattr(self, '_popularity', {}).get((self.node, dst), 0)
-            eig *= 1.0 + pop * 2.0  # 0→1x, 1→3x
-            # 🧠 髓鞘加成: 我自己频繁走的边→高速公路 (习惯化)
+            if pop < 0.3:
+                eig *= 1.0 + pop * 5.0          # 0→1x, 0.3→2.5x 聚团
+            elif pop < 0.6:
+                eig *= 1.0 + (0.6 - pop) * 5.0  # 0.3→2.5x → 0.6→1.0x 平滑下降
+            else:
+                eig *= max(0.8, 1.0 - (pop - 0.6) * 0.5)  # 0.6→1.0x → 1.0→0.8x 饱和衰减
+            # 🧠 髓鞘加成: 习惯化, 但饱和→高髓鞘不再吸积 (细胞私有髓鞘, 当前未写入但保持一致性)
             mye = self.myelin.get((self.node, dst), 0)
-            eig *= 1.0 + mye * 2.0  # 0→1x, 3.0→7x
+            if mye < 1.0:
+                eig *= 1.0 + mye * 2.0          # 0→1x, 1→3x 习惯化促进
+            elif mye < 2.0:
+                eig *= 1.0 + (2.0 - mye) * 2.0  # 1→3x → 2→1x 平滑
+            else:
+                eig *= max(0.8, 1.0 - (mye - 2.0) * 0.2)  # 2→1x → 3+→0.8x 饱和衰减
             # 🧠 私有网络加成: 我的边 > 图边
             if dst in my_edges:
                 eig *= 1.5
@@ -573,12 +589,12 @@ class EvolvableCell:
             scored.append((law, dst, dom, eig))
         # ε-贪心探索: 概率 ε 均匀随机选边, 覆盖未探索区域
         # 从0.3衰减到0.15保底 (500代后不再降), 防止长跑后探索完全死亡
-        epsilon = max(0.15, 0.3 / (1.0 + self.age / 500.0))
+        epsilon = max(0.25, 0.4 / (1.0 + self.age / 500.0))
         if random.random() < epsilon:
             law, dst, dom = random.choice([(law, dst, dom) for law, dst, dom, _ in scored])
-        # 🧠 随机突触新生: 1%概率跳到图中任意节点, 创建全新连接
+        # 🧠 随机突触新生: 2.5%概率跳到图中任意节点, 创建全新连接
         # 不同于ε-greedy(随机选已有边), 这是跨越式探索——连接原本无关联的概念
-        elif random.random() < 0.01:
+        elif random.random() < 0.025:
             all_nodes = list(self.graph.keys())
             if all_nodes:
                 dst = random.choice(all_nodes)
