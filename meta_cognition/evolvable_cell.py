@@ -27,7 +27,7 @@
 
 from __future__ import annotations
 from typing import Dict, List, Tuple, Optional
-import random, time
+import random, time, math
 from collections import Counter
 from meta_cognition.walk_fingerprint import walk_fingerprint
 
@@ -415,7 +415,7 @@ class EvolvableCell:
             elif ec < 50:   score *= 1.0
             else:           score *= 0.8   # 被探索 50+ 次 → 价值耗尽
         elif deg <= 3:    score *= 1.3
-        elif deg >= 15:   score *= 0.8  # 枢纽→信息冗余
+        elif deg >= 15:   score *= 1.0 / (1.0 + math.log1p(deg - 15))  # 🧩 超度枢纽→信息冗余 (对数饱和: 15度≈1.0, 1267度≈0.13)
         # 2. 域新颖度: 少访问的域→高信息
         recent_domains = set()
         for mem in self.walk_memory[-10:]:

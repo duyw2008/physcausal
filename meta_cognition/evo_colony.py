@@ -10,7 +10,7 @@
 from __future__ import annotations
 from typing import Dict, List, Tuple, Set
 from collections import Counter, defaultdict, deque
-import random, time, json, os
+import random, time, json, os, math
 try:
     import orjson
 except ImportError:
@@ -889,6 +889,13 @@ class EvoColony:
                 # 🧩 消化奖励: 细胞学会了(预测落空→命中) → 兑现多巴胺 (规则涌现, 无管道)
                 settle = result.get("settle", 0.0)
                 if settle > 0:
+                    # 🧩 稀缺度计价: 种群同现越多的转移越不稀缺 → 学会奖励贬值
+                    # 冷门转移(首次学会)全额, 热门转移(人人都会)衰减 — 生态位分化自然涌现
+                    _src, _dst = result.get("from", ""), result.get("to", "")
+                    if _src and _dst:
+                        fam = self._coincidence.get((_src, _dst), 0)
+                        rarity = 1.0 / (1.0 + math.log1p(fam))
+                        settle *= max(0.2, rarity)  # 保底 20%: 学会行为仍值得奖, 不归零
                     cell.receive_reward(settle)
                     self.total_rewards += settle
                     stats["rewards"] += int(settle)
