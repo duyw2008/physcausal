@@ -4991,6 +4991,14 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         edge_count = sum(len(n.get("effects", [])) for n in self.graph._cache.values())
         # VSA 序列化
         vsa_data = self.graph.vsa.to_dict() if hasattr(self.graph, 'vsa') else {}
+        # 🧩 一致性校正: cache 有边但 vsa 无向量的节点 → 补建向量
+        # (注入/恢复时序可能导致末梢节点只进 cache 不建 VSA 向量, 影响 probe/derive)
+        if hasattr(self.graph, 'vsa') and hasattr(self.graph, '_cache'):
+            vsa_nodes = set(vsa_data.get('node_vectors', {}))
+            for nid in self.graph._cache:
+                if nid not in vsa_nodes:
+                    self.graph.vsa.get_or_create_vector(nid)
+            vsa_data = self.graph.vsa.to_dict()
         # 缓存序列化 (避免恢复时触发全量 VSA 查询)
         cache_data = {}
         for node_id, entry in self.graph._cache.items():
