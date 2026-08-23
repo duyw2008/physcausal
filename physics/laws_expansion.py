@@ -509,4 +509,95 @@ def register_expansion_laws(library) -> int:
         # 补齐 SpinStatistics(quantum域) 缺失的因果枢纽: 对易性约束
     )); count += 1
 
+    # ── 深层因果链: 规范原理 → 规范场 → 相互作用 (Yang-Mills 统一) ──
+    # 要求局域规范不变性 → 必须引入规范场 (联络) → 协变导数 → 相互作用
+    # 这是所有基本力 (电磁/弱/强) 的统一起源
+    library.register(PhysicsLaw(
+        name="GaugePrincipleToInteraction", domain="qft",
+        latex=r"\text{local gauge invariance} \Rightarrow D_\mu = \partial_\mu + igA_\mu \Rightarrow \text{interaction}",
+        inputs=["gauge_symmetry"],
+        outputs=["gauge_field"],
+        constraint_type=ConstraintType.DAG_EDGE,
+        formula=lambda gs: gs,
+        causal_direction=[("gauge_symmetry", "gauge_field")],
+        forbidden_directions=[("gauge_field", "gauge_symmetry")],
+        # 规范原理: 局域对称性要求 → 联络/规范场 (不可约表示)
+        # 上游: 希格斯机制的起点 (对称破缺发生在规范场之上)
+    )); count += 1
+
+    library.register(PhysicsLaw(
+        name="GaugeFieldToInteraction", domain="qft",
+        latex=r"A_\mu \text{ couples to matter} \Rightarrow \text{force}",
+        inputs=["gauge_field", "matter_field"],
+        outputs=["fundamental_interaction"],
+        constraint_type=ConstraintType.CONSERVATION,
+        formula=lambda af, mf: af * mf,
+        causal_direction=[("gauge_field", "fundamental_interaction"),
+                          ("matter_field", "fundamental_interaction")],
+        forbidden_directions=[("fundamental_interaction", "gauge_field")],
+        # 规范场与物质场耦合 → 相互作用 (光子-电子、胶子-夸克、W/Z-费米子)
+        # 完整链: gauge_symmetry → gauge_field → interaction (力的统一起源)
+    )); count += 1
+
+    # ── 深层因果链: 热力学第二定律 → 时间箭头 ──
+    # 熵增 (宏观不可逆) → 时间方向 (过去/未来不对称)
+    # 因果性的时间基础: 为什么因果总是过去→未来
+    library.register(PhysicsLaw(
+        name="SecondLawTimeArrow", domain="thermodynamics",
+        latex=r"\Delta S \geq 0 \Rightarrow \text{time arrow}",
+        inputs=["entropy_increase"],
+        outputs=["time_arrow"],
+        constraint_type=ConstraintType.CONSERVATION,
+        formula=lambda ds: 1.0 if ds >= 0 else -1.0,
+        causal_direction=[("entropy_increase", "time_arrow")],
+        forbidden_directions=[("time_arrow", "entropy_increase")],
+        # 第二定律: 孤立系统熵不减少 → 宏观时间方向
+        # 因果箭头 (过去→未来) 的统计力学起源 (Boltzmann 微观态计数)
+    )); count += 1
+
+    # ── 深层因果链: 因果性 + 光速有限 → 光锥 → 信息传播上限 ──
+    # 相对论因果结构: 信号不能超光速 → 事件分类 (类空/类时/类光) → 因果序
+    library.register(PhysicsLaw(
+        name="CausalityLightCone", domain="general_relativity",
+        latex=r"(x-y)^2 < 0 \Rightarrow \text{no causal influence}",
+        inputs=["spacetime_metric", "signal_speed"],
+        outputs=["light_cone_structure"],
+        constraint_type=ConstraintType.CONSERVATION,
+        formula=lambda metric, sp: 1.0 if sp <= 1.0 else 0.0,
+        causal_direction=[("spacetime_metric", "light_cone_structure"),
+                          ("signal_speed", "light_cone_structure")],
+        forbidden_directions=[("light_cone_structure", "signal_speed")],
+        # 光锥: 类时=可因果影响, 类空=不可 (与 SpacelikeCausalityConstraint 互补)
+        # 信息传播上限 = 因果性的几何表达
+    )); count += 1
+
+    library.register(PhysicsLaw(
+        name="LightConeToCausalOrder", domain="general_relativity",
+        latex=r"\text{light cone} \Rightarrow \text{causal ordering of events}",
+        inputs=["light_cone_structure"],
+        outputs=["causal_event_order"],
+        constraint_type=ConstraintType.DAG_EDGE,
+        formula=lambda lc: lc,
+        causal_direction=[("light_cone_structure", "causal_event_order")],
+        forbidden_directions=[("causal_event_order", "light_cone_structure")],
+        # 光锥结构 → 事件因果序 (过去锥/未来锥) → 相对论因果性
+        # 完整链: metric+speed → light_cone → causal_order
+    )); count += 1
+
+    # ── 深层因果链: 熵 + 全息原理 → 引力是熵力 (Verlinde) ──
+    # 热力学时空: 引力不是基本力, 而是熵力 (信息在时空上的梯度)
+    library.register(PhysicsLaw(
+        name="EntropicGravity", domain="unification",
+        latex=r"\Delta S = 2\pi k_B \frac{m c}{\hbar} \Delta x \Rightarrow F = \frac{G M m}{r^2}",
+        inputs=["entropy", "holographic_bound"],
+        outputs=["gravity_as_entropic_force"],
+        constraint_type=ConstraintType.SCM_EQUATION,
+        formula=lambda s, hb: s * hb,
+        causal_direction=[("entropy", "gravity_as_entropic_force"),
+                          ("holographic_bound", "gravity_as_entropic_force")],
+        forbidden_directions=[("gravity_as_entropic_force", "entropy")],
+        # Verlinde (2011): 引力 = 熵力 — 全息原理 + 统计力学推出牛顿引力
+        # 深链: microstates → entropy → holographic_bound → gravity (引力热力学起源)
+    )); count += 1
+
     return count
