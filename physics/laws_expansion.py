@@ -476,4 +476,37 @@ def register_expansion_laws(library) -> int:
         forbidden_directions=[("gauge_coupling", "broken_symmetry")],
     )); count += 1
 
+    # ── 深层因果链: 类空因果性 → 对易关系 → 自旋统计 (Pauli 1940) ──
+    # 费米子为什么必须反对称: 类空分离处的因果性要求场算符对易,
+    # 而半整数自旋的场若对易则违反正能量/洛伦兹不变 → 必须反对易 → Pauli 不相容
+    library.register(PhysicsLaw(
+        name="SpacelikeCausalityConstraint", domain="qft",
+        latex=r"[O_1(x), O_2(y)] = 0\ \text{for}\ (x-y)^2 < 0\ (\text{causality})",
+        inputs=["quantum_field", "spacelike_separation"],
+        outputs=["field_commutation_relation"],
+        constraint_type=ConstraintType.CONSERVATION,
+        formula=lambda qf, ss: 1.0 if ss < 0 else 0.0,  # 类空间隔 → 对易/反对易约束
+        causal_direction=[("quantum_field", "field_commutation_relation"),
+                          ("spacelike_separation", "field_commutation_relation")],
+        forbidden_directions=[("field_commutation_relation", "spacelike_separation")],
+        # 因果性的数学表达: 类空分离的可观测量必须对易 (否则信号超光速)
+        # 这是量子场论因果结构的公理基础
+    )); count += 1
+
+    library.register(PhysicsLaw(
+        name="SpinStatisticsTheorem", domain="qft",
+        latex=r"\text{half-integer spin} \Rightarrow \text{anticommute} \Rightarrow \text{Pauli exclusion}",
+        inputs=["spin_angular_momentum", "field_commutation_relation"],
+        outputs=["bose_fermi_statistics", "pauli_exclusion"],
+        constraint_type=ConstraintType.SCM_EQUATION,
+        formula=lambda spin, comm: -1.0 if (spin % 1 == 0.5 and comm > 0) else 1.0,
+        causal_direction=[("spin_angular_momentum", "bose_fermi_statistics"),
+                          ("field_commutation_relation", "bose_fermi_statistics"),
+                          ("bose_fermi_statistics", "pauli_exclusion")],
+        forbidden_directions=[("bose_fermi_statistics", "spin_angular_momentum")],
+        # 自旋-统计定理 (Pauli 1940): 半整数自旋场必须反对易 (费米),
+        # 整数自旋场必须对易 (玻色) — 由类空因果性 + 正能量 + 洛伦兹不变推出
+        # 补齐 SpinStatistics(quantum域) 缺失的因果枢纽: 对易性约束
+    )); count += 1
+
     return count
