@@ -10,7 +10,7 @@
 from __future__ import annotations
 from typing import Dict, List, Tuple, Set
 from collections import Counter, defaultdict, deque
-import random, time, json, os, math
+import random, time, json, os, math, gzip
 try:
     import orjson
 except ImportError:
@@ -5048,12 +5048,12 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             }
             kg_path = path.replace(".json", "_kg.json")
             if orjson is not None:
-                with open(kg_path, 'wb') as f:
-                    # OPT_SERIALIZE_NUMPY: vs.graph 含 numpy float32, 直接序列化避免 tolist 膨胀
-                    f.write(orjson.dumps(kg_data, option=orjson.OPT_INDENT_2 | orjson.OPT_SERIALIZE_NUMPY))
+                # 紧凑 + gzip: 1GB→~250MB, 序列化内存峰值 1.5G→~800M (扩容关键)
+                with gzip.open(kg_path, 'wb', compresslevel=6) as f:
+                    f.write(orjson.dumps(kg_data, option=orjson.OPT_SERIALIZE_NUMPY))
             else:
-                with open(kg_path, 'w') as f:
-                    json.dump(kg_data, f, ensure_ascii=False, indent=2,
+                with gzip.open(kg_path, 'wt', compresslevel=6) as f:
+                    json.dump(kg_data, f, ensure_ascii=False,
                               default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o))
 
             # 分离神经层 (cells, synaptic, cell_shelf)
@@ -5067,11 +5067,11 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             }
             neural_path = path.replace(".json", "_neural.json")
             if orjson is not None:
-                with open(neural_path, 'wb') as f:
-                    f.write(orjson.dumps(neural_data, option=orjson.OPT_INDENT_2))
+                with gzip.open(neural_path, 'wb', compresslevel=6) as f:
+                    f.write(orjson.dumps(neural_data))
             else:
-                with open(neural_path, 'w') as f:
-                    json.dump(neural_data, f, ensure_ascii=False, indent=2)
+                with gzip.open(neural_path, 'wt', compresslevel=6) as f:
+                    json.dump(neural_data, f, ensure_ascii=False)
             return True
         except Exception:
             return False
@@ -5463,8 +5463,13 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         candidates = []  # (gen, is_crash, neural_path, kg_path)
         for fpath in glob.glob(os.path.join(data_dir, "evo_snapshot_gen*_neural.json")):
             try:
-                with open(fpath, 'rb') as f:
-                    head = f.read(2048)
+                # gzip 兼容: 先试 gzip 解压读头, 失败按明文读
+                try:
+                    with gzip.open(fpath, 'rb') as f:
+                        head = f.read(2048)
+                except (OSError, EOFError):
+                    with open(fpath, 'rb') as f:
+                        head = f.read(2048)
                 m = gen_re.search(head)
                 if m:
                     gen = int(m.group(1))
@@ -5494,13 +5499,21 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 pass  # fall through to unified format
 
             try:
-                # 读神经层 (小文件, 快速)
+                # 读神经层 (小文件, 快速) — gzip 兼容: 先试 gzip, 失败回退明文
                 if orjson is not None:
-                    with open(neural_path, 'rb') as f:
-                        neural_data = orjson.loads(f.read())
+                    try:
+                        with gzip.open(neural_path, 'rb') as f:
+                            neural_data = orjson.loads(f.read())
+                    except (OSError, EOFError):
+                        with open(neural_path, 'rb') as f:
+                            neural_data = orjson.loads(f.read())
                 else:
-                    with open(neural_path) as f:
-                        neural_data = json.load(f)
+                    try:
+                        with gzip.open(neural_path, 'rt') as f:
+                            neural_data = json.load(f)
+                    except (OSError, EOFError):
+                        with open(neural_path) as f:
+                            neural_data = json.load(f)
 
                 if not load_kg:
                     return best_gen, neural_data
@@ -5508,11 +5521,19 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 # 合并 KG 层
                 if kg_path and os.path.exists(kg_path):
                     if orjson is not None:
-                        with open(kg_path, 'rb') as f:
-                            kg_data = orjson.loads(f.read())
+                        try:
+                            with gzip.open(kg_path, 'rb') as f:
+                                kg_data = orjson.loads(f.read())
+                        except (OSError, EOFError):
+                            with open(kg_path, 'rb') as f:
+                                kg_data = orjson.loads(f.read())
                     else:
-                        with open(kg_path) as f:
-                            kg_data = json.load(f)
+                        try:
+                            with gzip.open(kg_path, 'rt') as f:
+                                kg_data = json.load(f)
+                        except (OSError, EOFError):
+                            with open(kg_path) as f:
+                                kg_data = json.load(f)
                     # 合并: 神经层为主, KG 数据补入
                     merged = dict(neural_data)
                     for k in ("vs.graph", "vs.cache", "emergent_edges",
@@ -5534,8 +5555,13 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             if "_kg.json" in fpath or "_neural.json" in fpath:
                 continue
             try:
-                with open(fpath, 'rb') as f:
-                    head = f.read(2048)
+                # gzip 兼容: 先试 gzip 解压读头, 失败按明文读
+                try:
+                    with gzip.open(fpath, 'rb') as f:
+                        head = f.read(2048)
+                except (OSError, EOFError):
+                    with open(fpath, 'rb') as f:
+                        head = f.read(2048)
                 m = gen_re.search(head)
                 if m:
                     gen = int(m.group(1))
@@ -5561,11 +5587,19 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             return 0, None
         try:
             if orjson is not None:
-                with open(best_path, 'rb') as f:
-                    data = orjson.loads(f.read())
+                try:
+                    with gzip.open(best_path, 'rb') as f:
+                        data = orjson.loads(f.read())
+                except (OSError, EOFError):
+                    with open(best_path, 'rb') as f:
+                        data = orjson.loads(f.read())
             else:
-                with open(best_path) as f:
-                    data = json.load(f)
+                try:
+                    with gzip.open(best_path, 'rt') as f:
+                        data = json.load(f)
+                except (OSError, EOFError):
+                    with open(best_path) as f:
+                        data = json.load(f)
             return best_gen, data
         except Exception:
             return 0, None
