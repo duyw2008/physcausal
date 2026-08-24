@@ -789,14 +789,17 @@ class EvoColony:
         # 🧠 突触补路: 预建每个节点的 top-5 高 s 突触边
         from collections import defaultdict
         syn_out = defaultdict(list)
+        syn_out_all: Dict[str, list] = defaultdict(list)  # 🆕 完整出边 s 值 (预测用, 避免每细胞全量扫描 O(n²))
         for (src, dst), edge in self.synapse.activations.items():
             s_val = edge.get('s', 0) if isinstance(edge, dict) else 0
             if s_val > 0.001:  # 极低阈值, 让混沌脑边可见
                 syn_out[src].append((dst, s_val))
+            syn_out_all[src].append(s_val)
         for src in syn_out:
             syn_out[src].sort(key=lambda x: -x[1])
             syn_out[src] = syn_out[src][:5]
         self._syn_out = dict(syn_out)
+        self._syn_out_all = {k: v for k, v in syn_out_all.items()}
         # 🧠 髓鞘快车道: unique_neurons >= 10 的边跳过 EIG
         self._myelin_set = set(
             key for key, act in self.synapse.activations.items()
@@ -929,12 +932,8 @@ class EvoColony:
                         key = (src, dst)
                         edge_data = self.synapse.activations.get(key)
                         actual_s = edge_data.get("s", 0) if isinstance(edge_data, dict) else 0
-                        # 预测: 基于 src 所有 outgoing 边的平均 s
-                        out_s_vals = []
-                        for k, v in self.synapse.activations.items():
-                            if isinstance(k, tuple) and len(k) == 2 and k[0] == src:
-                                if isinstance(v, dict):
-                                    out_s_vals.append(v.get("s", 0))
+                        # 预测: 基于 src 所有 outgoing 边的平均 s (用预建索引, 避免 O(n²) 全量扫描)
+                        out_s_vals = self._syn_out_all.get(src, [])
                         predicted_s = sum(out_s_vals) / max(len(out_s_vals), 1)
                         delta = abs(actual_s - predicted_s)
                         if delta > 0.15 and actual_s > 0:
@@ -3321,9 +3320,15 @@ class EvoColony:
 
         from physics.math_derive import derive
         repaired = 0
+        processed = 0
         for (src, dst), total_delta in sorted(merged.items(), key=lambda x: -x[1]):
             if total_delta < self._predictive_threshold:
                 continue
+            # 只处理最有价值的前 N 个候选: 每 10 代偏差累积的候选可达数千,
+            # 逐个跑 sympy solve 会变成数小时黑洞 (2026-08-25 事故), 取前 100 个足够覆盖
+            if processed >= 100:
+                break
+            processed += 1
             if src == dst:  # 跳过自环: derive(A→A) 无意义
                 continue
             reverse_key = (dst, src)  # 反向边的 key

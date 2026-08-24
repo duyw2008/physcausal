@@ -6,9 +6,31 @@
 """
 from __future__ import annotations
 from typing import Dict, List, Tuple, Optional
+import signal as _signal
 import sympy as sp
 from sympy import symbols, Eq, solve, simplify, Function, Derivative
 from sympy.calculus.euler import euler_equations  # δS=0 变分: 从作用量生成运动方程
+
+
+# ═══════════════════════════════════════════════
+# solve 硬超时保护 — sympy 对特定表达式(超越方程/代入膨胀)可能无限循环或卡死,
+# 无限循环 try/except 捕获不了, 必须 SIGALRM 硬超时兜底 (2026-08-25 死循环事故修复)
+# ═══════════════════════════════════════════════
+
+_SOLVE_TIMEOUT = 10.0  # 单次 solve 上限 10s, 正常 solve 毫秒~秒级
+
+def _timeout_handler(signum, frame):
+    raise TimeoutError(f"sympy solve timed out ({_SOLVE_TIMEOUT}s)")
+
+def _solve_with_timeout(eq, sym):
+    """solve + SIGALRM 硬超时。调用方 try/except 捕获 TimeoutError 即跳过该方程。"""
+    _signal.signal(_signal.SIGALRM, _timeout_handler)
+    _signal.setitimer(_signal.ITIMER_REAL, _SOLVE_TIMEOUT)
+    try:
+        return solve(eq, sym)
+    finally:
+        _signal.setitimer(_signal.ITIMER_REAL, 0)
+
 
 
 # ═══════════════════════════════════════════════
@@ -638,7 +660,7 @@ def derive(src_name: str, dst_name: str) -> Optional[Dict]:
         if src_sym in free and dst_sym in free:
             try:
                 # 尝试解出 dst 关于 src 的表达式
-                sol = solve(eq, dst_sym)
+                sol = _solve_with_timeout(eq, dst_sym)
                 if sol:
                     found.append((Eq(dst_sym, sol[0]), f"direct:{name}", 0.9))
             except Exception:
@@ -659,11 +681,11 @@ def derive(src_name: str, dst_name: str) -> Optional[Dict]:
                 if str(mid).startswith("_"):
                     continue
                 try:
-                    mid_expr = solve(se, mid)
+                    mid_expr = _solve_with_timeout(se, mid)
                     if not mid_expr:
                         continue
                     subbed = de.subs(mid, mid_expr[0])
-                    sol = solve(subbed, dst_sym)
+                    sol = _solve_with_timeout(subbed, dst_sym)
                     if sol:
                         found.append((Eq(dst_sym, sol[0]),
                                       f"bridge:{sn}→{dn} via {mid}", 0.7))
