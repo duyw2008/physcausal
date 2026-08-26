@@ -405,15 +405,28 @@ class EvoColony:
         self._save_json("falsified.json", self._falsified)
 
     def _record_discovery(self, law_name: str, source: str, evidence: str):
-        """记录脑自主发现的规律 (与手工注入区分)"""
+        """记录脑自主发现的规律 (与手工注入区分)
+        intervene_* 按 (law, source) 去重: 重复检验只累计 count + 更新代/证据,
+        不追加新条目 — 防止同一候选反复记账灌水 (曾出现同一定律被重复确认 382 次)
+        """
         self._discoveries = getattr(self, '_discoveries', None)
         if self._discoveries is None:
             self._discoveries = self._load_json("discoveries.json")
+        if source.startswith("intervene_"):
+            for prev in self._discoveries:
+                if prev.get("law") == law_name and prev.get("source") == source:
+                    prev["count"] = prev.get("count", 1) + 1
+                    prev["gen"] = self.generation
+                    if evidence and evidence != prev.get("evidence"):
+                        prev["evidence"] = evidence
+                    self._save_json("discoveries.json", self._discoveries)
+                    return
         entry = {
             "gen": self.generation,
             "law": law_name,
-            "source": source,  # "autonomous" | "injected"
+            "source": source,  # "autonomous" | "injected" | "intervene_*" | ...
             "evidence": evidence,
+            "count": 1,
         }
         self._discoveries.append(entry)
         self._save_json("discoveries.json", self._discoveries)

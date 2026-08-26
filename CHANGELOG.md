@@ -4,6 +4,14 @@
 
 ---
 
+## v1.4.1 (2026-08-26) — intervene 记账去重
+
+### discoveries.json 防灌水
+- **问题**: `_record_discovery` 对同一 (law, source) 的重复干预检验每次都追加新条目 → 16501 条里唯一定律仅 5010, 最热边 `neutron_star_deformation__force->radius__dark_matter_mass` 被重复记账 382 次
+- **修复**: `intervene_*` 来源按 (law, source) 去重 — 重复检验只累计 `count` + 更新代/证据, 不追加条目; 非 intervene 来源 (variational/noether/autonomous/why_gap/alt_view) 保持原追加行为
+- **数据语义**: 新增 `count` 字段 (检验次数, 首见=1); 报告脚本可用 `count` 区分"知识条数"与"检验次数"
+- 验证: 单测模拟 + 真实方法调用 (重复3次→1条 count=3, evidence 更新), 重启后 gen 34535 起新条目带 count
+
 ## v1.4.0 (2026-08-25) — 稳定性 + 学习评估
 
 ### 预测反馈黑洞修复 (commit 5185e50)
