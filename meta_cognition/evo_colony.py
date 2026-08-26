@@ -5180,6 +5180,7 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 # δS=0 白名单: LLM 词共现残留(llm: 前缀边)过滤; emergent/probe 域碎片过滤
                 # teacher 轨迹边(research 域, teacher: 前缀)是合法种子, 保留
                 _eff = []
+                _seen_eff = set()  # 去重: 恢复时清除历史累积的重复边 (2026-08-25 核对发现)
                 for e in entry.get("effects", []):
                     dom = e[2] if len(e) > 2 else ""
                     law = e[0] if len(e) > 0 else ""
@@ -5187,8 +5188,13 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                         continue
                     if dom in ("emergent", "probe") and not (self._is_physics_concept(node_id) and self._is_physics_concept(e[1])):
                         continue
-                    _eff.append(tuple(e))
+                    t = tuple(e)
+                    if t in _seen_eff:
+                        continue
+                    _seen_eff.add(t)
+                    _eff.append(t)
                 _cau = []
+                _seen_cau = set()
                 for c in entry.get("causes", []):
                     dom = c[2] if len(c) > 2 else ""
                     law = c[1] if len(c) > 1 else ""
@@ -5196,7 +5202,11 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                         continue
                     if dom in ("emergent", "probe") and not (self._is_physics_concept(c[0]) and self._is_physics_concept(node_id)):
                         continue
-                    _cau.append(tuple(c))
+                    t = tuple(c)
+                    if t in _seen_cau:
+                        continue
+                    _seen_cau.add(t)
+                    _cau.append(t)
                 self.graph._cache[node_id] = {
                     "effects": _WriteThroughList(
                         _eff, _vsa_graph=self.graph, _node_id=node_id, _direction="effects"),
