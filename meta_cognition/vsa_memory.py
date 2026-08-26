@@ -403,8 +403,11 @@ class VSAGraph:
         # 缓存写入
         s = self.setdefault(src, {"causes": [], "effects": []})
         d = self.setdefault(dst, {"causes": [], "effects": []})
-        s["effects"].append((law_name, dst, domain))
-        d["causes"].append((src, law_name, domain))
+        # 防重: 同 dst+domain 已存在则跳过 (2026-08-26 重复边根因修复 — add_edge 是汇聚点)
+        if not any(len(e) >= 3 and e[1] == dst and e[2] == domain for e in s["effects"]):
+            s["effects"].append((law_name, dst, domain))
+        if not any(len(c) >= 3 and c[0] == src and c[2] == domain for c in d["causes"]):
+            d["causes"].append((src, law_name, domain))
 
     @property
     def edge_count(self) -> int:
@@ -426,8 +429,21 @@ class VSAGraph:
             return (0 if item[1] in _CAUSAL_DOMAINS else 1, -item[2])
         effects_raw.sort(key=_rank)
         causes_raw.sort(key=_rank)
-        effects = [(domain, dst, domain) for dst, domain, _ in effects_raw]
-        causes = [(src, domain, domain) for src, domain, _ in causes_raw]
+        # 去重: VSA 叠加编码 probe 会输出重复边 (2026-08-26 根因修复)
+        seen_e, seen_c = set(), set()
+        effects, causes = [], []
+        for dst, domain, _ in effects_raw:
+            t = (dst, domain)
+            if t in seen_e:
+                continue
+            seen_e.add(t)
+            effects.append((domain, dst, domain))
+        for src, domain, _ in causes_raw:
+            t = (src, domain)
+            if t in seen_c:
+                continue
+            seen_c.add(t)
+            causes.append((src, domain, domain))
 
         _prev_ec = self._cache.get(node_id, {}).get("explore_count", 0)
         self._cache[node_id] = {

@@ -5073,14 +5073,16 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 "promoted_concepts": data.get("promoted_concepts", []),
             }
             kg_path = path.replace(".json", "_kg.json")
+            # 先序列化到内存再写盘: 序列化中途崩溃会留下损坏半文件 (2026-08-26 exit neural 16KB 损坏根因)
             if orjson is not None:
-                # 紧凑 + gzip: 1GB→~250MB, 序列化内存峰值 1.5G→~800M (扩容关键)
+                kg_payload = orjson.dumps(kg_data, option=orjson.OPT_SERIALIZE_NUMPY)
                 with gzip.open(kg_path, 'wb', compresslevel=6) as f:
-                    f.write(orjson.dumps(kg_data, option=orjson.OPT_SERIALIZE_NUMPY))
+                    f.write(kg_payload)
             else:
+                kg_payload = json.dumps(kg_data, ensure_ascii=False,
+                                        default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o))
                 with gzip.open(kg_path, 'wt', compresslevel=6) as f:
-                    json.dump(kg_data, f, ensure_ascii=False,
-                              default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o))
+                    f.write(kg_payload)
 
             # 分离神经层 (cells, synaptic, cell_shelf)
             neural_data = {
@@ -5093,13 +5095,22 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             }
             neural_path = path.replace(".json", "_neural.json")
             if orjson is not None:
+                neural_payload = orjson.dumps(neural_data)
                 with gzip.open(neural_path, 'wb', compresslevel=6) as f:
-                    f.write(orjson.dumps(neural_data))
+                    f.write(neural_payload)
             else:
+                neural_payload = json.dumps(neural_data, ensure_ascii=False)
                 with gzip.open(neural_path, 'wt', compresslevel=6) as f:
-                    json.dump(neural_data, f, ensure_ascii=False)
+                    f.write(neural_payload)
             return True
         except Exception:
+            # 序列化/写入失败 → 清理可能留下的半文件, 避免 find_latest_snapshot 选中损坏快照
+            for p in (path, path.replace(".json", "_kg.json"), path.replace(".json", "_neural.json")):
+                try:
+                    if os.path.exists(p):
+                        os.remove(p)
+                except Exception:
+                    pass
             return False
 
     @staticmethod
