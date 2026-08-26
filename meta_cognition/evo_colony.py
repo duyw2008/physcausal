@@ -154,7 +154,7 @@ class EvoColony:
         self._resolved_nodes: set = set()  # 被解决矛盾
         self._active_goals: dict = {}  # 全局目标
         self._edge_last_seen: dict = {}  # 边活跃追踪
-        self._oracle_scores: Dict[Tuple[str, str], float] = {}  # ORACLE LLM 验证分数 (只记最近一次)
+        self._oracle_scores: Dict[Tuple[str, str], float] = {}  # 保留字段占位 (oracle 已摘除 2026-08-26)
         # Deep Dive 专注机制: 锁定一个课题深入 N 代
         self._focus: dict = {}  # {topic, locked_at, min_duration, hypotheses_seen, resolved}
         self._load_focus()
@@ -2412,10 +2412,6 @@ class EvoColony:
         interv_pe = min(1.0, untested / 20)
         candidates.append(("intervene", interv_pe, self._colony_intervene))
 
-        # ORACLE
-        oracle_pe = 0.3
-        candidates.append(("oracle", oracle_pe, self._llm_verify_hypotheses))
-
         # WHY/ALT: 重新启用 (max_depth=10 + try/except 防死循环)
         if not self._contradiction_nodes:
             self._detect_contradictions()
@@ -2472,90 +2468,7 @@ class EvoColony:
                         if len(self._contradiction_nodes) >= 40:
                             return
 
-    # ═══════ LLM oracle ═══════
-
-    def _llm_verify_hypotheses(self):
-        """挑 top 5 coincidence 最高的 hyp-node, 送 LLM 物理验证 (调度器控制频率)"""
-        # 降频: 每 50 代调一次
-        if self.generation % 50 != 0:
-            return
-        # 找 top 5 hyp-node (按 coincidence)
-        hyp_coinc = []
-        for (a, b), cnt in self._coincidence.items():
-            if cnt < 10:
-                continue
-            if a.startswith(self.HYPNODE_PREFIX):
-                hyp_coinc.append((a, cnt, b))
-            if b.startswith(self.HYPNODE_PREFIX):
-                hyp_coinc.append((b, cnt, a))
-        if not hyp_coinc:
-            return
-        # ORACLE 低分边降权: 已被 ORACLE 判低分 (<0.3) 的边排到后面
-        def _oracle_weight(item):
-            hyp_name, coinc, other = item
-            inner = hyp_name[len(self.HYPNODE_PREFIX):]
-            parts = inner.rsplit(':', 1)
-            if len(parts) == 2:
-                prev = self._oracle_scores.get((parts[0], parts[1]))
-                if prev is not None and prev < 0.3:
-                    return coinc * 0.01
-            return coinc
-        hyp_coinc.sort(key=lambda x: -_oracle_weight(x))
-        seen = set()
-        verified = 0
-        for hyp_name, coinc, other in hyp_coinc:
-            if hyp_name in seen:
-                continue
-            seen.add(hyp_name)
-            # 解析 src, dst
-            inner = hyp_name[len(self.HYPNODE_PREFIX):]
-            parts = inner.rsplit(':', 1)
-            if len(parts) != 2:
-                continue
-            src, dst = parts
-            try:
-                from llm.bridge import LLMBridge
-                from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
-                bridge = LLMBridge()
-                if not bridge.is_available():
-                    break
-                prompt = (
-                    f"Evaluate this physics hypothesis: \"{src} causes {dst}\".\n"
-                    f"Context: this emerged from an AI brain studying causal physics.\n"
-                    f"Is this relationship physically plausible?\n"
-                    f"Reply with ONLY a number 0-1 (0=impossible, 0.5=uncertain, 1=confirmed)."
-                )
-                # 超时保护: 15 秒没响应就跳过
-                with ThreadPoolExecutor(max_workers=1) as executor:
-                    future = executor.submit(
-                        bridge.client.chat,
-                        [{"role": "user", "content": prompt}], max_tokens=20
-                    )
-                    resp = future.result(timeout=15)
-                import re
-                match = re.search(r'([0-9]*\.?[0-9]+)', resp)
-                score = float(match.group(1)) if match else 0.5
-                score = max(0.0, min(1.0, score))
-                self._oracle_scores[(src, dst)] = score  # 记忆 ORACLE 评分，供下次选取参考
-                # 反写 s 值
-                key = (src, dst)
-                if key in self.synapse.activations:
-                    edge = self.synapse.activations[key]
-                    old_s = edge['s']
-                    # 平滑融合: 30% LLM + 70% 原有
-                    edge['s'] = old_s * 0.7 + score * 0.3
-                    verified += 1
-                    print(f"  [ORACLE] {src[:20]}→{dst[:20]} LLM={score:.2f} s:{old_s:.2f}→{edge['s']:.2f}")
-            except FutureTimeout:
-                print(f"  [ORACLE-TIMEOUT] {src[:20]}→{dst[:20]}")
-                break
-            except Exception as e:
-                print(f"  [ORACLE-ERR] {e}")
-                break
-            if verified >= 5:
-                break
-        if verified:
-            print(f"  [ORACLE] {verified} hypotheses verified by LLM (gen {self.generation})")
+    # ═══════ LLM oracle (已摘除 2026-08-26 — 0LLM 纯符号, 无 DEEPSEEK_API_KEY 时每次尝试都失败空转) ═══════
 
     def _analyze_structures(self):
         """结构识别: 检测图模式并用语言标注 (每500代)"""
