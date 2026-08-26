@@ -24,7 +24,7 @@ class ChemistryParams:
     DOPAMINE_PATH_LENGTH_EXPONENT = 1.5   # base = 1.0 × length^exponent
     DOPAMINE_CROSS_DOMAIN_PER_EXTRA = 3.0  # ↑2.0→3.0: 跨域更值钱
     DOPAMINE_CREATIVE_LEAP_MULT = 2.0      # 创意跳跃翻倍
-    DOPAMINE_NOVELTY_NEW = 0.3             # 新路径低reward (预测落空→该学)
+    DOPAMINE_NOVELTY_NEW = 0.8             # 新路径基线reward (探索行为值得奖, 非惩罚; 深耕仍更高)
     DOPAMINE_NOVELTY_KNOWN = 1.5           # 已知路径高reward (预测命中→模型对)
     PREDICTION_SURPRISE_DRIVE = 0.5        # 惊奇→提升curiosity探索驱动
     REGISTRATION_BONUS = 0.4               # 首次注册路径的激励 (非reward, 促进建模)
