@@ -2766,6 +2766,38 @@ class EvoColony:
 
         self._meta_values = dict(current_meta)
 
+    def _dedup_graph_edges(self) -> int:
+        """图自洽性约束: 合并重复边 — 同一对 (dst, domain) 只保留一条 (2026-08-26)
+
+        与因果闭包同类: 重复边是图不自洽, 睡眠期自动纠正。
+        脑不需要'知道'工程修复 — 结构约束逼它自洽 (喂种子不喂果子)。
+        只清列表冗余 (clear+extend 不走 VSA 同步, 向量叠加已含该边)。
+        """
+        removed = 0
+        for node_id, entry in list(self.graph._cache.items()):
+            for lst in ('effects', 'causes'):
+                items = entry.get(lst)
+                if not items or len(items) < 2:
+                    continue
+                seen = set()
+                keep = []
+                for e in items:
+                    if not isinstance(e, (list, tuple)) or len(e) < 3:
+                        keep.append(e)
+                        continue
+                    t = (e[1], e[2]) if lst == 'effects' else (e[0], e[2])
+                    if t in seen:
+                        removed += 1
+                        continue
+                    seen.add(t)
+                    keep.append(e)
+                if len(keep) != len(items):
+                    items.clear()
+                    items.extend(keep)
+        if removed:
+            print(f"  [SELF-HEAL] 合并 {removed} 条重复边 (图自洽约束)", flush=True)
+        return removed
+
     def _sleep_replay(self):
         print(f"  [SLEEP-IN] entering sleep gen={self.generation}", flush=True)
         """睡眠 = 突触归一化 (SHY假说)
@@ -2829,7 +2861,11 @@ class EvoColony:
                                                 if not (isinstance(c, (list, tuple)) and len(c) >= 2 and c[0] == src)]
         if pruned_graph:
             print(f"  [PRUNE_GRAPH] {pruned_graph} phantom emergent edges removed (no synapse support)")
-        
+
+        # 2.4. 图自洽性: 合并重复边 (同一对 dst+domain 只留一条)
+        #       与因果闭包同类 — 重复边是图不自洽, 睡眠期自动纠正 (2026-08-26)
+        self._dedup_graph_edges()
+
         # 2.5. 结构巩固: 高可信边 (t1/t2/t3, s>1, n≥2) 睡眠重放加固
         #       生物学类比: 慢波睡眠期间海马体向新皮层重放重要记忆
         consolidated = 0
