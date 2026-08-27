@@ -4,6 +4,18 @@
 
 ---
 
+## v1.4.2 (2026-08-27) — 发现记账去重补全 + 假设生成器认 confirmed
+
+### noether_brain 发现流防重复 (A)
+- **问题**: `log_discovery` 对同一 (source, src, dst) 每次都追加 → discoveries.jsonl 1231 条中 75% 是重复组合; 根因=每 500 代取最强突触 top3, 强边永远最强 → 永远重复记录
+- **修复**: 启动时加载历史 (source, src, dst) 到去重集合, 已记录的发现直接跳过不再追加; 只有**首次出现**的强突触对才记账
+- 效果: 发现流从"每 500 代记 3 条老面孔"变为"只记新组合"
+
+### 假设生成器认 confirmed (B)
+- **问题**: `should_skip` 只跳过 rejected/forbidden_blocked → 已确认的假设对 (如 mass↔force) 被反复提案, 类比引擎每次跑同一批
+- **修复**: `should_skip` 增加 confirmed → 已验证关系 = 低探索价值 (08-23 拍板原则落地), 生成器不再提案已确认对
+- 验证: 5 组 outcome 单测全 PASS (rejected/forbidden/confirmed→skip, pending/fresh→不skip); 去重逻辑模拟 PASS (历史加载 + 重复跳过 + 新增写入)
+
 ## v1.4.1 (2026-08-26) — intervene 记账去重
 
 ### discoveries.json 防灌水

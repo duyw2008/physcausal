@@ -82,7 +82,11 @@ def save_colony():
         json.dump(state, f, ensure_ascii=False, indent=2)
 
 def log_discovery(source: str, category: str, detail: dict):
-    """记录发现，标注来源: noether_brain vs graph_cell"""
+    """记录发现，标注来源: noether_brain vs graph_cell — 已记录的 (source,src,dst) 去重跳过"""
+    key = (source, detail.get("src"), detail.get("dst"))
+    if key in _seen_discoveries:
+        return  # 同一发现不重复记账 (强突触每500代刷新, 只有首次出现才记录)
+    _seen_discoveries.add(key)
     entry = {
         "timestamp": time.time(),
         "source": source,
@@ -93,6 +97,19 @@ def log_discovery(source: str, category: str, detail: dict):
     }
     with open(DISCOVERY_PATH, "a") as f:
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+# ── 发现记账去重: 启动时加载历史 (source,src,dst), 已记录的不再追加 ──
+_seen_discoveries = set()
+try:
+    with open(DISCOVERY_PATH) as f:
+        for _line in f:
+            try:
+                _e = json.loads(_line)
+                _seen_discoveries.add((_e.get("source"), _e.get("src"), _e.get("dst")))
+            except Exception:
+                pass
+except FileNotFoundError:
+    pass
 
 print(f"🧬 费曼脑启动 (☁️ 统一云架构)")
 print(f"   神经元: {len(colony.cells)}, 突触: {colony.graph.edge_count}")

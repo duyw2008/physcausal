@@ -110,9 +110,9 @@ def has_been_tried(var_a: str, var_b: str) -> Optional[str]:
 
 
 def should_skip(var_a: str, var_b: str) -> bool:
-    """这对是否应该跳过（已证实不好）"""
+    """这对是否应该跳过（已证实不好 / 已验证=低探索价值）"""
     outcome = has_been_tried(var_a, var_b)
-    return outcome in ("rejected", "forbidden_blocked")
+    return outcome in ("rejected", "forbidden_blocked", "confirmed")
 
 
 def calibrate_confidence(var_a: str, var_b: str, base_conf: float) -> float:
