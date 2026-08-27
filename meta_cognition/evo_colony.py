@@ -912,6 +912,11 @@ class EvoColony:
                         fam = self._coincidence.get((_src, _dst), 0)
                         rarity = 1.0 / (1.0 + math.log1p(fam))
                         settle *= max(0.2, rarity)  # 保底 20%: 学会行为仍值得奖, 不归零
+                        # 🆕 概念参与学习计数: 学会涉及的概念 = 有学习价值
+                        for _nd in (_src, _dst):
+                            _ne = self.graph.get(_nd)
+                            if _ne:
+                                _ne["learn_count"] = _ne.get("learn_count", 0) + 1
                     cell.receive_reward(settle)
                     self.total_rewards += settle
                     stats["rewards"] += int(settle)
@@ -2861,6 +2866,20 @@ class EvoColony:
                                                 if not (isinstance(c, (list, tuple)) and len(c) >= 2 and c[0] == src)]
         if pruned_graph:
             print(f"  [PRUNE_GRAPH] {pruned_graph} phantom emergent edges removed (no synapse support)")
+
+        # 2.35. 概念活跃度 → 失去被选择权 (2026-08-27, 人脑启发: 神经元不死, 连接死)
+        # 被走过 ≥INACTIVE_EXPLORE_MIN 次但零学习产出 → 不再被细胞随机选择
+        # 未探索概念 (explore=0) 不受影响; 参与学习后自动解除 (每轮睡眠全量重算, 可逆)
+        _INACTIVE_EXPLORE_MIN = 10
+        _ina = {
+            _nid for _nid, _nd in self.graph._cache.items()
+            if _nd.get("explore_count", 0) >= _INACTIVE_EXPLORE_MIN
+            and _nd.get("learn_count", 0) == 0
+        }
+        if _ina != self.graph.inactive_concepts:
+            self.graph.inactive_concepts = _ina
+            print(f"  [INACTIVE] {len(_ina)} concepts lost selection "
+                  f"(explored>={_INACTIVE_EXPLORE_MIN}, zero learning)")
 
         # 2.4. 图自洽性: 合并重复边 (同一对 dst+domain 只留一条)
         #       与因果闭包同类 — 重复边是图不自洽, 睡眠期自动纠正 (2026-08-26)

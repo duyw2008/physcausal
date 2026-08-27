@@ -314,6 +314,9 @@ class VSAGraph:
         self.vsa = vsa or VSAEngine()  # 覆盖 __new__ 里的 _DummyVSA
         self._cache: Dict[str, dict] = {}
         self._dirty: Set[str] = set()
+        # 🧠 概念活跃度 → 失去被选择权 (2026-08-27): 被走过但零学习产出的概念
+        # 睡眠期更新, 细胞随机选择时过滤 — 不删概念, 只是不再被走 (神经元不死, 连接死)
+        self.inactive_concepts: set = set()
 
     # ═══ 内部: VSA 同步 ═══
 
@@ -335,6 +338,7 @@ class VSAGraph:
                 "effects": _WriteThroughList([],
                     _vsa_graph=self, _node_id=node_id, _direction="effects"),
                 "explore_count": 0,  # 🆕 节点被探索次数 (EIG 价值消耗)
+                "learn_count": 0,    # 🆕 节点参与 SETTLE 学会次数 (价值=参与学习回路)
             }
         elif node_id in self._dirty:
             self._rebuild_cache(node_id)
@@ -446,12 +450,14 @@ class VSAGraph:
             causes.append((src, domain, domain))
 
         _prev_ec = self._cache.get(node_id, {}).get("explore_count", 0)
+        _prev_lc = self._cache.get(node_id, {}).get("learn_count", 0)
         self._cache[node_id] = {
             "causes": _WriteThroughList(causes,
                 _vsa_graph=self, _node_id=node_id, _direction="causes"),
             "effects": _WriteThroughList(effects,
                 _vsa_graph=self, _node_id=node_id, _direction="effects"),
             "explore_count": _prev_ec,  # 🆕 重建缓存保留探索计数
+            "learn_count": _prev_lc,    # 🆕 重建缓存保留学习计数
         }
         self._dirty.discard(node_id)
 

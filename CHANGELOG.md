@@ -4,6 +4,15 @@
 
 ---
 
+## v1.4.3 (2026-08-27) — 概念生态位: 价值=参与学习回路, 碎片失去被选择权
+
+人脑启发 (神经元不死, 连接死; 价值长在连接里, 不建表)。不是黑名单, 是生态压力: 概念被走过但零学习产出 → 不再被细胞选择。
+
+- **记账**: 节点新增 `learn_count` (参与 SETTLE 学会次数, rebuild 保留); `explore_count` 已有 (被 step_forward 到达次数)
+- **睡眠扫描**: 每轮睡眠全量重算 `graph.inactive_concepts` = {被走过 ≥10 次 且 learn_count==0}。未探索概念 (explore=0) 不受影响; 参与学习后自动解除 — 可逆, 不误杀
+- **失去被选择权**: 细胞 step_forward 的三个随机入口 (创意跳跃 15% / random_jump 2.5% / ε-greedy 与加权采样选边) 全部过滤 inactive 概念。碎片 (m1/m2/q1/E_n) 不再被踩 → 边失去突触支撑 → 睡眠自然剪除
+- 验证: py_compile 3 文件 + 单元验证 (字段初始化 / rebuild 保留 / 判定逻辑: m1,q1→inactive; mass,fresh,E_n→活跃) 全 PASS
+
 ## v1.4.2 (2026-08-27) — 发现记账去重补全 + 假设生成器认 confirmed
 
 ### noether_brain 发现流防重复 (A)

@@ -491,14 +491,22 @@ class EvolvableCell:
         dendritic = self._dendritic_sense() if len(verified) >= 2 else {}
 
         # 随机连接形成: 15%概率跳到图中任意节点 (创意跳跃)
+        # 🧠 价值判断: 跳过失去被选择权的概念 (被走过但零学习产出)
+        _ina = getattr(self.graph, 'inactive_concepts', set())
         if random.random() < 0.15:
-            all_nodes = list(self.graph.keys())
+            all_nodes = [n for n in self.graph if n not in _ina] or list(self.graph.keys())
             if all_nodes:
                 new_node = random.choice(all_nodes)
                 old = self.node
                 self.node = new_node
                 self.current_walk.append((old, "creative_leap", new_node))
                 return {"type": "creative_leap", "from": old, "to": new_node}
+
+        # 🧠 价值判断: 目标在 inactive 集 → 剔除 (碎片概念失去被选择权, 沿边也走不到)
+        if _ina:
+            _filtered = [v for v in verified if v[1] not in _ina]
+            if _filtered:
+                verified = _filtered
 
         if not verified:
             return {"type": "step_forward", "result": "dead_end", "node": self.node}
@@ -595,7 +603,7 @@ class EvolvableCell:
         # 🧠 随机突触新生: 2.5%概率跳到图中任意节点, 创建全新连接
         # 不同于ε-greedy(随机选已有边), 这是跨越式探索——连接原本无关联的概念
         elif random.random() < 0.025:
-            all_nodes = list(self.graph.keys())
+            all_nodes = [n for n in self.graph if n not in _ina] or list(self.graph.keys())
             if all_nodes:
                 dst = random.choice(all_nodes)
                 law = "random_jump"
