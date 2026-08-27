@@ -2876,10 +2876,19 @@ class EvoColony:
             if _nd.get("explore_count", 0) >= _INACTIVE_EXPLORE_MIN
             and _nd.get("learn_count", 0) == 0
         }
+        # 入口把控的存量兜底: 公式变量碎片 (m1/q1/E_n 模式) 直接失去被选择权, 不用等 explore 积累
+        from meta_cognition.vsa_memory import _FORMULA_VAR_RE as _fvr
+        _ina |= {_nid for _nid in self.graph._cache if _fvr.match(_nid)}
         if _ina != self.graph.inactive_concepts:
             self.graph.inactive_concepts = _ina
             print(f"  [INACTIVE] {len(_ina)} concepts lost selection "
-                  f"(explored>={_INACTIVE_EXPLORE_MIN}, zero learning)")
+                  f"(explored>={_INACTIVE_EXPLORE_MIN}, zero learning | formula-vars)")
+        # 入口把控日志: 本轮被映射/丢弃的公式变量
+        if self.graph._blocked_entries or self.graph._mapped_entries:
+            print(f"  [ENTRY-GUARD] mapped={self.graph._mapped_entries} "
+                  f"blocked={self.graph._blocked_entries} formula-vars (入口把关)")
+            self.graph._blocked_entries = 0
+            self.graph._mapped_entries = 0
 
         # 2.4. 图自洽性: 合并重复边 (同一对 dst+domain 只留一条)
         #       与因果闭包同类 — 重复边是图不自洽, 睡眠期自动纠正 (2026-08-26)

@@ -300,6 +300,39 @@ class _DummyVSA:
     def keys(self): return iter([])
 
 
+import re as _re
+
+# ═══ 入口知识把控 (2026-08-27) ═══
+# 公式变量占位符 (m1/m2/q1/r/E_n...) 不是物理概念: 能明确映射的映射到概念, 不能的丢弃
+# 防止把数学符号当概念喂给脑 — 入口把关 (增量), 睡眠生态位兜底 (存量)
+_FORMULA_VAR_RE = _re.compile(
+    r'^[A-Za-z]$'                  # 单字母: m, n, F, a, x, g, Z
+    r'|^[A-Za-z]\d+$'              # 字母+数字: m1, m2, q1, v1, n2
+    r'|^[A-Za-z]_[A-Za-z0-9]+$'    # 字母_字母/数字: E_n, E_f, n_e, F_mn
+    r'|^[A-Za-z]\d*_prime$'        # prime: v1_prime, v2_prime
+)
+_FORMULA_MAP = {
+    'm': 'mass', 'm1': 'mass', 'm2': 'mass',
+    'q': 'charge', 'q1': 'charge', 'q2': 'charge',
+    'r': 'distance',
+    'v': 'velocity', 'v1': 'velocity', 'v2': 'velocity',
+    'v1_prime': 'velocity', 'v2_prime': 'velocity',
+    'x': 'displacement',
+    'k': 'elastic_constant',
+    'F': 'force', 'a': 'acceleration', 't': 'time',
+    'E_n': 'energy_level', 'E_f': 'energy_level',
+}
+
+def normalize_concept(name: str):
+    """入口把关: 公式变量 → 映射到物理概念; 无法映射的碎片 → None (丢弃)"""
+    n = _FORMULA_MAP.get(name)
+    if n is not None:
+        return n
+    if _FORMULA_VAR_RE.match(name):
+        return None
+    return name
+
+
 class VSAGraph:
     """VSA 支持的图, 对外接口完全兼容 dict[node_id] → {effects, causes}"""
 
@@ -317,6 +350,9 @@ class VSAGraph:
         # 🧠 概念活跃度 → 失去被选择权 (2026-08-27): 被走过但零学习产出的概念
         # 睡眠期更新, 细胞随机选择时过滤 — 不删概念, 只是不再被走 (神经元不死, 连接死)
         self.inactive_concepts: set = set()
+        # 🧠 入口知识把控计数 (2026-08-27): 公式变量映射/丢弃
+        self._blocked_entries = 0
+        self._mapped_entries = 0
 
     # ═══ 内部: VSA 同步 ═══
 
@@ -373,6 +409,14 @@ class VSAGraph:
     # ═══ dict-like 写接口 ═══
 
     def setdefault(self, node_id: str, default=None):
+        # 🧠 入口把控: 公式变量映射/丢弃 (2026-08-27)
+        _norm = normalize_concept(node_id)
+        if _norm is None:
+            self._blocked_entries += 1
+            return {"causes": [], "effects": []}  # 丢弃: 不建节点, 调用方 append 不持久
+        if _norm != node_id:
+            self._mapped_entries += 1
+            node_id = _norm
         self.vsa.get_or_create_vector(node_id)
         if node_id not in self._cache:
             entry = default or {"causes": [], "effects": []}
@@ -387,6 +431,14 @@ class VSAGraph:
         return self._cache[node_id]
 
     def __setitem__(self, node_id: str, value: dict):
+        # 🧠 入口把控: 公式变量映射/丢弃 (2026-08-27)
+        _norm = normalize_concept(node_id)
+        if _norm is None:
+            self._blocked_entries += 1
+            return
+        if _norm != node_id:
+            self._mapped_entries += 1
+            node_id = _norm
         self.vsa.get_or_create_vector(node_id)
         value.setdefault("explore_count", 0)  # 🆕 外部条目兜底
         # 确保 lists 是 write-through
@@ -403,6 +455,15 @@ class VSAGraph:
         """显式加边: VSA + 缓存双写"""
         if domain == self.BLOCKED_DOMAIN:
             return
+        # 🧠 入口把控: 公式变量映射/丢弃 (2026-08-27)
+        _ns = normalize_concept(src)
+        _nd = normalize_concept(dst)
+        if _ns is None or _nd is None:
+            self._blocked_entries += 1
+            return
+        if _ns != src or _nd != dst:
+            self._mapped_entries += 1
+        src, dst = _ns, _nd
         self.vsa.add_edge(src, dst, domain, strength)
         # 缓存写入
         s = self.setdefault(src, {"causes": [], "effects": []})

@@ -4,6 +4,18 @@
 
 ---
 
+## v1.4.4 (2026-08-27) — 入口知识把控: 公式变量归一化, 不喂碎片
+
+用户拍板: 入口的知识要把控住, 不能给脑天天注入噪音学习。
+
+- **问题**: laws.py 的 causal_direction 把公式占位符 (m1/m2/q1/r/E_n...) 当概念建边进图 → 假设/发现被碎片污染; 生态位 (v1.4.3) 只做事后淘汰, 源头还在喂
+- **修复**: `normalize_concept()` 统一入口把关, 接入 VSAGraph.setdefault/__setitem__/add_edge (所有建节点/建边路径, 含 feed 脚本)
+  - 能明确映射的映射到物理概念: m/m1/m2→mass, q/q1/q2→charge, r→distance, v/v1/v2→velocity, x→displacement, k→elastic_constant, F→force, a→acceleration, t→time, E_n/E_f→energy_level, v*_prime→velocity — **不丢知识还顺带去重**
+  - 不能映射的丢弃: n/n1/n2/n_e/n_q/Z/mu 等 (量子数/折射率等不明确) — 不建节点不建边
+  - 计数器 `_blocked_entries`/`_mapped_entries`, 睡眠时打印 [ENTRY-GUARD]
+- **存量兜底**: 睡眠扫描把公式变量模式节点直接加入 inactive (失去被选择权), 不用等 explore 积累
+- 验证: 16 组 normalize 测试 (m1→mass, n2→None, 4d_metric/mu/中文概念不受影响) + 入口拦截集成测试 (m1 不建节点, n_q 丢弃, mass 正确映射) 全 PASS
+
 ## v1.4.3 (2026-08-27) — 概念生态位: 价值=参与学习回路, 碎片失去被选择权
 
 人脑启发 (神经元不死, 连接死; 价值长在连接里, 不建表)。不是黑名单, 是生态压力: 概念被走过但零学习产出 → 不再被细胞选择。
