@@ -155,6 +155,36 @@ QFT_BOOK_LAWS = [
                [], ConstraintType.DAG_EDGE, lambda: 1.0,
                [("gauge_fixing", "ghost_field"), ("ghost_field", "brst"),
                 ("lattice_qcd", "quark_confinement"), ("wilson_loop", "quark_confinement")]),
+
+    # ── 多方程身份增强 (2026-08-27): 关键概念跨独立定律出现 ──
+    # 同一概念在多个独立方程中扮演角色 → 脑通过多元约束收敛深层语义
+    # (类比词向量: 词义 = 它出现的所有上下文; 物理: mass 在力学/GR/量子三面)
+    PhysicsLaw("Lagrangian Origin", "qft", r"拉格朗日密度 → 各类场方程",
+               ["lagrangian_density"], ["klein_gordon", "dirac_field", "maxwell_field",
+                                        "noether_current", "gauge_field"],
+               ConstraintType.DAG_EDGE, lambda: 1.0,
+               [("lagrangian_density", "klein_gordon"), ("lagrangian_density", "dirac_field"),
+                ("lagrangian_density", "maxwell_field"), ("lagrangian_density", "noether_current"),
+                ("lagrangian_density", "gauge_field")]),
+    PhysicsLaw("Quantization Origin", "qft", r"量子化 → 零点能/传播子",
+               ["canonical_quantization", "path_integral"],
+               ["zero_point_energy", "feynman_propagator", "commutation_relation"],
+               ConstraintType.DAG_EDGE, lambda: 1.0,
+               [("canonical_quantization", "zero_point_energy"),
+                ("path_integral", "feynman_propagator"),
+                ("canonical_quantization", "commutation_relation")]),
+    PhysicsLaw("Renormalization Context", "qft", r"有效场论 → 重整化群",
+               ["effective_field_theory"], ["renormalization_group", "running_coupling"],
+               ConstraintType.DAG_EDGE, lambda: 1.0,
+               [("effective_field_theory", "renormalization_group"),
+                ("effective_field_theory", "running_coupling")]),
+    PhysicsLaw("Gauge Family", "qft", r"规范场家族: 光子/W/Z/胶子",
+               ["gauge_field", "gauge_boson"], ["photon", "w_boson", "z_boson", "gluon"],
+               ConstraintType.DAG_EDGE, lambda: 1.0,
+               [("gauge_field", "photon"), ("gauge_field", "w_boson"),
+                ("gauge_field", "z_boson"), ("gauge_field", "gluon"),
+                ("gauge_boson", "photon"), ("gauge_boson", "w_boson"),
+                ("gauge_boson", "z_boson"), ("gauge_boson", "gluon")]),
 ]
 
 
