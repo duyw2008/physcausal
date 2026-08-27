@@ -1488,6 +1488,13 @@ def feed_enrichment(force: bool = False) -> int:
             added += 1
             new_edges += len(new_for_this_law)
     
+    # 📖 QFT 书加料: 一读就懂的量子场论 → 白名单 (2026-08-27)
+    try:
+        from physics.qft_book_laws import register_qft_book
+        added += register_qft_book()
+    except Exception:
+        pass
+    
     _ENRICHED = True
     if added > 0:
         print(f"🧪 物理加料: +{added}定律, +{new_edges}边 "
