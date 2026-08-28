@@ -1,49 +1,16 @@
+# Runtime state — never commit (915MB+)
+data/
+*.log
+
+# Python
 __pycache__/
 *.pyc
-*.pyo
-.hermes/
-reports/
-data/cv_summary.json
-data/focus.json
-data/completed_suggestions.json
-data/scores.json
-data/salience.json
-data/autonomous_state.json
-# huge runtime data — not for git
-data/evo_snapshot_*.json
-data/cell_shelf.json
-data/coincidence.json
-data/discoveries.json
-data/discoveries.jsonl
-data/emergent_edges.json
-data/auto_laws.json
-data/injected_edges.json
-data/proprioception.json
-data/evo_output.log
+.venv/
+env/__pycache__/
 
-# 备份与原始 feed 数据 — not for git
-data/feed_processed/
-physcausal_backups/
-data/evo_output.log.bak*
+# Local config
+config/*.local.json
+.env
 
-# 运行时数据 — not for git (2026-08-26 清理: 已跟踪文件用 git rm --cached 解除)
-data/.arxiv_fed_state.json
-data/_abstracts_cache.json
-data/active_goals.json
-data/arxiv_promoted.jsonl
-data/arxiv_reading_list.jsonl
-data/contradictions.json
-data/crash.log
-data/evo.pid
-data/evo_colony.json
-data/evo_log.jsonl
-data/feynman_chat_history.json
-data/focus_commitment.json
-data/knowledge_graph.json
-data/known_paths.txt
-data/memory.json
-data/paper_tracker.json
-data/research_plan.json
-data/research_record.json
-data/synaptic_memory.json
-data/walk_memory.json
+# OS
+.DS_Store

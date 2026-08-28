@@ -1112,11 +1112,16 @@ class EvoColony:
             # 📡 感官输入: 消费 feed_queue.jsonl (统一外部输入管道)
             self.feed_queue.consume_all(self)
             # ☁️ 独立睡眠 — 每代触发, 在最前面谁也别想挡
-            # ⚡ total_walks 已由 _step_neurons 缓存, 不再单独遍历
-            total_walks = getattr(self, '_cached_total_walks', 0)
-            self._sleep_pressure += total_walks * 0.0015
+            # ⚡ 睡眠压力自适应 (2026-08-28): 由突触净增长驱动 —
+            #    突触长得快 → 压力涨快 → 睡得勤 (修剪膨胀);
+            #    突触稳定 → 压力不涨 → 睡得疏 (省全图扫描开销)。
+            #    保底 +0.005: 零增长时最疏 ~60 代一睡 (睡眠还负责幽灵边/概念活跃度)
+            syn_now = len(self.synapse.activations)
+            growth = syn_now - getattr(self, '_syn_last', syn_now)
+            self._syn_last = syn_now
+            self._sleep_pressure += max(0.0, growth) * 3e-4 + 0.005
             if self.generation % 5 == 0:
-                print(f"  [ZZZ] pressure={self._sleep_pressure:.1f} walks={total_walks}")
+                print(f"  [ZZZ] pressure={self._sleep_pressure:.2f} growth={growth:+d} syn={syn_now}")
             if self._sleep_pressure > 0.3:
                 print(f"  [SLEEP-TRIGGER] pressure={self._sleep_pressure:.1f} gen={self.generation}", flush=True)
                 try:
@@ -1904,23 +1909,8 @@ class EvoColony:
                       f"reward(mean={sum(rewards)/n:.1f} p50={rewards[n//2]:.1f} max={rewards[-1]:.1f}) "
                       f"split={stats['births']/max(n,1):.2%} edges={self.graph.edge_count}")
 
-            # 独立睡眠 — 每代检查, 云架构频繁触发
-            total_walks = sum(len(getattr(c, 'walk_memory', [])) for c in self.cells)
-            self._sleep_pressure += total_walks * 0.0015
-            if self.generation % 5 == 0:
-                print(f"  [ZZZ] pressure={self._sleep_pressure:.1f} walks={total_walks}")
-            if self._sleep_pressure > 0.3:
-                print(f"  [SLEEP-TRIGGER] pressure={self._sleep_pressure:.1f} gen={self.generation}", flush=True)
-                try:
-                    self._sleep_replay()
-                except Exception as e:
-                    print(f"  [SLEEP-ERR] {e}")
-                    import traceback
-                    traceback.print_exc()
-                self._sleep_pressure = 0.0
-            
-            # 📖 arXiv 闸门: 每 20 代检查晋升
-            if self.generation % 20 == 0:
+        # 📖 arXiv 闸门: 每 20 代检查晋升
+        if self.generation % 20 == 0:
                 self.arxiv_reading.check_promotions(self)
 
         # 认知调度: 竞争激活, 脑自己决定现在该做什么
@@ -5355,8 +5345,18 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
     def _seed_chaotic_brain(self):
         """🧠 婴儿先密后疏: 在突触层注入 29 个物理节点间的随机低 s 边。
         教科书 (vs.cache) 不变 — 只污染费曼自己的脑。
-        走多了→髓鞘化, 不走→自然修剪。"""
+        走多了→髓鞘化, 不走→自然修剪。
+
+        🩹 2026-08-28: 播种仅限空脑(首次启动)。重启不再重播 —
+        混沌边"不走→自然修剪"淘汰后应彻底消失, 重启复活=洗白弱边,
+        且重启时把已存在弱边 s 拉高会让它们永不衰减 (膨胀帮凶)。
+        """
         import random as _rnd
+
+        # 仅婴儿(空突触层)播种: 重启恢复后突触非空, 跳过
+        if len(self.synapse.activations) > 0:
+            print(f"  [CHAOS] skipped — synapse already has {len(self.synapse.activations)} edges (婴儿播种仅限首次)")
+            return
 
         # 29 个已知物理节点 + 实验 + 哲学 (所有教科书节点)
         _PHYSICS_NODES = [
@@ -5407,16 +5407,12 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 # 物理核心之间: s=0.5~0.8 | 其余: s=0.1~0.3
                 base_lo, base_hi = (0.5, 0.8) if (src in CORE_PHYSICS and dst in CORE_PHYSICS) else (0.1, 0.3)
                 if key in self.synapse.activations:
-                    old_s = self.synapse.activations[key].get('s', 0)
-                    if old_s < base_lo:
-                        self.synapse.activations[key]['s'] = _rnd.uniform(base_lo, base_hi)
-                        seeded += 1
-                else:
-                    self.synapse.activations[key] = {
-                        'n': set(), 'g': self.generation,
-                        's': _rnd.uniform(base_lo, base_hi), 'c': 0
-                    }
-                    seeded += 1
+                    continue  # 已存在边不动 — 尊重脑自己的衰减/增强 (不洗白)
+                self.synapse.activations[key] = {
+                    'n': set(), 'g': self.generation,
+                    's': _rnd.uniform(base_lo, base_hi), 'c': 0
+                }
+                seeded += 1
 
         if seeded:
             print(f"  [CHAOS] +{seeded} chaotic edges seeded ({len(physics_nodes)} nodes, 婴儿先密后疏)")

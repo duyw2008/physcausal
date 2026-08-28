@@ -3,7 +3,7 @@
 set -e
 
 echo "=== 1. 清 pycache ==="
-rm -rf /home/duyw/physcausal/meta_cognition/__pycache__
+rm -rf /home/duyw/Agent/physcausal/meta_cognition/__pycache__
 echo "done"
 
 echo "=== 2. 停脑 ==="
@@ -18,9 +18,9 @@ echo "done"
 
 echo "=== 3. 启脑 ==="
 systemd-run --user --unit=feynman-brain --same-dir --collect \
-  bash -c 'cd /home/duyw/physcausal && exec /usr/bin/python3 -u run_evo.py >> data/evo_output.log 2>&1'
+  bash -c 'cd /home/duyw/Agent/physcausal && exec /usr/bin/python3 -u run_evo.py >> data/evo_output.log 2>&1'
 echo "done"
 
 sleep 2
 echo "=== 4. 验证 ==="
-pgrep -f '/usr/bin/python3.*run_evo' && echo "RUNNING" || echo "检查日志: tail ~/physcausal/data/evo_output.log"
+pgrep -f '/usr/bin/python3.*run_evo' && echo "RUNNING" || echo "检查日志: tail ~/Agent/physcausal/data/evo_output.log"

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<title>诺特脑 — Noether's Brain</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#0a0a14; color:#c8d6e5; font-family:monospace; padding:20px; }
+.header { text-align:center; margin-bottom:20px; }
+.header h1 { color:#feca57; font-size:24px; }
+.header p { color:#8395a7; font-size:12px; }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:1200px; margin:0 auto; }
+.card { background:#14142b; border:1px solid #2d2d5e; border-radius:8px; padding:16px; }
+.card h2 { color:#48dbfb; font-size:14px; margin-bottom:8px; border-bottom:1px solid #2d2d5e; padding-bottom:4px; }
+.bar { display:flex; align-items:center; margin:2px 0; font-size:11px; }
+.bar-label { width:100px; text-align:right; padding-right:8px; color:#8395a7; }
+.bar-fill { height:14px; border-radius:3px; min-width:2px; }
+.bar-val { width:50px; padding-left:6px; color:#c8d6e5; font-size:10px; }
+.node-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin:2px; }
+.synapse { display:flex; align-items:center; margin:3px 0; font-size:11px; }
+.synapse-src { color:#feca57; }
+.synapse-arrow { color:#576574; margin:0 6px; }
+.synapse-dst { color:#48dbfb; }
+.synapse-info { color:#8395a7; font-size:10px; margin-left:8px; }
+.stats { color:#8395a7; font-size:11px; margin-top:8px; }
+</style></head><body>
+<div class="header">
+<h1>🧬 诺特脑 — Noether's Brain</h1>
+<p>代 0 | 20 神经元 | 548 边 | 110 突触 | 0 行动</p>
+</div>
+
+<div class="grid">
+
+<!-- 基因组分布 -->
+<div class="card">
+<h2>🧬 基因组分布</h2>
+<div class="bar"><span class="bar-label">step_forward</span><div class="bar-fill" style="width:48px;background:#00d2d3"></div><span class="bar-val">0.167</span></div>
+<div class="bar"><span class="bar-label">step_backward</span><div class="bar-fill" style="width:48px;background:#01a3a4"></div><span class="bar-val">0.167</span></div>
+<div class="bar"><span class="bar-label">mark</span><div class="bar-fill" style="width:48px;background:#feca57"></div><span class="bar-val">0.167</span></div>
+<div class="bar"><span class="bar-label">echo</span><div class="bar-fill" style="width:48px;background:#ff9ff3"></div><span class="bar-val">0.167</span></div>
+<div class="bar"><span class="bar-label">split</span><div class="bar-fill" style="width:48px;background:#54a0ff"></div><span class="bar-val">0.167</span></div>
+
+<div class="stats">四策略均衡: 探索33.3% | 标记16.7% | 分裂16.7% | 回声16.7%</div>
+</div>
+
+<!-- 神经元热点 -->
+<div class="card">
+<h2>📍 神经元聚集 (top 15)</h2>
+<div class="bar"><span class="bar-label">momentum</span><div class="bar-fill" style="width:200px;background:#feca57"></div><span class="bar-val">1</span></div>
+<div class="bar"><span class="bar-label">energy</span><div class="bar-fill" style="width:200px;background:#feca57"></div><span class="bar-val">1</span></div>
+<div class="bar"><span class="bar-label">x</span><div class="bar-fill" style="width:200px;background:#feca57"></div><span class="bar-val">1</span></div>
+<div class="bar"><span class="bar-label">m1</span><div class="bar-fill" style="width:200px;background:#feca57"></div><span class="bar-val">1</span></div>
+<div class="bar"><span class="bar-label">force_gravity</span><div class="bar-fill" style="width:200px;background:#feca57"></div><span class="bar-val">1</span></div>
+<div class="bar"><span class="bar-label">m2</span><div class="bar-fill" style="width:200px;background:#feca57"></div><span class="bar-val">1</span></div>
+<div class="bar"><span class="bar-label">r</span><div class="bar-fill" style="width:200px;background:#feca57"></div><span class="bar-val">1</span></div>
+<div class="bar"><span class="bar-label">length</span><div class="bar-fill" style="width:200px;background:#feca57"></div><span class="bar-val">1</span></div>
+<div class="bar"><span class="bar-label">period</span><div class="bar-fill" style="width:200px;background:#feca57"></div><span class="bar-val">1</span></div>
+<div class="bar"><span class="bar-label">g</span><div class="bar-fill" style="width:200px;background:#feca57"></div><span class="bar-val">1</span></div>
+<div class="bar"><span class="bar-label">elastic_constant</span><div class="bar-fill" style="width:200px;background:#feca57"></div><span class="bar-val">1</span></div>
+<div class="bar"><span class="bar-label">angular_velocity</span><div class="bar-fill" style="width:200px;background:#feca57"></div><span class="bar-val">1</span></div>
+<div class="bar"><span class="bar-label">m</span><div class="bar-fill" style="width:200px;background:#feca57"></div><span class="bar-val">1</span></div>
+<div class="bar"><span class="bar-label">v1_prime</span><div class="bar-fill" style="width:200px;background:#feca57"></div><span class="bar-val">1</span></div>
+<div class="bar"><span class="bar-label">v1</span><div class="bar-fill" style="width:200px;background:#feca57"></div><span class="bar-val">1</span></div>
+
+<div class="stats">20 个不同节点</div>
+</div>
+
+<!-- 突触强化 -->
+<div class="card">
+<h2>🧠 最强突触 (LTP)</h2>
+<div class="synapse"><span class="synapse-src">force</span><span class="synapse-arrow">→</span><span class="synapse-dst">acceleration</span><span class="synapse-info">t4 ❓ (16神经元)</span></div>
+<div class="synapse"><span class="synapse-src">mass</span><span class="synapse-arrow">→</span><span class="synapse-dst">force_gravity</span><span class="synapse-info">t4 ❓ (12神经元)</span></div>
+<div class="synapse"><span class="synapse-src">force_electric</span><span class="synapse-arrow">→</span><span class="synapse-dst">acceleration</span><span class="synapse-info">t4 ❓ (12神经元)</span></div>
+<div class="synapse"><span class="synapse-src">cross_section</span><span class="synapse-arrow">→</span><span class="synapse-dst">velocity</span><span class="synapse-info">t4 ❓ (11神经元)</span></div>
+<div class="synapse"><span class="synapse-src">acceleration</span><span class="synapse-arrow">→</span><span class="synapse-dst">velocity</span><span class="synapse-info">t4 ❓ (10神经元)</span></div>
+<div class="synapse"><span class="synapse-src">m</span><span class="synapse-arrow">→</span><span class="synapse-dst">F</span><span class="synapse-info">t4 ❓ (10神经元)</span></div>
+<div class="synapse"><span class="synapse-src">m2</span><span class="synapse-arrow">→</span><span class="synapse-dst">v1_prime</span><span class="synapse-info">t4 ❓ (10神经元)</span></div>
+<div class="synapse"><span class="synapse-src">m</span><span class="synapse-arrow">→</span><span class="synapse-dst">angular_velocity</span><span class="synapse-info">t4 ❓ (9神经元)</span></div>
+<div class="synapse"><span class="synapse-src">v1</span><span class="synapse-arrow">→</span><span class="synapse-dst">v2_prime</span><span class="synapse-info">t4 ❓ (9神经元)</span></div>
+<div class="synapse"><span class="synapse-src">r</span><span class="synapse-arrow">→</span><span class="synapse-dst">force_electric</span><span class="synapse-info">t4 ❓ (8神经元)</span></div>
+<div class="synapse"><span class="synapse-src">m2</span><span class="synapse-arrow">→</span><span class="synapse-dst">force_gravity</span><span class="synapse-info">t4 ❓ (8神经元)</span></div>
+<div class="synapse"><span class="synapse-src">elastic_constant</span><span class="synapse-arrow">→</span><span class="synapse-dst">angular_velocity</span><span class="synapse-info">t4 ❓ (8神经元)</span></div>
+
+<div class="stats">110 条边有突触连接</div>
+</div>
+
+<!-- 记忆域分布 -->
+<div class="card">
+<h2>📚 神经元记忆域</h2>
+
+<div class="stats">0 个域, 0 条总记忆</div>
+</div>
+
+</div>
+
+<div style="text-align:center;margin-top:20px;color:#576574;font-size:10px;">
+诺特脑 v0.4.0 | δS=0 | 20神经元 | 110突触 | 日志: data/evo_log.jsonl (139922字节)
+</div>
+
+</body></html>
