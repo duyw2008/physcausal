@@ -108,9 +108,12 @@ class SynapticLayer:
             'tiers': {f"{k[0]}|||{k[1]}": v for k, v in self.tiers.items()},
             'retrograde': {f"{k[0]}|||{k[1]}": round(v, 2) for k, v in self.retrograde.items()},
             'physics': {f"{k[0]}|||{k[1]}": v for k, v in self._physics_results.items()},
+            # 🆕 上次点火时间 (2026-08-29): 不保存则重启后 _last_fired 为空,
+            # decay 把全部边当"从未点火"按创建代 age 瞬间清零 — "重启洗白弱边"根因
+            'last_fired': {f"{k[0]}|||{k[1]}": v for k, v in self._last_fired.items()},
         }
 
-    def from_dict(self, data: dict):
+    def from_dict(self, data: dict, generation: int = 0):
         """从快照恢复"""
         if not data:
             return
@@ -138,6 +141,24 @@ class SynapticLayer:
             parts = k.split('|||')
             if len(parts) == 2:
                 self._physics_results[(parts[0], parts[1])] = v
+        # 🆕 恢复上次点火时间 (2026-08-29): 缺失时回退到创建代 g —
+        # 保证老边按真实点火时间慢衰减, 不被"从未点火"分支瞬间清零
+        restored_fired = 0
+        for k, v in data.get('last_fired', {}).items():
+            parts = k.split('|||')
+            if len(parts) == 2:
+                self._last_fired[(parts[0], parts[1])] = int(v)
+                restored_fired += 1
+        if not data.get('last_fired'):
+            # 旧快照无 last_fired 字段: 用恢复时刻代兜底 (视为刚点火, 不被秒删)
+            # 注意: 用 g(创建代)会老边 age 巨大被秒清 — 重启洗白弱边根因 (2026-08-29)
+            _restore_gen = generation if generation > 0 else max(
+                (int(e.get('g', 0)) for e in self.activations.values()), default=0)
+            for k in self.activations:
+                self._last_fired[k] = _restore_gen
+            restored_fired = len(self.activations)
+        if restored_fired:
+            print(f"  [SYN-RESTORE] {restored_fired} last_fired entries restored (防重启洗白弱边)")
         self._load()
 
     # ── 前向操作 (不变) ──
@@ -512,7 +533,9 @@ class SynapticLayer:
                         's': info.get('s', 0.0),
                         'c': info.get('c', 0),
                     }
-                    self._last_fired[key] = info.get('g', 0)
+                    # 只填缺失的 last_fired: 已从快照恢复的保留 (防重启洗白弱边, 2026-08-29)
+                    if key not in self._last_fired:
+                        self._last_fired[key] = info.get('g', 0)
 
                 max_gen = state.get('max_gen', 0)
                 if max_gen > 0:

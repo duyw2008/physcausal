@@ -14,3 +14,7 @@ config/*.local.json
 
 # OS
 .DS_Store
+
+# Rollback backups (data, never commit)
+data_backup_rollback/
+rollback_*/

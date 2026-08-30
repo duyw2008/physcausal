@@ -184,6 +184,14 @@ class EvoColony:
         self._sleep_pressure: float = 0.0
         self._blocked_backup: dict = {}
         self._sensory_cache: dict = {}  # (start, end, path_sig) → {result, timestamp}
+        # ⚡ shelf 写入降频 (2026-08-29): 156MB json.dump 很重, 沉淀/孵化合并写
+        self._shelf_write_counter: int = 0
+        self._shelf_dirty: bool = False
+        # ⚡ 多核并行 derive 预取 (2026-08-29): 每代收集细胞 derive 意图,
+        #   进程池批量算 sympy, 结果写缓存 → 细胞循环全命中, 主循环不再卡 sympy
+        self._pending_derives: set = set()          # {(start, end), ...} 本代待预取
+        self._derive_pool = None                    # 惰性创建 ProcessPoolExecutor
+        self._derive_pool_workers = max(4, min(16, (os.cpu_count() or 4) - 2))
 
         self.ACTIVE_POOL = max(5000, self._carrying_capacity // 2)
         self._intervene_stats = {"confirmed": 0, "refuted": 0, "tested": 0}
@@ -341,6 +349,9 @@ class EvoColony:
         self._save_emergent_edges()
         self._save_known_paths()
         self._save_contradictions()
+        # ⚡ shelf 降频后: 关键保存点强制落盘, 保证沉淀的种子不丢
+        if getattr(self, '_shelf_dirty', False):
+            self._save_cell_shelf(force=True)
 
     # ═══════ 长期记忆 ═══════
 
@@ -406,13 +417,25 @@ class EvoColony:
 
     def _record_discovery(self, law_name: str, source: str, evidence: str):
         """记录脑自主发现的规律 (与手工注入区分)
-        intervene_* 按 (law, source) 去重: 重复检验只累计 count + 更新代/证据,
-        不追加新条目 — 防止同一候选反复记账灌水 (曾出现同一定律被重复确认 382 次)
-        """
+        按 (law, source) 去重: 重复检验只累计 count + 更新代/证据,
+        不追加新条目 — 防止同一候选反复记账灌水 (曾出现同一定律被重复确认 382 次;
+        ⚡ 2026-08-29 修复: 去重范围从 intervene_* 扩展到全部 source —
+        变分法/诺特等周期性推导曾产生 17 条同 law 重复)"""
         self._discoveries = getattr(self, '_discoveries', None)
         if self._discoveries is None:
             self._discoveries = self._load_json("discoveries.json")
         if source.startswith("intervene_"):
+            for prev in self._discoveries:
+                if prev.get("law") == law_name and prev.get("source") == source:
+                    prev["count"] = prev.get("count", 1) + 1
+                    prev["gen"] = self.generation
+                    if evidence and evidence != prev.get("evidence"):
+                        prev["evidence"] = evidence
+                    self._save_json("discoveries.json", self._discoveries)
+                    return
+        else:
+            # ⚡ 全部 source 去重: 周期性推导(variational/noether/autonomous 等)
+            # 同一 (law, source) 只保留一条, 重复只累计 count
             for prev in self._discoveries:
                 if prev.get("law") == law_name and prev.get("source") == source:
                     prev["count"] = prev.get("count", 1) + 1
@@ -637,7 +660,17 @@ class EvoColony:
             except Exception:
                 self._cell_shelf = {}
 
-    def _save_cell_shelf(self):
+    def _save_cell_shelf(self, force: bool = False):
+        """⚡ 降频写盘 (2026-08-29): 156MB json.dump 每次沉淀/孵化都写太贵,
+        合并为每 SHELF_WRITE_BATCH 次真正 dump 一次; force=True 时立即写
+        (退出快照/关键状态时调用, 保证不丢)."""
+        if not force:
+            self._shelf_write_counter += 1
+            self._shelf_dirty = True
+            if self._shelf_write_counter < 3:
+                return
+        self._shelf_write_counter = 0
+        self._shelf_dirty = False
         try:
             with open(self._shelf_path(), 'w') as f:
                 json.dump(self._cell_shelf, f, ensure_ascii=False)
@@ -902,6 +935,10 @@ class EvoColony:
                 cell._last_result = result
                 self.total_actions += 1
                 did_walk = result["type"] != "rest"
+                # ⚡ 收集 derive 意图 → 本代末进程池批量预取 sympy 结果
+                if result.get("type") == "derive" and result.get("start") and result.get("end"):
+                    if result["start"] != result["end"]:
+                        self._pending_derives.add((result["start"], result["end"]))
                 # 🧩 消化奖励: 细胞学会了(预测落空→命中) → 兑现多巴胺 (规则涌现, 无管道)
                 settle = result.get("settle", 0.0)
                 if settle > 0:
@@ -1140,6 +1177,11 @@ class EvoColony:
 
             # 1. 行动 + 繁殖
             children = self._step_neurons(stats)
+            # ⚡ 多核并行: 本代 derive 意图 → 进程池批量预取 sympy 结果 (2026-08-29)
+            try:
+                self._prefetch_derives()
+            except Exception as _pe:
+                print(f"  [DERIVE-PAR-ERR] {_pe}", flush=True)
             # 2. 新生儿突触
             self._wire_newborn_synapses(children)
             # 3. 死亡
@@ -5016,6 +5058,11 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
             "vs.graph": vsa_data,
             "vs.cache": cache_data,
             "synaptic": self.synapse.to_dict() if hasattr(self, 'synapse') else {},
+            # 🆕 t4 存活期基线 (2026-08-29): 不保存则重启后 _t4_s_baseline 清空,
+            # SLEEP_T4 把历史积压的 n=1 边全部重新计时 → 200 代后一次性误杀 6 万边
+            "t4_s_baseline": {
+                f"{k[0]}|||{k[1]}": list(v) for k, v in getattr(self, '_t4_s_baseline', {}).items()
+            },
             "cell_shelf": shelf_slim,  # ☁️ 磁盘种子库 (瘦身)
             "emergent_edges": emergent_edges,
             "hyp_registry": list(self._hyp_registry) if hasattr(self, '_hyp_registry') else [],
@@ -5242,7 +5289,29 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         # 恢复突触层 (v2+ 快照)
         synaptic_data = data.get("synaptic", {})
         if synaptic_data and hasattr(self, 'synapse'):
-            self.synapse.from_dict(synaptic_data)
+            self.synapse.from_dict(synaptic_data, generation=self.generation)
+        # 🆕 恢复 t4 存活期基线 (2026-08-29): 防 SLEEP_T4 重启后清空基线
+        # 把积压 n=1 边全部重新计时 → 200 代后一次性误杀 (38698 删 6 万边事故)
+        if 't4_s_baseline' in data and data['t4_s_baseline']:
+            if not hasattr(self, '_t4_s_baseline'):
+                self._t4_s_baseline = {}
+            for _k, _v in data['t4_s_baseline'].items():
+                _parts = _k.split('|||')
+                if len(_parts) == 2:
+                    _val = tuple(_v) if isinstance(_v, list) else _v
+                    self._t4_s_baseline[(_parts[0], _parts[1])] = _val
+            print(f"  [T4-BASELINE] 恢复 {len(data['t4_s_baseline'])} 条存活期基线")
+        elif hasattr(self, 'synapse'):
+            # 旧快照无 baseline 字段: 用恢复时刻代统一预填充 (不是 last_fired!)
+            # ⚡ 2026-08-29 修复2: 曾用 last_fired 作基线代, 但老边 last_fired 久远
+            # → age 立即 >200 代 → 38494 睡眠一次性误杀 65,257 条 n=1 边。
+            # 正确: 基线代 = 当前恢复代, 给所有边 200 代宽限期;
+            # 200 代后 s 仍未增长(未被细胞走到)的才判死 — 与正常运行节奏一致
+            self._t4_s_baseline = {}
+            for _key, _edge in self.synapse.activations.items():
+                if self.synapse.tiers.get(_key, 4) == 4 and len(_edge.get('n', set())) <= 1:
+                    self._t4_s_baseline[_key] = (self.generation, float(_edge.get('s', 0.0)))
+            print(f"  [T4-BASELINE] 旧快照预填充 {len(self._t4_s_baseline)} 条存活期基线 (基线代=当前代 {self.generation})")
         # ☁️ 恢复磁盘种子库 (v4+ 快照)
         shelf_data = data.get("cell_shelf", {})
         if shelf_data:
@@ -5969,6 +6038,63 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
 
     # ═══════ 感官处理: derive (推导通道) ═══════
 
+    def _get_derive_pool(self):
+        """惰性创建进程池 — fork 上下文: worker 继承主进程内存(含已导入的
+        sympy/physics), 不重新导入主模块; Python 3.14 默认 forkserver 会重跑
+        run_evo.py 顶层(while True)导致 worker 崩溃, 必须显式 fork (2026-08-29)"""
+        if self._derive_pool is None:
+            from concurrent.futures import ProcessPoolExecutor
+            import multiprocessing as _mp
+            try:
+                ctx = _mp.get_context('fork')
+                self._derive_pool = ProcessPoolExecutor(
+                    max_workers=self._derive_pool_workers,
+                    mp_context=ctx)
+            except Exception:
+                self._derive_pool = None
+        return self._derive_pool
+
+    def _prefetch_derives(self):
+        """⚡ 多核并行: 本代收集的 derive 意图 → 进程池批量算 sympy → 写缓存。
+        纯计算在子进程(无共享状态), 结果回主进程写 _sensory_cache;
+        主循环里的 _handle_derive 因此全部命中缓存, 不再卡 sympy。"""
+        if not self._pending_derives:
+            return 0
+        # 只算未缓存的对
+        todo = [(s, e) for (s, e) in self._pending_derives
+                if (s, e) not in self._sensory_cache]
+        self._pending_derives.clear()
+        if not todo:
+            return 0
+        pool = self._get_derive_pool()
+        if pool is None:
+            return 0
+        import concurrent.futures as _cf
+        try:
+            from physics.math_derive import derive as _math_derive
+            # 提交全部, 边收边写缓存
+            futs = {pool.submit(_math_derive, s, e): (s, e) for s, e in todo}
+            done = 0
+            for fut in _cf.as_completed(futs):
+                s, e = futs[fut]
+                try:
+                    mr = fut.result()
+                    self._sensory_cache[(s, e)] = {
+                        "result": mr if mr and mr.get("success") else None,
+                        "gen": self.generation,
+                        "prefetched": True,
+                    }
+                    if mr and mr.get("success"):
+                        done += 1
+                except Exception:
+                    self._sensory_cache[(s, e)] = {"result": None, "gen": self.generation, "prefetched": True}
+            if done:
+                print(f"  [DERIVE-PAR] {len(todo)} 对 → 进程池({self._derive_pool_workers}核), {done} 成功", flush=True)
+            return done
+        except Exception as e:
+            print(f"  [DERIVE-PAR-ERR] {e}", flush=True)
+            return 0
+
     def _handle_derive(self, cell, result: dict) -> int:
         """纯符号推导: sympy 从方程库验证 start→end, 注入干净中间节点, 0次 LLM 调用"""
         start = result.get("start", "")
@@ -5978,7 +6104,12 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
 
         # 缓存命中
         cache_key = (start, end)
-        if cache_key in self._sensory_cache:
+        cached = self._sensory_cache.get(cache_key)
+        if cached is not None:
+            mr = cached.get("result")
+            if cached.get("prefetched") and isinstance(mr, dict) and mr.get("success"):
+                # ⚡ 预取命中: 结果已由进程池算好, 直接注入, 不重算 sympy
+                return self._apply_derive_edges(start, end, mr, cell, result, cache_key)
             cell._sensory_memory.append({
                 "type": "derive", "start": start, "end": end,
                 "result": "cached", "cached": True,
@@ -5988,7 +6119,7 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
                 cell._sensory_memory = cell._sensory_memory[-20:]
             return 0
 
-        # 🧮 sympy 推导
+        # 🧮 sympy 推导 (回退路径: 预取未覆盖时同步算)
         try:
             from physics.math_derive import derive as math_derive, get_symbol
         except Exception:
@@ -5998,6 +6129,10 @@ Context: this is related to the hypothesis "{context_src} -> {context_dst}".
         if not mr or not mr.get("success"):
             return 0
 
+        return self._apply_derive_edges(start, end, mr, cell, result, cache_key)
+
+    def _apply_derive_edges(self, start: str, end: str, mr: dict, cell, result: dict, cache_key: tuple) -> int:
+        """推导结果注入图 + 缓存 (预取命中与同步路径共用)"""
         # 推导成功: 从步骤中提取中间变量, 创建干净物理节点
         edges_added = 0
         prev_node = start

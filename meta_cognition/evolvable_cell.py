@@ -693,34 +693,82 @@ class EvolvableCell:
                     s = s[len(pfx):]
             # 拆下划线和冒号, 过滤空串和太短的
             return {w for w in s.lower().replace(' ', '_').replace(':', '_').split('_') if len(w) >= 2}
-        
+
         start_words = _clean_words(start)
         end_words = _clean_words(end)
         all_words = start_words | end_words
         relevant = library.find_relevant(list(all_words))
-        
+
         # 检查强制/禁止因果边 (也按单词匹配)
         forced = library.forced_edges(list(all_words))
         forbidden = library.forbidden_edges(list(all_words))
-        
-        def _match(f_src, f_dst, src_words, dst_words):
+
+        # 自环拒绝: start==end 无因果意义 (2026-08-29 修复)
+        if start == end:
+            self.current_walk = []
+            return {
+                "type": "intervene",
+                "from": start, "to": end,
+                "path": " → ".join(path_nodes[-5:]),
+                "confirmed": False, "refuted": False,
+                "relevant_laws": [l.name for l in relevant[:5]],
+                "effect": 0.0,
+                "node": self.node,
+            }
+
+        def _match(f_src, f_dst, start, end):
             """方向敏感匹配: 因果方向 f_src→f_dst 必须与 walk 方向 start→end 一致。
 
             f_src 只能在 start 侧, f_dst 只能在 end 侧; 反方向不匹配。
             依据: 因果方向唯一来源是 δS=0 变分 (定律库 causal_direction), 词共现≠因果。
+            ⚡ 2026-08-29 修复: 单词命中太宽松(如 mass_ascribed_to_one_bit... 含 'mass'
+            就命中所有含 mass 的定律) → 精确变量名才算 confirmed:
+            start/end 去前缀后必须精确等于定律变量 (或等于 comp:X__Y 的任一分量)。
+            单词命中只走 partial 通道 (effect=0.3), 不再误判 confirmed。
             """
-            return (f_src in src_words) and (f_dst in dst_words)
-        
-        confirmed = any(_match(f_src, f_dst, start_words, end_words) for f_src, f_dst in forced)
-        refuted = any(_match(f_src, f_dst, start_words, end_words) for f_src, f_dst in forbidden)
+            def _exact_var(concept, var):
+                """概念是否精确对应定律变量: 去前缀后全等, 或 comp:X__Y 分量全等"""
+                c = str(concept).lower().strip()
+                for pfx in ('abs:', 'hyp:', 'emergent:', 'native:', 'comp:'):
+                    if c.startswith(pfx):
+                        c = c[len(pfx):]
+                if c == var:
+                    return True
+                if '__' in c:
+                    return var in c.split('__')
+                return False
+
+            if _exact_var(start, f_src) and _exact_var(end, f_dst):
+                return True, True    # (confirmed, exact)
+            # 复合概念仅含变量单词 → partial (不确认)
+            if f_src in _clean_words(start) and f_dst in _clean_words(end):
+                return False, True   # (confirmed=False, partial=True)
+            return False, False
+
+        confirmed = False
+        refuted = False
+        partial = False
+        for f_src, f_dst in forced:
+            c, exact = _match(f_src, f_dst, start, end)
+            if c:
+                confirmed = True
+                if exact:
+                    break  # 精确命中即最强证据
+        for f_src, f_dst in forbidden:
+            c, _ = _match(f_src, f_dst, start, end)
+            if c:
+                refuted = True
+        if not confirmed and not refuted:
+            partial = any(_match(f_src, f_dst, start, end)[1]
+                          for f_src, f_dst in forced)
         
         effect = 0.0
         if confirmed:
-            effect = 1.0   # 物理定律直接支持此因果方向
+            effect = 1.0   # 物理定律直接支持此因果方向 (精确变量匹配)
         elif refuted:
             effect = -1.0  # 物理定律明确禁止此因果方向
-        elif relevant:
-            effect = 0.3   # 有相关公式, 但因果方向需进一步确认
+        elif partial:
+            effect = 0.3   # 复合概念含定律变量单词, 因果方向需进一步确认
         elif any(w in (i for l in library._laws for i in l.inputs + l.outputs) for w in all_words):
             effect = 0.1   # 至少一端是已知物理量, 值得关注
         
