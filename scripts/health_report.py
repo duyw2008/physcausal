@@ -340,11 +340,11 @@ if __name__ == '__main__':
         target = sys.argv[1]
     else:
         # 自动发现: 优先分离格式 (_neural.json), 回退统一格式
-        neural_snaps = sorted(glob.glob('/home/duyw/physcausal/data/evo_snapshot_gen*_neural.json'))
+        neural_snaps = sorted(glob.glob('/home/duyw/Agent/physcausal/data/evo_snapshot_gen*_neural.json'))
         if neural_snaps:
             target = neural_snaps[-1]
         else:
-            snaps = sorted(glob.glob('/home/duyw/physcausal/data/evo_snapshot_gen*.json'))
+            snaps = sorted(glob.glob('/home/duyw/Agent/physcausal/data/evo_snapshot_gen*.json'))
             target = snaps[-1] if snaps else None
 
     if target is None:
@@ -352,9 +352,9 @@ if __name__ == '__main__':
         sys.exit(1)
 
     # 找上一份快照 (优先分离格式)
-    all_snaps = sorted(glob.glob('/home/duyw/physcausal/data/evo_snapshot_gen*_neural.json'))
+    all_snaps = sorted(glob.glob('/home/duyw/Agent/physcausal/data/evo_snapshot_gen*_neural.json'))
     if not all_snaps:
-        all_snaps = sorted(glob.glob('/home/duyw/physcausal/data/evo_snapshot_gen*.json'))
+        all_snaps = sorted(glob.glob('/home/duyw/Agent/physcausal/data/evo_snapshot_gen*.json'))
     try:
         idx = all_snaps.index(target)
         prev = all_snaps[idx - 1] if idx > 0 else None

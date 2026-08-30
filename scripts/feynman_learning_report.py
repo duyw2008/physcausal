@@ -7,11 +7,13 @@
 哲学判据: 检索对 ≠ 会推导 ≠ 理解。库外新发现才算理解。
 变形/发现比 随时间下降 = 从检索期走向理解期。
 """
-import json, gzip, re, sys, time, glob
+import json, gzip, re, sys, time, glob, os
 from collections import Counter
 
-sys.path.insert(0, '/home/duyw/physcausal')
-BASE = '/home/duyw/physcausal/data'
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+_PROJECT = os.path.abspath(os.path.join(_SCRIPT_DIR, '..'))
+sys.path.insert(0, _PROJECT)
+BASE = os.path.join(_PROJECT, 'data')
 WINDOW_H = float(sys.argv[1]) if len(sys.argv) > 1 else 24.0
 CUTOFF = time.time() - WINDOW_H * 3600
 

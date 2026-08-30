@@ -3,7 +3,7 @@
 import json, os, time, urllib.request
 from xml.etree import ElementTree as ET
 
-DATA = '/home/duyw/physcausal/data'
+DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data')
 
 def fetch_batch(ids):
     query = ','.join(ids)

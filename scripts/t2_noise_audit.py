@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """T2 noise audit — demote hyp/abs/arxiv/self-loop edges from t2 to t4."""
-import json, glob
+import json, glob, os
 
-snaps = sorted(glob.glob('/home/duyw/physcausal/data/evo_snapshot_gen*.json'))
+snaps = sorted(glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'evo_snapshot_gen*.json')))
 snap_path = snaps[-1]
 print(f"快照: {snap_path}")
 
